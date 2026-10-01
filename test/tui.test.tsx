@@ -49,6 +49,7 @@ test("renders the tree with live status, review and drift", async () => {
   await render(tracking, state);
 
   const text = await frame();
+  expect(text).toContain("group: repo › author");
   expect(text).toContain("acme/api 3");
   expect(text).toContain("#1 feat: add the schema");
   expect(text).toContain("draft→merged");
@@ -95,6 +96,7 @@ test("j moves the selection down", async () => {
   await frame();
 
   await act(async () => {
+    ui.mockInput.pressKey("j");
     ui.mockInput.pressKey("j");
   });
 
