@@ -123,7 +123,7 @@ const PrLabel = ({ pr, onParent, showRepo, live }: PrLabelProps) => {
         {`${showRepo ? pr.repo.split("/").at(-1) : ""}#${pr.number}`}
       </a>
       <span fg={theme.fg}>{` ${state?.title ?? pr.title ?? ""}`}</span>
-      {pr.owner && <span fg={theme.dim}>{` ${pr.owner}`}</span>}
+      {pr.owner && <span fg={theme.dim}>{` @${pr.owner}`}</span>}
       {onParent !== undefined && <span fg={theme.dim}>{` on #${onParent}`}</span>}
       {drift.length > 0 && <span fg={theme.drift}>{" ●"}</span>}
     </>
@@ -149,6 +149,7 @@ const PrDetail = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) => {
   const head = state?.headRefName ?? pr.head ?? "?";
   const base = state?.baseRefName ?? pr.base;
   const body = state ? state.body : (pr.description ?? "");
+  const author = state?.author ?? pr.owner;
 
   return (
     <box flexDirection="column" gap={1} paddingX={1}>
@@ -158,7 +159,7 @@ const PrDetail = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) => {
       <text wrapMode="word" flexShrink={0}>
         <span fg={statusColour(status)}>{`● ${status ?? "?"}`}</span>
         {review && <span fg={reviewColour(review)}>{` ${valueLabel(review)}`}</span>}
-        <span fg={theme.dim}>{`  ${state?.author ?? pr.owner ?? "?"} · ${head}${base ? ` → ${base}` : ""}`}</span>
+        <span fg={theme.dim}>{`  ${author ? `@${author}` : "?"} · ${head}${base ? ` → ${base}` : ""}`}</span>
       </text>
       <text wrapMode="none" flexShrink={0}>
         <a href={url} fg={theme.accent}>

@@ -120,7 +120,8 @@ test("v regroups by author and V adds a sub-group", async () => {
   });
   const byAuthor = await frame();
   expect(byAuthor).toContain("group: author");
-  expect(lineOf(byAuthor, "▾ alice")).toBeLessThan(lineOf(byAuthor, "▾ bob"));
+  expect(lineOf(byAuthor, "▾ @alice")).toBeLessThan(lineOf(byAuthor, "▾ @bob"));
+  expect(byAuthor).toContain("api#1 feat: add the schema @alice");
   expect(byAuthor).toContain("api#1 feat: add the schema");
 
   await act(async () => {
