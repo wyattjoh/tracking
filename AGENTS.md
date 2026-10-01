@@ -3,8 +3,10 @@
 A Bun CLI and OpenTUI interface for a `TRACKING.yaml` file of GitHub pull requests.
 
 - `tracking [file]` in a terminal opens the interactive view. It renders from the file
-  immediately, then fetches live state from GitHub and marks drift. `v` cycles the
-  grouping (repo, author, status, review) and `V` cycles an optional sub-group.
+  immediately, then fetches live state from GitHub and marks drift. `v` opens the view
+  modal, which sets the grouping (repo, author, status or review, plus an optional
+  sub-group; `repo › author` by default) and per-dimension filters (open and draft
+  only by default).
 - `tracking [file]` with stdout not a TTY prints the merged file and live state as JSON.
 - `tracking sync [--dry-run] [file]` writes live `status`, `review`, `head`, `base`,
   `title` and `description` back into the file.
@@ -43,8 +45,8 @@ survive. Keep that property when changing the write path.
 - `src/github.ts`: batched GraphQL fetch of live pull request state
 - `src/sync.ts`: write-back of live fields
 - `src/json.ts`: non-TTY JSON output
-- `src/tui/`: the `@opentui/react` interface; `rows.ts` groups pull requests into the
-  tree for the current view
+- `src/tui/`: the `@opentui/react` interface; `rows.ts` filters and groups pull
+  requests into the tree for the current view, and `ViewModal.tsx` draws the view modal
 
 ## Dependency References
 

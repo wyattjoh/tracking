@@ -44,15 +44,18 @@ const lineOf = (text: string, needle: string): number => text.split("\n").findIn
 test("renders the tree with live status, review and drift", async () => {
   const tracking = await fixture();
   const state = currentLive(tracking);
-  state.set("acme/api#2", live({ status: "merged", title: "feat: add the endpoints" }));
+  state.set("acme/api#2", { ...state.get("acme/api#2")!, status: "open" });
   state.set("acme/api#3", live({ review: "changes_requested", title: "fix: standalone" }));
+  state.set("acme/web#7", { ...state.get("acme/web#7")!, status: "merged" });
   await render(tracking, state);
 
   const text = await frame();
   expect(text).toContain("group: repo › author");
   expect(text).toContain("acme/api 3");
   expect(text).toContain("#1 feat: add the schema");
-  expect(text).toContain("draft→merged");
+  expect(text).toContain("draft→open");
+  expect(text).toContain("filter: status open, draft");
+  expect(text).not.toContain("feat: the UI");
   expect(text).toContain("● open approved #1");
   expect(text).toContain("● open changes requested #3");
   expect(text).toContain("live ");
@@ -112,27 +115,40 @@ test("top-level groups are separated by a blank line", async () => {
   expect(lines[web - 1]).toMatch(/^│\s+│/);
 });
 
-test("v regroups by author and V adds a sub-group", async () => {
+test("v opens the view modal to change the grouping and filters", async () => {
   const tracking = await fixture();
-  const ui = await render(tracking, currentLive(tracking));
-  await frame();
+  const state = currentLive(tracking);
+  state.set("acme/web#7", { ...state.get("acme/web#7")!, status: "merged" });
+  const ui = await render(tracking, state);
+  expect(await frame()).not.toContain("feat: the UI");
 
   await act(async () => {
     ui.mockInput.pressKey("v");
   });
-  const byAuthor = await frame();
-  expect(byAuthor).toContain("group: author");
-  expect(lineOf(byAuthor, "▾ @alice")).toBeLessThan(lineOf(byAuthor, "▾ @bob"));
-  expect(byAuthor).toContain("api#1 feat: add the schema @alice");
-  expect(byAuthor).toContain("api#1 feat: add the schema");
+  const modal = await frame();
+  expect(modal).toContain("Sub-group  ‹ author ›");
+  expect(modal).toContain("[x] open");
+  expect(modal).toContain("[ ] merged");
+
+  // The cursor starts on Group; then down past the Status heading to merged.
+  await act(async () => {
+    ui.mockInput.pressArrow("right");
+    for (let i = 0; i < 4; i++) ui.mockInput.pressKey("j");
+    ui.mockInput.pressKey(" ");
+  });
+  const changed = await frame();
+  expect(changed).toContain("group: author  filter: status open, draft, merged");
+  expect(changed).toContain("[x] merged");
 
   await act(async () => {
-    ui.mockInput.pressKey("v", { shift: true });
+    ui.mockInput.pressEscape();
+    // A lone ESC is held for the stdin parser's 20ms sequence timeout.
+    await Bun.sleep(50);
   });
-  const bySub = await frame();
-  expect(bySub).toContain("group: author › repo");
-  expect(bySub).toContain("▾ acme/api 3");
-  expect(bySub).toContain("#1 feat: add the schema");
+  const closed = await frame();
+  expect(closed).not.toContain("[x] merged");
+  expect(closed).toContain("▾ @bob");
+  expect(closed).toContain("web#7 feat: the UI @bob");
 });
 
 test("dragging the border between the panes resizes them", async () => {

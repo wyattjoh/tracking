@@ -1,6 +1,7 @@
 // Flatten the tracking file into the rows the tree pane draws: pull requests
-// grouped by up to two dimensions, with each innermost group drawn as stack
-// trees. Children of collapsed rows are skipped.
+// filtered, then grouped by up to two dimensions, with each innermost group
+// drawn as stack trees. Children of collapsed rows are skipped. Also models the
+// view modal that controls grouping and filters.
 
 import type { LiveMap } from "../github.ts";
 import { type PrNode, stackParents, type Tracking } from "../tracking.ts";
@@ -22,6 +23,27 @@ export type View = {
  * Every dimension, in the order `v` and `V` cycle through them.
  */
 export const DIMENSIONS: Dimension[] = ["repo", "author", "status", "review"];
+
+/**
+ * Values to keep per dimension. An empty set keeps every value; dimensions
+ * combine with AND and values within one with OR.
+ */
+export type Filters = Record<Dimension, Set<string>>;
+
+/**
+ * The filters the view starts with: open and draft pull requests only.
+ */
+export const DEFAULT_FILTERS: Filters = {
+  repo: new Set(),
+  author: new Set(),
+  status: new Set(["open", "draft"]),
+  review: new Set(),
+};
+
+/**
+ * The order filter sections appear in the view modal and header.
+ */
+export const FILTER_ORDER: Dimension[] = ["status", "review", "author", "repo"];
 
 /**
  * One drawable line of the tree pane. `depth` counts the group levels above
@@ -118,6 +140,78 @@ const partition = (
   return groups.toSorted(([a], [b]) => position(a) - position(b));
 };
 
+/**
+ * Keep the pull requests every non-empty filter allows.
+ *
+ * @param prs - Pull requests in file order
+ * @param filters - The filters to apply
+ * @param live - Live state, when fetched
+ * @returns The pull requests that pass, in the same order
+ */
+export const applyFilters = (prs: PrNode[], filters: Filters, live: LiveMap | undefined): PrNode[] =>
+  prs.filter((pr) =>
+    DIMENSIONS.every((dimension) => {
+      const allowed = filters[dimension];
+      return allowed.size === 0 || allowed.has(dimensionValue(dimension, pr, live));
+    }),
+  );
+
+/**
+ * The values each dimension can be filtered by, in display order. Status and
+ * review always offer their known values, then any others found.
+ *
+ * @param tracking - The loaded file
+ * @param live - Live state, when fetched
+ * @param viewer - The authenticated login, listed first for authors
+ * @returns Values keyed by dimension
+ */
+export const filterOptions = (
+  tracking: Tracking,
+  live: LiveMap | undefined,
+  viewer: string | undefined,
+): Record<Dimension, string[]> => {
+  const values = (dimension: Dimension) => {
+    const found = partition(tracking.prs, dimension, live, viewer).map(([value]) => value);
+    const known = RANKS[dimension] ?? [];
+    return [...known, ...found.filter((value) => !known.includes(value))];
+  };
+  return { repo: values("repo"), author: values("author"), status: values("status"), review: values("review") };
+};
+
+/**
+ * Add a value to a dimension's filter, or remove it if present.
+ *
+ * @param filters - The current filters
+ * @param dimension - The dimension
+ * @param value - The value to toggle
+ * @returns The new filters
+ */
+export const toggleFilter = (filters: Filters, dimension: Dimension, value: string): Filters => {
+  const next = new Set(filters[dimension]);
+  if (!next.delete(value)) next.add(value);
+  return { ...filters, [dimension]: next };
+};
+
+/**
+ * Remove every value from one dimension's filter.
+ *
+ * @param filters - The current filters
+ * @param dimension - The dimension to clear
+ * @returns The new filters
+ */
+export const clearFilter = (filters: Filters, dimension: Dimension): Filters => ({ ...filters, [dimension]: new Set() });
+
+/**
+ * Describe the active filters for the header.
+ *
+ * @param filters - The filters
+ * @returns Each filtered dimension with its values, or an empty string
+ */
+export const filterLabel = (filters: Filters): string =>
+  FILTER_ORDER.filter((dimension) => filters[dimension].size > 0)
+    .map((dimension) => `${dimension} ${[...filters[dimension]].map((value) => groupLabel(dimension, value)).join(", ")}`)
+    .join("; ");
+
 type Stacks = {
   parents: Map<string, string>;
   byId: Map<string, PrNode>;
@@ -166,6 +260,7 @@ const stackRows = (prs: PrNode[], stacks: Stacks, parent: string, depth: number,
  * @param tracking - The loaded file
  * @param live - Live state, when fetched
  * @param view - The grouping to apply
+ * @param filters - Which pull requests to show
  * @param viewer - The authenticated login, sorted first when grouping by author
  * @param collapsed - Keys of collapsed groups and PRs
  * @returns Rows in display order
@@ -174,6 +269,7 @@ export const visibleRows = (
   tracking: Tracking,
   live: LiveMap | undefined,
   view: View,
+  filters: Filters,
   viewer: string | undefined,
   collapsed: Set<string>,
 ): Row[] => {
@@ -203,31 +299,36 @@ export const visibleRows = (
     });
   };
 
-  return build(tracking.prs, 0, undefined);
+  // Stacks come from every PR, so a child whose parent is filtered out shows `on #N`.
+  return build(applyFilters(tracking.prs, filters, live), 0, undefined);
 };
 
+const wrap = (index: number, length: number): number => (index + length) % length;
+
 /**
- * Move the top-level grouping to the next dimension, clearing the sub-group
- * when it would repeat it.
+ * Move the top-level grouping to the next or previous dimension, clearing the
+ * sub-group when it would repeat it.
  *
  * @param view - The current view
+ * @param step - 1 for the next dimension, -1 for the previous
  * @returns The next view
  */
-export const cycleGroup = (view: View): View => {
-  const group = DIMENSIONS[(DIMENSIONS.indexOf(view.group) + 1) % DIMENSIONS.length]!;
+export const cycleGroup = (view: View, step: 1 | -1 = 1): View => {
+  const group = DIMENSIONS[wrap(DIMENSIONS.indexOf(view.group) + step, DIMENSIONS.length)]!;
   return { group, sub: view.sub === group ? undefined : view.sub };
 };
 
 /**
- * Move the sub-group to the next dimension, through none, skipping the
- * top-level one.
+ * Move the sub-group to the next or previous dimension, through none, skipping
+ * the top-level one.
  *
  * @param view - The current view
+ * @param step - 1 for the next dimension, -1 for the previous
  * @returns The next view
  */
-export const cycleSub = (view: View): View => {
+export const cycleSub = (view: View, step: 1 | -1 = 1): View => {
   const options = [undefined, ...DIMENSIONS.filter((dimension) => dimension !== view.group)];
-  return { group: view.group, sub: options[(options.indexOf(view.sub) + 1) % options.length] };
+  return { group: view.group, sub: options[wrap(options.indexOf(view.sub) + step, options.length)] };
 };
 
 /**
@@ -245,3 +346,29 @@ export const viewLabel = (view: View): string => (view.sub ? `${view.group} › 
  * @returns True for groups and PRs with stacked children in view
  */
 export const canCollapse = (row: Row): boolean => row.kind === "group" || row.hasChildren;
+
+/**
+ * One line of the view modal. Headings label a filter section and cannot be
+ * selected.
+ */
+export type ModalItem =
+  | { kind: "group" }
+  | { kind: "sub" }
+  | { kind: "heading"; dimension: Dimension }
+  | { kind: "filter"; dimension: Dimension; value: string };
+
+/**
+ * Lay out the view modal: the group and sub-group, then a checklist per
+ * filterable dimension.
+ *
+ * @param options - Filterable values per dimension
+ * @returns Modal lines in display order
+ */
+export const modalItems = (options: Record<Dimension, string[]>): ModalItem[] => [
+  { kind: "group" },
+  { kind: "sub" },
+  ...FILTER_ORDER.flatMap((dimension): ModalItem[] => [
+    { kind: "heading", dimension },
+    ...options[dimension].map((value): ModalItem => ({ kind: "filter", dimension, value })),
+  ]),
+];

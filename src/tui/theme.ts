@@ -12,6 +12,7 @@ export const theme = {
   border: "#30363d",
   borderFocus: "#58a6ff",
   selected: "#1f2a3a",
+  panel: "#0d1117",
   drift: "#d29922",
   error: "#f85149",
   section: "#d2a8ff",

@@ -10,16 +10,24 @@ import { type Change, driftFields } from "../sync.ts";
 import { type PrNode, prUrl, type Tracking } from "../tracking.ts";
 import {
   canCollapse,
+  clearFilter,
   cycleGroup,
   cycleSub,
+  DEFAULT_FILTERS,
+  filterLabel,
+  filterOptions,
   groupLabel,
+  type ModalItem,
+  modalItems,
   type Row,
+  toggleFilter,
   valueLabel,
   type View,
   viewLabel,
   visibleRows,
 } from "./rows.ts";
 import { createMarkdownStyle, reviewColour, statusColour, theme } from "./theme.ts";
+import { ViewModal } from "./ViewModal.tsx";
 
 /**
  * Props for the interactive view.
@@ -215,6 +223,11 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps)
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [view, setView] = useState<View>({ group: "repo", sub: "author" });
   const [viewer, setViewer] = useState<string | undefined>(undefined);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalCursor, setModalCursor] = useState(0);
+  // Keys can arrive before React re-renders, so the modal handlers read a ref.
+  const modalCursorRef = useRef(0);
   const [selectedKey, setSelectedKey] = useState<string | undefined>(undefined);
   const [message, setMessage] = useState<string | undefined>(undefined);
   const treeRef = useRef<ScrollBoxRenderable>(null);
@@ -245,9 +258,11 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps)
   };
 
   const rows = useMemo(
-    () => visibleRows(tracking, live, view, viewer, collapsed),
-    [tracking, live, view, viewer, collapsed],
+    () => visibleRows(tracking, live, view, filters, viewer, collapsed),
+    [tracking, live, view, filters, viewer, collapsed],
   );
+  const items = useMemo(() => modalItems(filterOptions(tracking, live, viewer)), [tracking, live, viewer]);
+  const activeFilters = filterLabel(filters);
   const showRepo = view.group !== "repo" && view.sub !== "repo";
   const selectedIndex = Math.max(0, rows.findIndex((row) => row.key === selectedKey));
   const selected = rows[selectedIndex];
@@ -308,6 +323,31 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps)
 
   const select = (index: number) => setSelectedKey(rows[index]?.key);
 
+  const placeCursor = (index: number) => {
+    modalCursorRef.current = index;
+    setModalCursor(index);
+  };
+
+  // Step to the next selectable modal item, skipping headings.
+  const moveCursor = (delta: number) => {
+    let index = modalCursorRef.current + delta;
+    while (items[index]?.kind === "heading") index += delta;
+    if (items[index]) placeCursor(index);
+  };
+
+  // Space, enter and clicks: toggle a filter or advance the group or sub-group.
+  const activate = (item: ModalItem | undefined, step: 1 | -1 = 1) => {
+    if (item?.kind === "group") return setView((current) => cycleGroup(current, step));
+    if (item?.kind === "sub") return setView((current) => cycleSub(current, step));
+    if (item?.kind === "filter") setFilters((current) => toggleFilter(current, item.dimension, item.value));
+  };
+
+  const pick = (index: number) => {
+    if (items[index]?.kind === "heading") return;
+    placeCursor(index);
+    activate(items[index]);
+  };
+
   // Mouse capture keeps drags from the terminal, so copy finished selections over OSC 52.
   useSelectionHandler((selection) => {
     const text = selection.getSelectedText();
@@ -322,6 +362,18 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps)
       renderer.destroy();
       return;
     }
+    if (modalOpen) {
+      const item = items[modalCursorRef.current];
+      if (key.name === "escape" || key.name === "v") return setModalOpen(false);
+      if (key.name === "j" || key.name === "down") return moveCursor(1);
+      if (key.name === "k" || key.name === "up") return moveCursor(-1);
+      if (key.name === "space" || key.name === "return") return activate(item);
+      if ((key.name === "l" || key.name === "right") && item?.kind !== "filter") return activate(item, 1);
+      if ((key.name === "h" || key.name === "left") && item?.kind !== "filter") return activate(item, -1);
+      if (key.name === "x" && item?.kind === "filter") setFilters((current) => clearFilter(current, item.dimension));
+      return;
+    }
+
     if (key.name === "j" || key.name === "down") return move(1);
     if (key.name === "k" || key.name === "up") return move(-1);
     if (key.name === "g") return select(key.shift ? rows.length - 1 : 0);
@@ -329,7 +381,7 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps)
     if (key.ctrl && key.name === "u") return detailRef.current?.scrollBy(-0.5, "viewport");
     if (key.name === "r") return void refresh(tracking);
     if (key.name === "s") return void runSync();
-    if (key.name === "v") return setView(key.shift ? cycleSub : cycleGroup);
+    if (key.name === "v") return setModalOpen(true);
     if (!selected) return;
 
     if (key.name === "space" && canCollapse(selected)) return toggle(selected.key);
@@ -348,7 +400,9 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps)
       <box height={1} flexShrink={0} paddingX={1}>
         <text wrapMode="none" truncate>
           <b fg={theme.accent}>tracking</b>
-          <span fg={theme.dim}>{`  ${tracking.path}  group: ${viewLabel(view)}  `}</span>
+          <span fg={theme.dim}>
+            {`  ${tracking.path}  group: ${viewLabel(view)}${activeFilters ? `  filter: ${activeFilters}` : ""}  `}
+          </span>
           <FetchLabel state={fetchState} />
         </text>
       </box>
@@ -384,9 +438,10 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps)
       </box>
       <box height={1} flexShrink={0} paddingX={1}>
         <text wrapMode="none" truncate fg={theme.dim}>
-          {message ?? "j/k move · h/l collapse · space toggle · v/V group · ctrl-d/u scroll · drag border resize · r refresh · s sync · q quit"}
+          {message ?? "j/k move · h/l collapse · space toggle · v view · ctrl-d/u scroll · drag border resize · r refresh · s sync · q quit"}
         </text>
       </box>
+      {modalOpen && <ViewModal items={items} cursor={modalCursor} view={view} filters={filters} onPick={pick} />}
     </box>
   );
 };
