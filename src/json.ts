@@ -13,6 +13,7 @@ const prJson = (pr: PrNode, live: LiveMap | undefined): Record<string, unknown> 
     owner: pr.owner,
     title: pr.title,
     status: pr.status,
+    review: pr.review,
     head: pr.head,
     base: pr.base,
     notes: pr.notes,
@@ -20,6 +21,7 @@ const prJson = (pr: PrNode, live: LiveMap | undefined): Record<string, unknown> 
     depends_on: pr.dependsOn,
     live: state && {
       status: state.status,
+      review: state.review,
       title: state.title,
       author: state.author,
       head: state.headRefName,

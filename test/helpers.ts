@@ -10,6 +10,7 @@ export const fixture = async (): Promise<Tracking> => modelTracking(FIXTURE, par
 
 export const live = (overrides: Partial<Live> = {}): Live => ({
   status: "open",
+  review: undefined,
   title: "title",
   body: "",
   author: "alice",
@@ -25,6 +26,7 @@ export const currentLive = (tracking: Tracking): LiveMap =>
       pr.id,
       live({
         status: pr.status as Live["status"],
+        review: pr.review as Live["review"],
         title: pr.title ?? "",
         body: pr.description ?? "",
         author: pr.owner,

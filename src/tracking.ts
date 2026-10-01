@@ -10,6 +10,11 @@ import { type Document, isMap, isScalar, isSeq, parseDocument, type YAMLMap } fr
 export type Status = "draft" | "open" | "closed" | "merged";
 
 /**
+ * GitHub's review decision for an open pull request, as recorded in the file.
+ */
+export type Review = "approved" | "changes_requested" | "review_required";
+
+/**
  * One pull request entry, with the entries stacked on top of it.
  */
 export type PrNode = {
@@ -20,6 +25,7 @@ export type PrNode = {
   owner: string | undefined;
   title: string | undefined;
   status: string | undefined;
+  review: string | undefined;
   head: string | undefined;
   base: string | undefined;
   notes: string | undefined;
@@ -118,6 +124,7 @@ const toNode = (section: string, repo: string, node: unknown): PrNode[] => {
       owner: str(node, "owner"),
       title: str(node, "title"),
       status: str(node, "status"),
+      review: str(node, "review"),
       head: str(node, "head"),
       base: str(node, "base"),
       notes: str(node, "notes"),

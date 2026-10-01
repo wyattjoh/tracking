@@ -8,7 +8,7 @@ import type { PrNode, Tracking } from "./tracking.ts";
 /**
  * A field `sync` keeps in step with GitHub.
  */
-export type SyncedField = "status" | "title" | "description";
+export type SyncedField = "status" | "review" | "title" | "description";
 
 /**
  * The fields of one pull request that sync changed, or would change.
@@ -35,6 +35,7 @@ export const toDescription = (body: string): string =>
 
 const wanted = (live: Live): Record<SyncedField, string> => ({
   status: live.status,
+  review: live.review ?? "",
   title: live.title,
   description: toDescription(live.body),
 });
@@ -50,10 +51,11 @@ export const driftFields = (pr: PrNode, live: Live): SyncedField[] => {
   const next = wanted(live);
   const current: Record<SyncedField, string> = {
     status: pr.status ?? "",
+    review: pr.review ?? "",
     title: pr.title ?? "",
     description: pr.description ?? "",
   };
-  return (["status", "title", "description"] as const).filter((field) => current[field] !== next[field]);
+  return (["status", "review", "title", "description"] as const).filter((field) => current[field] !== next[field]);
 };
 
 // Set a scalar field, inserting new keys before `stacked` so children stay last.
@@ -77,7 +79,7 @@ const setField = (tracking: Tracking, node: YAMLMap, key: string, value: string,
 };
 
 /**
- * Apply live status, title and description to every entry in the document.
+ * Apply live status, review, title and description to every entry in the document.
  * The model's plain fields are not refreshed; reload the file after writing.
  *
  * @param tracking - The loaded file

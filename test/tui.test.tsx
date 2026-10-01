@@ -35,10 +35,11 @@ const frame = async () => {
 
 const lineOf = (text: string, needle: string): number => text.split("\n").findIndex((line) => line.includes(needle));
 
-test("renders the tree with live status and drift", async () => {
+test("renders the tree with live status, review and drift", async () => {
   const tracking = await fixture();
   const state = currentLive(tracking);
   state.set("acme/api#2", live({ status: "merged", title: "feat: add the endpoints" }));
+  state.set("acme/api#3", live({ review: "changes_requested", title: "fix: standalone" }));
   await render(tracking, state);
 
   const text = await frame();
@@ -46,6 +47,8 @@ test("renders the tree with live status and drift", async () => {
   expect(text).toContain("acme/api");
   expect(text).toContain("#1 feat: add the schema");
   expect(text).toContain("draft→merged");
+  expect(text).toContain("● open approved #1");
+  expect(text).toContain("● open changes requested #3");
   expect(text).toContain("live ");
 });
 

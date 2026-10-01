@@ -6,6 +6,7 @@ my_work:
       owner: alice
       title: "feat: add the schema"
       status: open
+      review: approved
       head: alice/schema
       base: main
       # Keep this comment through sync.

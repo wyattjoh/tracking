@@ -33,6 +33,20 @@ const STATUS_COLOURS: Record<string, string> = {
  */
 export const statusColour = (status: string | undefined): string => STATUS_COLOURS[status ?? ""] ?? theme.dim;
 
+const REVIEW_COLOURS: Record<string, string> = {
+  approved: "#3fb950",
+  changes_requested: "#f85149",
+  review_required: "#d29922",
+};
+
+/**
+ * Colour for a review label.
+ *
+ * @param review - A tracking review, possibly unknown
+ * @returns A hex colour
+ */
+export const reviewColour = (review: string): string => REVIEW_COLOURS[review] ?? theme.dim;
+
 /**
  * Create the syntax style the markdown description renders with.
  *

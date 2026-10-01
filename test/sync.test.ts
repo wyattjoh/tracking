@@ -11,12 +11,12 @@ describe("syncTracking", () => {
     expect(serializeTracking(tracking)).toBe(await fixtureText());
   });
 
-  test("writes status, title and description, keeping comments and children last", async () => {
+  test("writes status, review, title and description, keeping comments and children last", async () => {
     const tracking = await fixture();
     const state = currentLive(tracking);
     state.set("acme/api#1", live({ status: "merged", title: "feat: renamed", body: "## What\r\n\r\nBody  \n" }));
 
-    expect(syncTracking(tracking, state)).toEqual([{ id: "acme/api#1", fields: ["status", "title", "description"] }]);
+    expect(syncTracking(tracking, state)).toEqual([{ id: "acme/api#1", fields: ["status", "review", "title", "description"] }]);
 
     const text = serializeTracking(tracking);
     expect(text).toContain("# Keep this comment through sync.");
@@ -25,6 +25,22 @@ describe("syncTracking", () => {
 
     const reloaded = modelTracking(FIXTURE, parseDocument(text));
     expect(syncTracking(reloaded, state)).toEqual([]);
+  });
+
+  test("adds a review to open pull requests and removes it once they merge", async () => {
+    const tracking = await fixture();
+    const state = currentLive(tracking);
+    state.set("acme/api#1", live({ status: "merged", title: "feat: add the schema" }));
+    state.set("acme/api#3", live({ review: "changes_requested", title: "fix: standalone" }));
+
+    expect(syncTracking(tracking, state)).toEqual([
+      { id: "acme/api#1", fields: ["status", "review"] },
+      { id: "acme/api#3", fields: ["review"] },
+    ]);
+
+    const reloaded = modelTracking(FIXTURE, parseDocument(serializeTracking(tracking)));
+    expect(reloaded.prs.find((pr) => pr.id === "acme/api#1")?.review).toBeUndefined();
+    expect(reloaded.prs.find((pr) => pr.id === "acme/api#3")?.review).toBe("changes_requested");
   });
 
   test("skips pull requests GitHub did not return", async () => {

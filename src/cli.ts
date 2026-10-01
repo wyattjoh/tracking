@@ -10,7 +10,7 @@ import { findTrackingFile, loadTracking } from "./tracking.ts";
 
 const USAGE = `Usage:
   tracking [file]                   Open the interactive view (JSON when stdout is not a TTY)
-  tracking sync [--dry-run] [file]  Write live status, title and description into the file
+  tracking sync [--dry-run] [file]  Write live status, review, title and description into the file
 
 Without file, the nearest TRACKING.yaml at or above the working directory is used.`;
 

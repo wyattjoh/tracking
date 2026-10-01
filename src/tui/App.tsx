@@ -8,7 +8,7 @@ import type { LiveFetcher, LiveMap } from "../github.ts";
 import { type Change, driftFields } from "../sync.ts";
 import { type PrNode, prUrl, type Tracking } from "../tracking.ts";
 import { allPrs, canCollapse, type Row, visibleRows } from "./rows.ts";
-import { createMarkdownStyle, statusColour, theme } from "./theme.ts";
+import { createMarkdownStyle, reviewColour, statusColour, theme } from "./theme.ts";
 
 /**
  * Props for the interactive view.
@@ -28,6 +28,8 @@ const rowId = (key: string): string => `row-${key}`;
 
 // Narrowest either pane may be dragged to, in columns.
 const MIN_PANE_WIDTH = 24;
+
+const reviewLabel = (review: string): string => review.replaceAll("_", " ");
 
 const time = (date: Date): string => date.toTimeString().slice(0, 5);
 
@@ -89,10 +91,12 @@ const PrLabel = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) => {
   const drift = state ? driftFields(pr, state) : [];
   const status = state?.status ?? pr.status;
   const statusLabel = state && pr.status !== state.status ? `${pr.status ?? "?"}→${state.status}` : (status ?? "?");
+  const review = state ? state.review : pr.review;
 
   return (
     <>
       <span fg={statusColour(status)}>{`● ${statusLabel} `}</span>
+      {review && <span fg={reviewColour(review)}>{`${reviewLabel(review)} `}</span>}
       <a href={prUrl(pr.repo, pr.number)} fg={theme.accent}>{`#${pr.number}`}</a>
       <span fg={theme.fg}>{` ${state?.title ?? pr.title ?? ""}`}</span>
       {pr.owner && <span fg={theme.dim}>{` ${pr.owner}`}</span>}
@@ -115,6 +119,7 @@ const PrDetail = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) => {
   const state = live?.get(pr.id);
   const drift = state ? driftFields(pr, state) : [];
   const status = state?.status ?? pr.status;
+  const review = state ? state.review : pr.review;
   const url = prUrl(pr.repo, pr.number);
   const head = state?.headRefName ?? pr.head ?? "?";
   const base = state?.baseRefName ?? pr.base;
@@ -127,6 +132,7 @@ const PrDetail = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) => {
       </text>
       <text wrapMode="word" flexShrink={0}>
         <span fg={statusColour(status)}>{`● ${status ?? "?"}`}</span>
+        {review && <span fg={reviewColour(review)}>{` ${reviewLabel(review)}`}</span>}
         <span fg={theme.dim}>{`  ${state?.author ?? pr.owner ?? "?"} · ${head}${base ? ` → ${base}` : ""}`}</span>
       </text>
       <text wrapMode="none" flexShrink={0}>

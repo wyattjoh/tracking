@@ -2,13 +2,14 @@
 // every pull request into as few requests as possible.
 
 import { $ } from "bun";
-import type { Status } from "./tracking.ts";
+import type { Review, Status } from "./tracking.ts";
 
 /**
  * Live state of one pull request on GitHub.
  */
 export type Live = {
   status: Status;
+  review: Review | undefined;
   title: string;
   body: string;
   author: string | undefined;
@@ -35,6 +36,7 @@ export type LiveFetcher = (prs: { id: string; repo: string; number: number }[]) 
 type RawPullRequest = {
   state: string;
   isDraft: boolean;
+  reviewDecision: string | null;
   title: string;
   body: string;
   author: { login: string } | null;
@@ -55,6 +57,29 @@ export const toStatus = ({ state, isDraft }: { state: string; isDraft: boolean }
   if (state === "MERGED") return "merged";
   if (state === "CLOSED") return "closed";
   return isDraft ? "draft" : "open";
+};
+
+/**
+ * Map GitHub's review decision onto a tracking review. Only open, non-draft
+ * pull requests carry one.
+ *
+ * @param pr - The state, draft flag and review decision GitHub reports
+ * @returns The tracking review, or undefined when there is none to show
+ */
+export const toReview = ({
+  state,
+  isDraft,
+  reviewDecision,
+}: {
+  state: string;
+  isDraft: boolean;
+  reviewDecision: string | null;
+}): Review | undefined => {
+  if (state !== "OPEN" || isDraft) return undefined;
+  if (reviewDecision === "APPROVED") return "approved";
+  if (reviewDecision === "CHANGES_REQUESTED") return "changes_requested";
+  if (reviewDecision === "REVIEW_REQUIRED") return "review_required";
+  return undefined;
 };
 
 /**
@@ -87,7 +112,7 @@ export const createLiveFetcher =
         const query = `{ ${batch
           .map(({ repo, number }, i) => {
             const [owner, name] = repo.split("/");
-            return `p${i}: repository(owner: "${owner}", name: "${name}") { pullRequest(number: ${number}) { state isDraft title body author { login } headRefName baseRefName } }`;
+            return `p${i}: repository(owner: "${owner}", name: "${name}") { pullRequest(number: ${number}) { state isDraft reviewDecision title body author { login } headRefName baseRefName } }`;
           })
           .join(" ")} }`;
 
@@ -100,6 +125,7 @@ export const createLiveFetcher =
               id,
               {
                 status: toStatus(pr),
+                review: toReview(pr),
                 title: pr.title,
                 body: pr.body,
                 author: pr.author?.login,

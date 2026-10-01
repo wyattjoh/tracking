@@ -5,8 +5,8 @@ A Bun CLI and OpenTUI interface for a `TRACKING.yaml` file of GitHub pull reques
 - `tracking [file]` in a terminal opens the interactive view. It renders from the file
   immediately, then fetches live state from GitHub and marks drift.
 - `tracking [file]` with stdout not a TTY prints the merged file and live state as JSON.
-- `tracking sync [--dry-run] [file]` writes live `status`, `title` and `description` back
-  into the file.
+- `tracking sync [--dry-run] [file]` writes live `status`, `review`, `title` and
+  `description` back into the file.
 
 Without `file`, the nearest `TRACKING.yaml` at or above the working directory is used.
 GitHub is reached through `gh api graphql`, so `gh` must be authenticated.
@@ -22,8 +22,10 @@ GitHub is reached through `gh api graphql`, so `gh` must be authenticated.
 
 Top-level sections (`my_work`, `related`, `foundation`) map a repository
 (`owner/name`) to a list of pull requests. Each pull request has `number`, `owner`,
-`title`, `status`, `head`, and optionally `base`, `notes`, `depends_on`, `linear`,
-`description` and `stacked`. A pull request under `stacked` targets its parent's head
+`title`, `status`, `head`, and optionally `review`, `base`, `notes`, `depends_on`,
+`linear`, `description` and `stacked`. `review` is GitHub's review decision
+(`approved`, `changes_requested` or `review_required`) and is only kept on open,
+non-draft pull requests. A pull request under `stacked` targets its parent's head
 branch. The URL is never stored; it is `https://github.com/<repo>/pull/<number>`.
 
 `sync` edits the file through the `yaml` Document API so comments, ordering and nesting
