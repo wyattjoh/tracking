@@ -4,13 +4,16 @@ import { act } from "react";
 import type { LiveMap } from "../src/github.ts";
 import type { Tracking } from "../src/tracking.ts";
 import { App } from "../src/tui/App.tsx";
+import type { ViewSettings } from "../src/view.ts";
 import { currentLive, fixture, live } from "./helpers.ts";
 
 let setup: Awaited<ReturnType<typeof testRender>> | undefined;
+let saves: ViewSettings[] = [];
 
 afterEach(() => {
   if (setup) act(() => setup!.renderer.destroy());
   setup = undefined;
+  saves = [];
 });
 
 const render = async (tracking: Tracking, state: LiveMap) => {
@@ -22,6 +25,10 @@ const render = async (tracking: Tracking, state: LiveMap) => {
         sync={async () => []}
         reload={async () => tracking}
         fetchViewer={async () => "alice"}
+        saveView={async (settings) => {
+          saves.push(settings);
+          return tracking;
+        }}
       />,
       { width: 140, height: 30 },
     );
@@ -149,6 +156,27 @@ test("v opens the view modal to change the grouping and filters", async () => {
   expect(closed).not.toContain("[x] merged");
   expect(closed).toContain("▾ @bob");
   expect(closed).toContain("web#7 feat: the UI @bob");
+
+  expect(saves).toHaveLength(1);
+  expect(saves[0]!.view).toEqual({ group: "author", sub: undefined });
+  expect([...saves[0]!.filters.status]).toEqual(["open", "draft", "merged"]);
+});
+
+test("clicking the view in the header opens the modal, and closing it unchanged saves nothing", async () => {
+  const tracking = await fixture();
+  const ui = await render(tracking, currentLive(tracking));
+
+  const header = (await frame()).split("\n")[0]!;
+  await act(async () => {
+    await ui.mockMouse.click(header.indexOf("group:") + 2, 0);
+  });
+  expect(await frame()).toContain("Sub-group  ‹ author ›");
+
+  await act(async () => {
+    ui.mockInput.pressKey("v");
+  });
+  expect(await frame()).not.toContain("Sub-group");
+  expect(saves).toEqual([]);
 });
 
 test("dragging the border between the panes resizes them", async () => {

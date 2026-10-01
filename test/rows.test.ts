@@ -3,8 +3,6 @@ import {
   applyFilters,
   cycleGroup,
   cycleSub,
-  DEFAULT_FILTERS,
-  type Filters,
   filterLabel,
   filterOptions,
   modalItems,
@@ -12,6 +10,7 @@ import {
   toggleFilter,
   visibleRows,
 } from "../src/tui/rows.ts";
+import { DEFAULT_SETTINGS, type Filters } from "../src/view.ts";
 import { currentLive, fixture } from "./helpers.ts";
 
 const NONE: Filters = { repo: new Set(), author: new Set(), status: new Set(), review: new Set() };
@@ -100,9 +99,9 @@ describe("filters", () => {
     const state = currentLive(tracking);
     state.set("acme/api#3", { ...state.get("acme/api#3")!, status: "merged" });
 
-    const ids = applyFilters(tracking.prs, DEFAULT_FILTERS, state).map((pr) => pr.id);
+    const ids = applyFilters(tracking.prs, DEFAULT_SETTINGS.filters, state).map((pr) => pr.id);
     expect(ids).toEqual(["acme/api#1", "acme/api#2", "acme/web#7"]);
-    expect(filterLabel(DEFAULT_FILTERS)).toBe("status open, draft");
+    expect(filterLabel(DEFAULT_SETTINGS.filters)).toBe("status open, draft");
   });
 
   test("a filtered-out parent leaves its child as a root marked on #N", async () => {

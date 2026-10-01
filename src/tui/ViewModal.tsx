@@ -4,7 +4,8 @@
 import type { ScrollBoxRenderable } from "@opentui/core";
 import { useTerminalDimensions } from "@opentui/react";
 import { useEffect, useRef } from "react";
-import { type Filters, groupLabel, type ModalItem, type View } from "./rows.ts";
+import type { Filters, View } from "../view.ts";
+import { groupLabel, type ModalItem } from "./rows.ts";
 import { theme } from "./theme.ts";
 
 /**
@@ -18,10 +19,10 @@ export type ViewModalProps = {
   onPick: (index: number) => void;
 };
 
-const WIDTH = 62;
+const WIDTH = 66;
 
-// Border and footer rows around the item list.
-const CHROME = 3;
+// Rows around the item list: border, padding, the gap and the footer.
+const CHROME = 6;
 
 const itemId = (index: number): string => `view-item-${index}`;
 
@@ -83,6 +84,8 @@ export const ViewModal = ({ items, cursor, view, filters, onPick }: ViewModalPro
       borderColor={theme.borderFocus}
       backgroundColor={theme.panel}
       title="View"
+      padding={1}
+      gap={1}
     >
       <scrollbox ref={scrollRef} flexGrow={1}>
         {items.map((item, index) => (

@@ -13,7 +13,6 @@ import {
   clearFilter,
   cycleGroup,
   cycleSub,
-  DEFAULT_FILTERS,
   filterLabel,
   filterOptions,
   groupLabel,
@@ -22,11 +21,11 @@ import {
   type Row,
   toggleFilter,
   valueLabel,
-  type View,
   viewLabel,
   visibleRows,
 } from "./rows.ts";
 import { createMarkdownStyle, reviewColour, statusColour, theme } from "./theme.ts";
+import { readViewSettings, sameSettings, type View, type ViewSettings } from "../view.ts";
 import { ViewModal } from "./ViewModal.tsx";
 
 /**
@@ -38,6 +37,7 @@ export type AppProps = {
   sync: (tracking: Tracking, live: LiveMap) => Promise<Change[]>;
   reload: () => Promise<Tracking>;
   fetchViewer: () => Promise<string>;
+  saveView: (settings: ViewSettings) => Promise<Tracking>;
 };
 
 type FetchState = { kind: "loading" } | { kind: "ready"; at: Date } | { kind: "error"; message: string };
@@ -214,16 +214,19 @@ const FetchLabel = ({ state }: { state: FetchState }) => {
  * @param props - The file, live and viewer fetchers, and sync callbacks
  * @returns The rendered interface
  */
-export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps) => {
+export const App = ({ initial, fetchLive, sync, reload, fetchViewer, saveView }: AppProps) => {
   const renderer = useRenderer();
   const { width } = useTerminalDimensions();
   const [tracking, setTracking] = useState(initial);
   const [live, setLive] = useState<LiveMap | undefined>(undefined);
   const [fetchState, setFetchState] = useState<FetchState>({ kind: "loading" });
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const [view, setView] = useState<View>({ group: "repo", sub: "author" });
+  const [saved] = useState(() => readViewSettings(initial.doc));
+  const [view, setView] = useState<View>(saved.view);
   const [viewer, setViewer] = useState<string | undefined>(undefined);
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState(saved.filters);
+  // The settings last written to the file, so closing the modal unchanged writes nothing.
+  const savedRef = useRef(saved);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalCursor, setModalCursor] = useState(0);
   // Keys can arrive before React re-renders, so the modal handlers read a ref.
@@ -328,6 +331,18 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps)
     setModalCursor(index);
   };
 
+  // Persist the view once the modal closes, from committed state rather than
+  // the key handler's closure, so changes made just before closing are kept.
+  useEffect(() => {
+    if (modalOpen) return;
+    const settings = { view, filters };
+    if (sameSettings(settings, savedRef.current)) return;
+    savedRef.current = settings;
+    saveView(settings).then(setTracking, (error: unknown) =>
+      setMessage(`Saving the view failed: ${errorMessage(error)}`),
+    );
+  }, [modalOpen, view, filters, saveView]);
+
   // Step to the next selectable modal item, skipping headings.
   const moveCursor = (delta: number) => {
     let index = modalCursorRef.current + delta;
@@ -397,13 +412,18 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps)
 
   return (
     <box flexDirection="column" width="100%" height="100%">
-      <box height={1} flexShrink={0} paddingX={1}>
-        <text wrapMode="none" truncate>
+      <box height={1} flexShrink={0} flexDirection="row" gap={2} paddingX={1}>
+        <text wrapMode="none" flexShrink={0}>
           <b fg={theme.accent}>tracking</b>
-          <span fg={theme.dim}>
-            {`  ${tracking.path}  group: ${viewLabel(view)}${activeFilters ? `  filter: ${activeFilters}` : ""}  `}
-          </span>
+        </text>
+        <text wrapMode="none" flexShrink={0} fg={theme.dim} onMouseDown={() => setModalOpen(true)}>
+          {`group: ${viewLabel(view)}${activeFilters ? `  filter: ${activeFilters}` : ""}`}
+        </text>
+        <text wrapMode="none" flexShrink={0}>
           <FetchLabel state={fetchState} />
+        </text>
+        <text wrapMode="none" truncate flexShrink={1} fg={theme.dim}>
+          {tracking.path}
         </text>
       </box>
       <box

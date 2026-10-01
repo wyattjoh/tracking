@@ -5,40 +5,7 @@
 
 import type { LiveMap } from "../github.ts";
 import { type PrNode, stackParents, type Tracking } from "../tracking.ts";
-
-/**
- * A property pull requests can be grouped by.
- */
-export type Dimension = "repo" | "author" | "status" | "review";
-
-/**
- * How the tree is grouped: a top-level dimension and an optional sub-group.
- */
-export type View = {
-  group: Dimension;
-  sub: Dimension | undefined;
-};
-
-/**
- * Every dimension, in the order `v` and `V` cycle through them.
- */
-export const DIMENSIONS: Dimension[] = ["repo", "author", "status", "review"];
-
-/**
- * Values to keep per dimension. An empty set keeps every value; dimensions
- * combine with AND and values within one with OR.
- */
-export type Filters = Record<Dimension, Set<string>>;
-
-/**
- * The filters the view starts with: open and draft pull requests only.
- */
-export const DEFAULT_FILTERS: Filters = {
-  repo: new Set(),
-  author: new Set(),
-  status: new Set(["open", "draft"]),
-  review: new Set(),
-};
+import { DIMENSIONS, type Dimension, type Filters, type View } from "../view.ts";
 
 /**
  * The order filter sections appear in the view modal and header.

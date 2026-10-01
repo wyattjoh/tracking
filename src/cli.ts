@@ -7,6 +7,7 @@ import { createLiveFetcher, ghViewer } from "./github.ts";
 import { toJson } from "./json.ts";
 import { syncTracking, writeTracking } from "./sync.ts";
 import { findTrackingFile, loadTracking } from "./tracking.ts";
+import { saveViewSettings } from "./view.ts";
 
 const USAGE = `Usage:
   tracking [file]                   Open the interactive view (JSON when stdout is not a TTY)
@@ -71,6 +72,7 @@ if (command === "sync") {
     },
     reload: () => loadTracking(tracking.path),
     fetchViewer: ghViewer,
+    saveView: (settings) => saveViewSettings(tracking.path, settings),
   });
   process.exit(0);
 }

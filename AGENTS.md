@@ -3,10 +3,10 @@
 A Bun CLI and OpenTUI interface for a `TRACKING.yaml` file of GitHub pull requests.
 
 - `tracking [file]` in a terminal opens the interactive view. It renders from the file
-  immediately, then fetches live state from GitHub and marks drift. `v` opens the view
-  modal, which sets the grouping (repo, author, status or review, plus an optional
-  sub-group; `repo › author` by default) and per-dimension filters (open and draft
-  only by default).
+  immediately, then fetches live state from GitHub and marks drift. `v` (or clicking the
+  view in the header) opens the view modal, which sets the grouping (repo, author,
+  status or review, plus an optional sub-group) and per-dimension filters. Closing the
+  modal saves any change to the file's `view` key.
 - `tracking [file]` with stdout not a TTY prints the merged file and live state as JSON.
 - `tracking sync [--dry-run] [file]` writes live `status`, `review`, `head`, `base`,
   `title` and `description` back into the file.
@@ -30,6 +30,11 @@ review decision (`approved`, `changes_requested` or `review_required`) and is on
 on open, non-draft pull requests. The URL is never stored; it is
 `https://github.com/<repo>/pull/<number>`.
 
+The optional top-level `view` key holds the TUI's grouping and filters
+(`group`, `sub`, and `filters` mapping a dimension to the values to show). Without it
+the view is `repo › author` showing open and draft pull requests. Repository keys always
+contain a `/`, so `view` cannot collide with one.
+
 Stacks are not stored. A pull request is stacked on the first pull request in the same
 repository whose `head` is its `base` (`stackParents` in `src/tracking.ts`), using live
 branches when they have been fetched. `sync` keeps `head` and `base` current so restacks
@@ -45,6 +50,7 @@ survive. Keep that property when changing the write path.
 - `src/github.ts`: batched GraphQL fetch of live pull request state
 - `src/sync.ts`: write-back of live fields
 - `src/json.ts`: non-TTY JSON output
+- `src/view.ts`: view settings types and the `view` key's read and write
 - `src/tui/`: the `@opentui/react` interface; `rows.ts` filters and groups pull
   requests into the tree for the current view, and `ViewModal.tsx` draws the view modal
 
