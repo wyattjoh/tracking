@@ -8,7 +8,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LiveFetcher, LiveMap } from "../github.ts";
 import { type Change, driftFields } from "../sync.ts";
 import { type PrNode, prUrl, type Tracking } from "../tracking.ts";
-import { canCollapse, cycleGroup, cycleSub, type Row, valueLabel, type View, viewLabel, visibleRows } from "./rows.ts";
+import {
+  canCollapse,
+  cycleGroup,
+  cycleSub,
+  groupLabel,
+  type Row,
+  valueLabel,
+  type View,
+  viewLabel,
+  visibleRows,
+} from "./rows.ts";
 import { createMarkdownStyle, reviewColour, statusColour, theme } from "./theme.ts";
 
 /**
@@ -81,7 +91,7 @@ const TreeRow = ({ row, spaced, selected, showRepo, live, onSelect, onToggle }: 
       <text wrapMode="none" flexGrow={1}>
         {row.kind === "group" && (
           <>
-            <span fg={row.depth === 0 ? theme.section : theme.repo}>{valueLabel(row.value)}</span>
+            <span fg={row.depth === 0 ? theme.section : theme.repo}>{groupLabel(row.dimension, row.value)}</span>
             <span fg={theme.dim}>{` ${row.prs.length}`}</span>
           </>
         )}
@@ -180,7 +190,7 @@ const GroupDetail = ({ title, prs, live }: { title: string; prs: PrNode[]; live:
 const Detail = ({ row, live }: { row: Row | undefined; live: LiveMap | undefined }) => {
   if (!row) return null;
   if (row.kind === "pr") return <PrDetail pr={row.pr} live={live} />;
-  return <GroupDetail title={`${row.dimension}: ${valueLabel(row.value)}`} prs={row.prs} live={live} />;
+  return <GroupDetail title={`${row.dimension}: ${groupLabel(row.dimension, row.value)}`} prs={row.prs} live={live} />;
 };
 
 const FetchLabel = ({ state }: { state: FetchState }) => {

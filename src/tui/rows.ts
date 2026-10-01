@@ -80,6 +80,17 @@ export const dimensionValue = (dimension: Dimension, pr: PrNode, live: LiveMap |
  */
 export const valueLabel = (value: string): string => value.replaceAll("_", " ");
 
+/**
+ * Display form of a group's value. Only review values are spelled with
+ * underscores; repos and logins are shown as they are.
+ *
+ * @param dimension - The group's dimension
+ * @param value - The group's value
+ * @returns The label to draw
+ */
+export const groupLabel = (dimension: Dimension, value: string): string =>
+  dimension === "review" ? valueLabel(value) : value;
+
 // Partition in first-appearance order, then apply the dimension's ordering.
 const partition = (
   prs: PrNode[],

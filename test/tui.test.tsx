@@ -128,6 +128,7 @@ test("v regroups by author and V adds a sub-group", async () => {
   });
   const bySub = await frame();
   expect(bySub).toContain("group: author › repo");
+  expect(bySub).toContain("▾ acme/api 3");
   expect(bySub).toContain("#1 feat: add the schema");
 });
 
