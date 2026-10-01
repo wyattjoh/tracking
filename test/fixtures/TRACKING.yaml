@@ -1,0 +1,35 @@
+# Fixture tracking file.
+
+pull_requests:
+  acme/api:
+    - number: 1
+      owner: alice
+      title: "feat: add the schema"
+      status: open
+      head: alice/schema
+      base: main
+      # Keep this comment through sync.
+      stacked:
+        - number: 2
+          owner: alice
+          title: "feat: add the endpoints"
+          status: draft
+          head: alice/endpoints
+          depends_on:
+            - acme/infra#9
+    - number: 3
+      owner: alice
+      title: "fix: standalone"
+      status: open
+      head: alice/fix
+      base: main
+      notes: A note.
+
+related:
+  acme/web:
+    - number: 7
+      owner: bob
+      title: "feat: the UI"
+      status: draft
+      head: bob/ui
+      base: main
