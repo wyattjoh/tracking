@@ -1,6 +1,6 @@
 # Fixture tracking file.
 
-pull_requests:
+my_work:
   acme/api:
     - number: 1
       owner: alice

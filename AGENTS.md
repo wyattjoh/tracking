@@ -20,7 +20,7 @@ GitHub is reached through `gh api graphql`, so `gh` must be authenticated.
 
 ## TRACKING.yaml schema
 
-Top-level sections (`pull_requests`, `related`, `foundation`) map a repository
+Top-level sections (`my_work`, `related`, `foundation`) map a repository
 (`owner/name`) to a list of pull requests. Each pull request has `number`, `owner`,
 `title`, `status`, `head`, and optionally `base`, `notes`, `depends_on`, `linear`,
 `description` and `stacked`. A pull request under `stacked` targets its parent's head

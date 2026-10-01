@@ -2,7 +2,7 @@
 // rendered from the file at once and refreshed with live GitHub state.
 
 import type { MouseEvent, ScrollBoxRenderable } from "@opentui/core";
-import { useKeyboard, useRenderer } from "@opentui/react";
+import { useKeyboard, useRenderer, useTerminalDimensions } from "@opentui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LiveFetcher, LiveMap } from "../github.ts";
 import { type Change, driftFields } from "../sync.ts";
@@ -26,6 +26,9 @@ const errorMessage = (error: unknown): string => (error instanceof Error ? error
 
 const rowId = (key: string): string => `row-${key}`;
 
+// Narrowest either pane may be dragged to, in columns.
+const MIN_PANE_WIDTH = 24;
+
 const time = (date: Date): string => date.toTimeString().slice(0, 5);
 
 const statusCounts = (prs: PrNode[], live: LiveMap | undefined): string =>
@@ -40,13 +43,14 @@ const statusCounts = (prs: PrNode[], live: LiveMap | undefined): string =>
 
 type TreeRowProps = {
   row: Row;
+  spaced: boolean;
   selected: boolean;
   live: LiveMap | undefined;
   onSelect: (key: string) => void;
   onToggle: (key: string) => void;
 };
 
-const TreeRow = ({ row, selected, live, onSelect, onToggle }: TreeRowProps) => {
+const TreeRow = ({ row, spaced, selected, live, onSelect, onToggle }: TreeRowProps) => {
   const collapsible = canCollapse(row);
   const glyph = collapsible ? (row.collapsed ? "▸" : "▾") : "─";
   const indent = row.kind === "section" ? "" : row.kind === "repo" ? " " : `  ${row.guide}`;
@@ -64,6 +68,7 @@ const TreeRow = ({ row, selected, live, onSelect, onToggle }: TreeRowProps) => {
       flexDirection="row"
       height={1}
       flexShrink={0}
+      marginTop={spaced ? 1 : 0}
       backgroundColor={selected ? theme.selected : undefined}
       onMouseDown={() => onSelect(row.key)}
     >
@@ -178,6 +183,7 @@ const FetchLabel = ({ state }: { state: FetchState }) => {
  */
 export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
   const renderer = useRenderer();
+  const { width } = useTerminalDimensions();
   const [tracking, setTracking] = useState(initial);
   const [live, setLive] = useState<LiveMap | undefined>(undefined);
   const [fetchState, setFetchState] = useState<FetchState>({ kind: "loading" });
@@ -186,6 +192,30 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
   const [message, setMessage] = useState<string | undefined>(undefined);
   const treeRef = useRef<ScrollBoxRenderable>(null);
   const detailRef = useRef<ScrollBoxRenderable>(null);
+  const [treeWidth, setTreeWidth] = useState<number | undefined>(undefined);
+  const [resizing, setResizing] = useState(false);
+  // Drag events can arrive before React re-renders, so handlers read a ref.
+  const resizingRef = useRef(false);
+
+  const clampWidth = (columns: number) => Math.min(Math.max(columns, MIN_PANE_WIDTH), width - MIN_PANE_WIDTH);
+  const paneWidth = clampWidth(treeWidth ?? Math.round(width * 0.6));
+  const borderColor = resizing ? theme.borderFocus : theme.border;
+
+  // The panes' touching borders sit at columns paneWidth - 1 and paneWidth.
+  // Pressing either starts a resize; events from inside the panes bubble here.
+  const onBodyMouseDown = (event: MouseEvent) => {
+    if (event.button !== 0 || (event.x !== paneWidth - 1 && event.x !== paneWidth)) return;
+    event.stopPropagation();
+    resizingRef.current = true;
+    setResizing(true);
+  };
+  const onBodyMouseDrag = (event: MouseEvent) => {
+    if (resizingRef.current) setTreeWidth(clampWidth(event.x + 1));
+  };
+  const endResize = () => {
+    resizingRef.current = false;
+    setResizing(false);
+  };
 
   const rows = useMemo(() => visibleRows(tracking, collapsed), [tracking, collapsed]);
   const selectedIndex = Math.max(0, rows.findIndex((row) => row.key === selectedKey));
@@ -276,13 +306,21 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
           <FetchLabel state={fetchState} />
         </text>
       </box>
-      <box flexDirection="row" flexGrow={1}>
-        <box width="60%" border borderStyle="rounded" borderColor={theme.border} title="Pull requests">
+      <box
+        flexDirection="row"
+        flexGrow={1}
+        onMouseDown={onBodyMouseDown}
+        onMouseDrag={onBodyMouseDrag}
+        onMouseDragEnd={endResize}
+        onMouseUp={endResize}
+      >
+        <box width={paneWidth} border borderStyle="rounded" borderColor={borderColor} title="Pull requests">
           <scrollbox ref={treeRef} flexGrow={1}>
-            {rows.map((row) => (
+            {rows.map((row, index) => (
               <TreeRow
                 key={row.key}
                 row={row}
+                spaced={row.kind === "section" && index > 0}
                 selected={row.key === selected?.key}
                 live={live}
                 onSelect={setSelectedKey}
@@ -291,7 +329,7 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
             ))}
           </scrollbox>
         </box>
-        <box flexGrow={1} border borderStyle="rounded" borderColor={theme.border} title="Details">
+        <box flexGrow={1} border borderStyle="rounded" borderColor={borderColor} title="Details">
           <scrollbox ref={detailRef} flexGrow={1}>
             <Detail row={selected} live={live} />
           </scrollbox>
@@ -299,7 +337,7 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
       </box>
       <box height={1} flexShrink={0} paddingX={1}>
         <text wrapMode="none" truncate fg={theme.dim}>
-          {message ?? "j/k move · h/l collapse · space toggle · ctrl-d/u scroll · r refresh · s sync · q quit"}
+          {message ?? "j/k move · h/l collapse · space toggle · ctrl-d/u scroll · drag border resize · r refresh · s sync · q quit"}
         </text>
       </box>
     </box>

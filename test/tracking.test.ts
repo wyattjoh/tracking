@@ -9,7 +9,7 @@ describe("modelTracking", () => {
   test("models sections, repos and stacked pull requests in file order", async () => {
     const tracking = await fixture();
 
-    expect(tracking.sections.map((section) => section.name)).toEqual(["pull_requests", "related"]);
+    expect(tracking.sections.map((section) => section.name)).toEqual(["my_work", "related"]);
     expect(tracking.prs.map((pr) => pr.id)).toEqual(["acme/api#1", "acme/api#2", "acme/api#3", "acme/web#7"]);
 
     const [first] = tracking.sections[0]!.repos[0]!.prs;
@@ -29,7 +29,7 @@ describe("findTrackingFile", () => {
     const root = await mkdtemp(join(tmpdir(), "tracking-"));
     const nested = join(root, "a", "b");
     await mkdir(nested, { recursive: true });
-    await writeFile(join(root, "TRACKING.yaml"), "pull_requests: {}\n");
+    await writeFile(join(root, "TRACKING.yaml"), "my_work: {}\n");
 
     expect(await findTrackingFile(nested)).toBe(join(root, "TRACKING.yaml"));
   });

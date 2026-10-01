@@ -40,7 +40,7 @@ export type RepoGroup = {
 };
 
 /**
- * A top-level section of the file, such as `pull_requests` or `related`.
+ * A top-level section of the file, such as `my_work` or `related`.
  */
 export type Section = {
   key: string;

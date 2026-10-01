@@ -42,7 +42,7 @@ test("renders the tree with live status and drift", async () => {
   await render(tracking, state);
 
   const text = await frame();
-  expect(text).toContain("pull_requests");
+  expect(text).toContain("my_work");
   expect(text).toContain("acme/api");
   expect(text).toContain("#1 feat: add the schema");
   expect(text).toContain("draft→merged");
@@ -92,4 +92,28 @@ test("j moves the selection down", async () => {
   });
 
   expect(await frame()).toContain("https://github.com/acme/api/pull/1");
+});
+
+test("sections are separated by a blank line", async () => {
+  const tracking = await fixture();
+  await render(tracking, currentLive(tracking));
+
+  const lines = (await frame()).split("\n");
+  const related = lines.findIndex((line) => line.includes("▾ related"));
+  expect(lines[related - 1]).toMatch(/^│\s+│/);
+});
+
+test("dragging the border between the panes resizes them", async () => {
+  const tracking = await fixture();
+  const ui = await render(tracking, currentLive(tracking));
+
+  const borderX = (text: string) => text.split("\n")[1]!.indexOf("╮");
+  const before = borderX(await frame());
+  expect(before).toBe(Math.round(140 * 0.6) - 1);
+
+  await act(async () => {
+    await ui.mockMouse.drag(before, 10, 50, 10);
+  });
+
+  expect(borderX(await frame())).toBe(50);
 });
