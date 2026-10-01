@@ -16,7 +16,13 @@ afterEach(() => {
 const render = async (tracking: Tracking, state: LiveMap) => {
   await act(async () => {
     setup = await testRender(
-      <App initial={tracking} fetchLive={async () => state} sync={async () => []} reload={async () => tracking} />,
+      <App
+        initial={tracking}
+        fetchLive={async () => state}
+        sync={async () => []}
+        reload={async () => tracking}
+        fetchViewer={async () => "alice"}
+      />,
       { width: 140, height: 30 },
     );
   });
@@ -43,8 +49,7 @@ test("renders the tree with live status, review and drift", async () => {
   await render(tracking, state);
 
   const text = await frame();
-  expect(text).toContain("my_work");
-  expect(text).toContain("acme/api");
+  expect(text).toContain("acme/api 3");
   expect(text).toContain("#1 feat: add the schema");
   expect(text).toContain("draft→merged");
   expect(text).toContain("● open approved #1");
@@ -91,19 +96,39 @@ test("j moves the selection down", async () => {
 
   await act(async () => {
     ui.mockInput.pressKey("j");
-    ui.mockInput.pressKey("j");
   });
 
   expect(await frame()).toContain("https://github.com/acme/api/pull/1");
 });
 
-test("sections are separated by a blank line", async () => {
+test("top-level groups are separated by a blank line", async () => {
   const tracking = await fixture();
   await render(tracking, currentLive(tracking));
 
   const lines = (await frame()).split("\n");
-  const related = lines.findIndex((line) => line.includes("▾ related"));
-  expect(lines[related - 1]).toMatch(/^│\s+│/);
+  const web = lines.findIndex((line) => line.includes("▾ acme/web"));
+  expect(lines[web - 1]).toMatch(/^│\s+│/);
+});
+
+test("v regroups by author and V adds a sub-group", async () => {
+  const tracking = await fixture();
+  const ui = await render(tracking, currentLive(tracking));
+  await frame();
+
+  await act(async () => {
+    ui.mockInput.pressKey("v");
+  });
+  const byAuthor = await frame();
+  expect(byAuthor).toContain("group: author");
+  expect(lineOf(byAuthor, "▾ alice")).toBeLessThan(lineOf(byAuthor, "▾ bob"));
+  expect(byAuthor).toContain("api#1 feat: add the schema");
+
+  await act(async () => {
+    ui.mockInput.pressKey("v", { shift: true });
+  });
+  const bySub = await frame();
+  expect(bySub).toContain("group: author › repo");
+  expect(bySub).toContain("#1 feat: add the schema");
 });
 
 test("dragging the border between the panes resizes them", async () => {

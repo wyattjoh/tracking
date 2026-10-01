@@ -11,17 +11,29 @@ describe("syncTracking", () => {
     expect(serializeTracking(tracking)).toBe(await fixtureText());
   });
 
-  test("writes status, review, title and description, keeping comments and children last", async () => {
+  test("writes status, review, branches, title and description, keeping comments", async () => {
     const tracking = await fixture();
     const state = currentLive(tracking);
-    state.set("acme/api#1", live({ status: "merged", title: "feat: renamed", body: "## What\r\n\r\nBody  \n" }));
+    state.set(
+      "acme/api#1",
+      live({
+        status: "merged",
+        headRefName: "alice/schema",
+        baseRefName: "release",
+        title: "feat: renamed",
+        body: "## What\r\n\r\nBody  \n",
+      }),
+    );
 
-    expect(syncTracking(tracking, state)).toEqual([{ id: "acme/api#1", fields: ["status", "review", "title", "description"] }]);
+    expect(syncTracking(tracking, state)).toEqual([
+      { id: "acme/api#1", fields: ["status", "review", "base", "title", "description"] },
+    ]);
 
     const text = serializeTracking(tracking);
     expect(text).toContain("# Keep this comment through sync.");
     expect(text).toContain("status: merged");
-    expect(text).toMatch(/description: \|-\n {8}## What\n\n {8}Body\n(.*\n)* {6}stacked:/);
+    expect(text).toContain("base: release");
+    expect(text).toMatch(/description: \|-\n {6}## What\n\n {6}Body\n/);
 
     const reloaded = modelTracking(FIXTURE, parseDocument(text));
     expect(syncTracking(reloaded, state)).toEqual([]);
@@ -30,8 +42,10 @@ describe("syncTracking", () => {
   test("adds a review to open pull requests and removes it once they merge", async () => {
     const tracking = await fixture();
     const state = currentLive(tracking);
-    state.set("acme/api#1", live({ status: "merged", title: "feat: add the schema" }));
-    state.set("acme/api#3", live({ review: "changes_requested", title: "fix: standalone" }));
+    const merged = state.get("acme/api#1")!;
+    const fix = state.get("acme/api#3")!;
+    state.set("acme/api#1", { ...merged, status: "merged", review: undefined });
+    state.set("acme/api#3", { ...fix, review: "changes_requested" });
 
     expect(syncTracking(tracking, state)).toEqual([
       { id: "acme/api#1", fields: ["status", "review"] },

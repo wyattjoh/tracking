@@ -3,7 +3,7 @@
 // not a TTY), and `tracking sync [--dry-run] [file]` writes live state back.
 
 import { isatty } from "node:tty";
-import { createLiveFetcher } from "./github.ts";
+import { createLiveFetcher, ghViewer } from "./github.ts";
 import { toJson } from "./json.ts";
 import { syncTracking, writeTracking } from "./sync.ts";
 import { findTrackingFile, loadTracking } from "./tracking.ts";
@@ -70,6 +70,7 @@ if (command === "sync") {
       return changes;
     },
     reload: () => loadTracking(tracking.path),
+    fetchViewer: ghViewer,
   });
   process.exit(0);
 }

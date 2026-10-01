@@ -2,9 +2,9 @@
 
 import type { LiveMap } from "./github.ts";
 import { driftFields } from "./sync.ts";
-import { type PrNode, prUrl, type Tracking } from "./tracking.ts";
+import { type PrNode, prUrl, stackParents, type Tracking } from "./tracking.ts";
 
-const prJson = (pr: PrNode, live: LiveMap | undefined): Record<string, unknown> => {
+const prJson = (pr: PrNode, live: LiveMap | undefined, parents: Map<string, string>): Record<string, unknown> => {
   const state = live?.get(pr.id);
   return {
     repo: pr.repo,
@@ -19,6 +19,7 @@ const prJson = (pr: PrNode, live: LiveMap | undefined): Record<string, unknown> 
     notes: pr.notes,
     linear: pr.linear,
     depends_on: pr.dependsOn,
+    stacked_on: parents.get(pr.id) ?? null,
     live: state && {
       status: state.status,
       review: state.review,
@@ -28,26 +29,26 @@ const prJson = (pr: PrNode, live: LiveMap | undefined): Record<string, unknown> 
       base: state.baseRefName,
     },
     drift: state ? driftFields(pr, state) : [],
-    stacked: pr.children.map((child) => prJson(child, live)),
   };
 };
 
 /**
- * Build the JSON view of a tracking file. Descriptions are omitted; read them
+ * Build the JSON view of a tracking file. Pull requests stay flat, with
+ * `stacked_on` naming the inferred parent. Descriptions are omitted; read them
  * from the file or GitHub.
  *
  * @param tracking - The loaded file
  * @param live - Live state, when it could be fetched
  * @returns A JSON-serializable object
  */
-export const toJson = (tracking: Tracking, live: LiveMap | undefined): Record<string, unknown> => ({
-  file: tracking.path,
-  live: live !== undefined,
-  sections: tracking.sections.map((section) => ({
-    name: section.name,
-    repos: section.repos.map((group) => ({
+export const toJson = (tracking: Tracking, live: LiveMap | undefined): Record<string, unknown> => {
+  const parents = stackParents(tracking.prs, live);
+  return {
+    file: tracking.path,
+    live: live !== undefined,
+    repos: tracking.repos.map((group) => ({
       repo: group.repo,
-      prs: group.prs.map((pr) => prJson(pr, live)),
+      prs: group.prs.map((pr) => prJson(pr, live, parents)),
     })),
-  })),
-});
+  };
+};

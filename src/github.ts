@@ -94,6 +94,13 @@ export const ghGraphql: GraphqlRunner = async (query) => {
 };
 
 /**
+ * Read the login of the user `gh` is authenticated as.
+ *
+ * @returns The GitHub login
+ */
+export const ghViewer = async (): Promise<string> => (await $`gh api user --jq .login`.quiet().text()).trim();
+
+/**
  * Create a fetcher that reads pull requests through `run`.
  *
  * @param run - GraphQL runner, `gh` by default

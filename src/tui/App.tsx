@@ -1,5 +1,6 @@
-// The interactive view: a collapsible tree of tracked PRs beside a detail pane,
-// rendered from the file at once and refreshed with live GitHub state.
+// The interactive view: a collapsible tree of tracked PRs, grouped by a chosen
+// view, beside a detail pane. It renders from the file at once and refreshes
+// with live GitHub state.
 
 import type { MouseEvent, ScrollBoxRenderable } from "@opentui/core";
 import { useKeyboard, useRenderer, useSelectionHandler, useTerminalDimensions } from "@opentui/react";
@@ -7,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LiveFetcher, LiveMap } from "../github.ts";
 import { type Change, driftFields } from "../sync.ts";
 import { type PrNode, prUrl, type Tracking } from "../tracking.ts";
-import { allPrs, canCollapse, type Row, visibleRows } from "./rows.ts";
+import { canCollapse, cycleGroup, cycleSub, type Row, valueLabel, type View, viewLabel, visibleRows } from "./rows.ts";
 import { createMarkdownStyle, reviewColour, statusColour, theme } from "./theme.ts";
 
 /**
@@ -18,6 +19,7 @@ export type AppProps = {
   fetchLive: LiveFetcher;
   sync: (tracking: Tracking, live: LiveMap) => Promise<Change[]>;
   reload: () => Promise<Tracking>;
+  fetchViewer: () => Promise<string>;
 };
 
 type FetchState = { kind: "loading" } | { kind: "ready"; at: Date } | { kind: "error"; message: string };
@@ -28,8 +30,6 @@ const rowId = (key: string): string => `row-${key}`;
 
 // Narrowest either pane may be dragged to, in columns.
 const MIN_PANE_WIDTH = 24;
-
-const reviewLabel = (review: string): string => review.replaceAll("_", " ");
 
 const time = (date: Date): string => date.toTimeString().slice(0, 5);
 
@@ -47,15 +47,16 @@ type TreeRowProps = {
   row: Row;
   spaced: boolean;
   selected: boolean;
+  showRepo: boolean;
   live: LiveMap | undefined;
   onSelect: (key: string) => void;
   onToggle: (key: string) => void;
 };
 
-const TreeRow = ({ row, spaced, selected, live, onSelect, onToggle }: TreeRowProps) => {
+const TreeRow = ({ row, spaced, selected, showRepo, live, onSelect, onToggle }: TreeRowProps) => {
   const collapsible = canCollapse(row);
   const glyph = collapsible ? (row.collapsed ? "▸" : "▾") : "─";
-  const indent = row.kind === "section" ? "" : row.kind === "repo" ? " " : `  ${row.guide}`;
+  const indent = `${" ".repeat(row.depth)}${row.kind === "pr" ? row.guide : ""}`;
 
   const onGlyph = (event: MouseEvent) => {
     if (!collapsible) return;
@@ -78,15 +79,26 @@ const TreeRow = ({ row, spaced, selected, live, onSelect, onToggle }: TreeRowPro
         {`${indent}${glyph} `}
       </text>
       <text wrapMode="none" flexGrow={1}>
-        {row.kind === "section" && <span fg={theme.section}>{row.section.name}</span>}
-        {row.kind === "repo" && <span fg={theme.repo}>{row.group.repo}</span>}
-        {row.kind === "pr" && <PrLabel pr={row.pr} live={live} />}
+        {row.kind === "group" && (
+          <>
+            <span fg={row.depth === 0 ? theme.section : theme.repo}>{valueLabel(row.value)}</span>
+            <span fg={theme.dim}>{` ${row.prs.length}`}</span>
+          </>
+        )}
+        {row.kind === "pr" && <PrLabel pr={row.pr} onParent={row.onParent} showRepo={showRepo} live={live} />}
       </text>
     </box>
   );
 };
 
-const PrLabel = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) => {
+type PrLabelProps = {
+  pr: PrNode;
+  onParent: number | undefined;
+  showRepo: boolean;
+  live: LiveMap | undefined;
+};
+
+const PrLabel = ({ pr, onParent, showRepo, live }: PrLabelProps) => {
   const state = live?.get(pr.id);
   const drift = state ? driftFields(pr, state) : [];
   const status = state?.status ?? pr.status;
@@ -96,10 +108,13 @@ const PrLabel = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) => {
   return (
     <>
       <span fg={statusColour(status)}>{`● ${statusLabel} `}</span>
-      {review && <span fg={reviewColour(review)}>{`${reviewLabel(review)} `}</span>}
-      <a href={prUrl(pr.repo, pr.number)} fg={theme.accent}>{`#${pr.number}`}</a>
+      {review && <span fg={reviewColour(review)}>{`${valueLabel(review)} `}</span>}
+      <a href={prUrl(pr.repo, pr.number)} fg={theme.accent}>
+        {`${showRepo ? pr.repo.split("/").at(-1) : ""}#${pr.number}`}
+      </a>
       <span fg={theme.fg}>{` ${state?.title ?? pr.title ?? ""}`}</span>
       {pr.owner && <span fg={theme.dim}>{` ${pr.owner}`}</span>}
+      {onParent !== undefined && <span fg={theme.dim}>{` on #${onParent}`}</span>}
       {drift.length > 0 && <span fg={theme.drift}>{" ●"}</span>}
     </>
   );
@@ -132,7 +147,7 @@ const PrDetail = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) => {
       </text>
       <text wrapMode="word" flexShrink={0}>
         <span fg={statusColour(status)}>{`● ${status ?? "?"}`}</span>
-        {review && <span fg={reviewColour(review)}>{` ${reviewLabel(review)}`}</span>}
+        {review && <span fg={reviewColour(review)}>{` ${valueLabel(review)}`}</span>}
         <span fg={theme.dim}>{`  ${state?.author ?? pr.owner ?? "?"} · ${head}${base ? ` → ${base}` : ""}`}</span>
       </text>
       <text wrapMode="none" flexShrink={0}>
@@ -165,14 +180,7 @@ const GroupDetail = ({ title, prs, live }: { title: string; prs: PrNode[]; live:
 const Detail = ({ row, live }: { row: Row | undefined; live: LiveMap | undefined }) => {
   if (!row) return null;
   if (row.kind === "pr") return <PrDetail pr={row.pr} live={live} />;
-  if (row.kind === "repo") return <GroupDetail title={row.group.repo} prs={allPrs(row.group.prs)} live={live} />;
-  return (
-    <GroupDetail
-      title={row.section.name}
-      prs={row.section.repos.flatMap((group) => allPrs(group.prs))}
-      live={live}
-    />
-  );
+  return <GroupDetail title={`${row.dimension}: ${valueLabel(row.value)}`} prs={row.prs} live={live} />;
 };
 
 const FetchLabel = ({ state }: { state: FetchState }) => {
@@ -184,16 +192,18 @@ const FetchLabel = ({ state }: { state: FetchState }) => {
 /**
  * The root component of the interactive view.
  *
- * @param props - The file, live fetcher and sync callbacks
+ * @param props - The file, live and viewer fetchers, and sync callbacks
  * @returns The rendered interface
  */
-export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
+export const App = ({ initial, fetchLive, sync, reload, fetchViewer }: AppProps) => {
   const renderer = useRenderer();
   const { width } = useTerminalDimensions();
   const [tracking, setTracking] = useState(initial);
   const [live, setLive] = useState<LiveMap | undefined>(undefined);
   const [fetchState, setFetchState] = useState<FetchState>({ kind: "loading" });
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [view, setView] = useState<View>({ group: "repo", sub: undefined });
+  const [viewer, setViewer] = useState<string | undefined>(undefined);
   const [selectedKey, setSelectedKey] = useState<string | undefined>(undefined);
   const [message, setMessage] = useState<string | undefined>(undefined);
   const treeRef = useRef<ScrollBoxRenderable>(null);
@@ -223,7 +233,11 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
     setResizing(false);
   };
 
-  const rows = useMemo(() => visibleRows(tracking, collapsed), [tracking, collapsed]);
+  const rows = useMemo(
+    () => visibleRows(tracking, live, view, viewer, collapsed),
+    [tracking, live, view, viewer, collapsed],
+  );
+  const showRepo = view.group !== "repo" && view.sub !== "repo";
   const selectedIndex = Math.max(0, rows.findIndex((row) => row.key === selectedKey));
   const selected = rows[selectedIndex];
 
@@ -240,6 +254,11 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
   useEffect(() => {
     void refresh(initial);
   }, [initial, refresh]);
+
+  // Only orders the author grouping, so a failure just leaves it unordered.
+  useEffect(() => {
+    fetchViewer().then(setViewer, () => undefined);
+  }, [fetchViewer]);
 
   useEffect(() => {
     if (!selected) return;
@@ -299,6 +318,7 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
     if (key.ctrl && key.name === "u") return detailRef.current?.scrollBy(-0.5, "viewport");
     if (key.name === "r") return void refresh(tracking);
     if (key.name === "s") return void runSync();
+    if (key.name === "v") return setView(key.shift ? cycleSub : cycleGroup);
     if (!selected) return;
 
     if (key.name === "space" && canCollapse(selected)) return toggle(selected.key);
@@ -317,7 +337,7 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
       <box height={1} flexShrink={0} paddingX={1}>
         <text wrapMode="none" truncate>
           <b fg={theme.accent}>tracking</b>
-          <span fg={theme.dim}>{`  ${tracking.path}  `}</span>
+          <span fg={theme.dim}>{`  ${tracking.path}  group: ${viewLabel(view)}  `}</span>
           <FetchLabel state={fetchState} />
         </text>
       </box>
@@ -335,8 +355,9 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
               <TreeRow
                 key={row.key}
                 row={row}
-                spaced={row.kind === "section" && index > 0}
+                spaced={row.kind === "group" && row.depth === 0 && index > 0}
                 selected={row.key === selected?.key}
+                showRepo={showRepo}
                 live={live}
                 onSelect={setSelectedKey}
                 onToggle={toggle}
@@ -352,7 +373,7 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
       </box>
       <box height={1} flexShrink={0} paddingX={1}>
         <text wrapMode="none" truncate fg={theme.dim}>
-          {message ?? "j/k move · h/l collapse · space toggle · ctrl-d/u scroll · drag border resize · r refresh · s sync · q quit"}
+          {message ?? "j/k move · h/l collapse · space toggle · v/V group · ctrl-d/u scroll · drag border resize · r refresh · s sync · q quit"}
         </text>
       </box>
     </box>

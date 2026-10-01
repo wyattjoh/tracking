@@ -8,7 +8,7 @@ import type { PrNode, Tracking } from "./tracking.ts";
 /**
  * A field `sync` keeps in step with GitHub.
  */
-export type SyncedField = "status" | "review" | "title" | "description";
+export type SyncedField = "status" | "review" | "head" | "base" | "title" | "description";
 
 /**
  * The fields of one pull request that sync changed, or would change.
@@ -36,6 +36,8 @@ export const toDescription = (body: string): string =>
 const wanted = (live: Live): Record<SyncedField, string> => ({
   status: live.status,
   review: live.review ?? "",
+  head: live.headRefName,
+  base: live.baseRefName,
   title: live.title,
   description: toDescription(live.body),
 });
@@ -52,14 +54,16 @@ export const driftFields = (pr: PrNode, live: Live): SyncedField[] => {
   const current: Record<SyncedField, string> = {
     status: pr.status ?? "",
     review: pr.review ?? "",
+    head: pr.head ?? "",
+    base: pr.base ?? "",
     title: pr.title ?? "",
     description: pr.description ?? "",
   };
-  return (["status", "review", "title", "description"] as const).filter((field) => current[field] !== next[field]);
+  return (["status", "review", "head", "base", "title", "description"] as const).filter((field) => current[field] !== next[field]);
 };
 
-// Set a scalar field, inserting new keys before `stacked` so children stay last.
-const setField = (tracking: Tracking, node: YAMLMap, key: string, value: string, block: boolean): void => {
+// Set a scalar field, removing it when the value is empty.
+const setField = (node: YAMLMap, key: string, value: string, block: boolean): void => {
   if (value === "") {
     node.delete(key);
     return;
@@ -67,19 +71,11 @@ const setField = (tracking: Tracking, node: YAMLMap, key: string, value: string,
 
   const scalar = new Scalar(value);
   if (block) scalar.type = Scalar.BLOCK_LITERAL;
-
-  if (node.has(key)) {
-    node.set(key, scalar);
-    return;
-  }
-
-  const pair = tracking.doc.createPair(key, scalar);
-  const index = node.items.findIndex((item) => String((item.key as Scalar | undefined)?.value ?? item.key) === "stacked");
-  node.items.splice(index === -1 ? node.items.length : index, 0, pair);
+  node.set(key, scalar);
 };
 
 /**
- * Apply live status, review, title and description to every entry in the document.
+ * Apply live status, review, branches, title and description to every entry in the document.
  * The model's plain fields are not refreshed; reload the file after writing.
  *
  * @param tracking - The loaded file
@@ -95,7 +91,7 @@ export const syncTracking = (tracking: Tracking, live: LiveMap): Change[] =>
     if (fields.length === 0) return [];
 
     const next = wanted(state);
-    for (const field of fields) setField(tracking, pr.yaml, field, next[field], field === "description");
+    for (const field of fields) setField(pr.yaml, field, next[field], field === "description");
     return [{ id: pr.id, fields }];
   });
 

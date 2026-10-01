@@ -1,7 +1,10 @@
-// Locate, load and model a TRACKING.yaml file. The parsed yaml Document is kept
-// alongside the model so sync can edit the original nodes in place.
+// Locate, load and model a TRACKING.yaml file: a map of repository to a flat
+// list of pull requests, with stacks inferred from head and base branches. The
+// parsed yaml Document is kept alongside the model so sync can edit the
+// original nodes in place.
 
 import { dirname, join, resolve } from "node:path";
+import type { LiveMap } from "./github.ts";
 import { type Document, isMap, isScalar, isSeq, parseDocument, type YAMLMap } from "yaml";
 
 /**
@@ -15,10 +18,9 @@ export type Status = "draft" | "open" | "closed" | "merged";
 export type Review = "approved" | "changes_requested" | "review_required";
 
 /**
- * One pull request entry, with the entries stacked on top of it.
+ * One pull request entry. Stacking is not stored; see `stackParents`.
  */
 export type PrNode = {
-  key: string;
   id: string;
   repo: string;
   number: number;
@@ -32,26 +34,15 @@ export type PrNode = {
   linear: string | undefined;
   dependsOn: string[];
   description: string | undefined;
-  children: PrNode[];
   yaml: YAMLMap;
 };
 
 /**
- * The pull requests one section lists for one repository.
+ * The pull requests the file lists for one repository.
  */
 export type RepoGroup = {
-  key: string;
   repo: string;
   prs: PrNode[];
-};
-
-/**
- * A top-level section of the file, such as `my_work` or `related`.
- */
-export type Section = {
-  key: string;
-  name: string;
-  repos: RepoGroup[];
 };
 
 /**
@@ -60,7 +51,7 @@ export type Section = {
 export type Tracking = {
   path: string;
   doc: Document;
-  sections: Section[];
+  repos: RepoGroup[];
   prs: PrNode[];
 };
 
@@ -106,19 +97,15 @@ const strings = (node: YAMLMap, key: string): string[] => {
 
 const keyName = (key: unknown): string => String(isScalar(key) ? key.value : key);
 
-const toNode = (section: string, repo: string, node: unknown): PrNode[] => {
+const toNode = (repo: string, node: unknown): PrNode[] => {
   if (!isMap(node)) return [];
 
   const number = node.get("number");
-  const stacked = node.get("stacked");
-  const children = isSeq(stacked) ? stacked.items.flatMap((child) => toNode(section, repo, child)) : [];
-  if (typeof number !== "number") return children;
+  if (typeof number !== "number") return [];
 
-  const id = `${repo}#${number}`;
   return [
     {
-      key: `${section}:${id}`,
-      id,
+      id: `${repo}#${number}`,
       repo,
       number,
       owner: str(node, "owner"),
@@ -131,13 +118,10 @@ const toNode = (section: string, repo: string, node: unknown): PrNode[] => {
       linear: str(node, "linear"),
       dependsOn: strings(node, "depends_on"),
       description: str(node, "description"),
-      children,
       yaml: node,
     },
   ];
 };
-
-const flatten = (prs: PrNode[]): PrNode[] => prs.flatMap((pr) => [pr, ...flatten(pr.children)]);
 
 /**
  * Model an already-parsed tracking document.
@@ -148,26 +132,56 @@ const flatten = (prs: PrNode[]): PrNode[] => prs.flatMap((pr) => [pr, ...flatten
  */
 export const modelTracking = (path: string, doc: Document): Tracking => {
   const root = doc.contents;
-  const sections: Section[] = isMap(root)
+  const repos: RepoGroup[] = isMap(root)
     ? root.items.flatMap(({ key, value }) => {
-        const name = keyName(key);
-        if (!isMap(value)) return [];
-
-        const repos = value.items.flatMap(({ key: repoKey, value: list }) => {
-          const repo = keyName(repoKey);
-          if (!isSeq(list)) return [];
-          return [{ key: `${name}:${repo}`, repo, prs: list.items.flatMap((item) => toNode(name, repo, item)) }];
-        });
-        return repos.length === 0 ? [] : [{ key: name, name, repos }];
+        const repo = keyName(key);
+        if (!isSeq(value)) return [];
+        return [{ repo, prs: value.items.flatMap((item) => toNode(repo, item)) }];
       })
     : [];
 
-  return {
-    path,
-    doc,
-    sections,
-    prs: sections.flatMap((section) => section.repos.flatMap((group) => flatten(group.prs))),
-  };
+  return { path, doc, repos, prs: repos.flatMap((group) => group.prs) };
+};
+
+/**
+ * Infer stacks: a pull request is stacked on the first pull request in the
+ * same repository whose head branch is its base branch. Live branches win over
+ * the file's, and a chain that loops back on itself is broken at the loop.
+ *
+ * @param prs - Pull requests in file order
+ * @param live - Live state, when it has been fetched
+ * @returns Parent id keyed by child id; roots are absent
+ */
+export const stackParents = (prs: PrNode[], live: LiveMap | undefined): Map<string, string> => {
+  const head = (pr: PrNode) => live?.get(pr.id)?.headRefName ?? pr.head;
+  const base = (pr: PrNode) => live?.get(pr.id)?.baseRefName ?? pr.base;
+
+  const byHead = prs.reduce((found, pr) => {
+    const branch = head(pr);
+    const key = `${pr.repo}:${branch}`;
+    return branch === undefined || found.has(key) ? found : found.set(key, pr.id);
+  }, new Map<string, string>());
+
+  const parents = new Map(
+    prs.flatMap((pr): [string, string][] => {
+      const branch = base(pr);
+      const parent = branch === undefined ? undefined : byHead.get(`${pr.repo}:${branch}`);
+      return parent === undefined || parent === pr.id ? [] : [[pr.id, parent]];
+    }),
+  );
+
+  // Drop the link that closes each cycle so every chain ends at a root.
+  for (const id of parents.keys()) {
+    const seen = new Set([id]);
+    let current = parents.get(id);
+    while (current !== undefined && !seen.has(current)) {
+      seen.add(current);
+      current = parents.get(current);
+    }
+    if (current === id) parents.delete(id);
+  }
+
+  return parents;
 };
 
 /**

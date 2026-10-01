@@ -1,22 +1,25 @@
 import { expect, test } from "bun:test";
 import { toJson } from "../src/json.ts";
-import { currentLive, fixture, live } from "./helpers.ts";
+import { currentLive, fixture } from "./helpers.ts";
 
-test("nests stacked pull requests and reports drift against live state", async () => {
+test("lists pull requests flat with their inferred parent and drift", async () => {
   const tracking = await fixture();
   const state = currentLive(tracking);
-  state.set("acme/api#2", live({ status: "merged", title: "feat: add the endpoints" }));
+  state.set("acme/api#2", { ...state.get("acme/api#2")!, status: "merged" });
 
   const json = toJson(tracking, state) as {
     live: boolean;
-    sections: { repos: { prs: { url: string; drift: string[]; stacked: { drift: string[]; live: unknown }[] }[] }[] }[];
+    repos: { repo: string; prs: { url: string; drift: string[]; stacked_on: string | null }[] }[];
   };
-  const first = json.sections[0]!.repos[0]!.prs[0]!;
+  const [first, second] = json.repos[0]!.prs;
 
   expect(json.live).toBe(true);
-  expect(first.url).toBe("https://github.com/acme/api/pull/1");
-  expect(first.drift).toEqual([]);
-  expect(first.stacked[0]!.drift).toEqual(["status"]);
+  expect(json.repos.map((group) => group.repo)).toEqual(["acme/api", "acme/web"]);
+  expect(first!.url).toBe("https://github.com/acme/api/pull/1");
+  expect(first!.stacked_on).toBeNull();
+  expect(first!.drift).toEqual([]);
+  expect(second!.stacked_on).toBe("acme/api#1");
+  expect(second!.drift).toEqual(["status"]);
 });
 
 test("reports no live state when the fetch failed", async () => {
