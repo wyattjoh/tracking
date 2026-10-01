@@ -2,7 +2,7 @@
 // rendered from the file at once and refreshed with live GitHub state.
 
 import type { MouseEvent, ScrollBoxRenderable } from "@opentui/core";
-import { useKeyboard, useRenderer, useTerminalDimensions } from "@opentui/react";
+import { useKeyboard, useRenderer, useSelectionHandler, useTerminalDimensions } from "@opentui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LiveFetcher, LiveMap } from "../github.ts";
 import { type Change, driftFields } from "../sync.ts";
@@ -271,6 +271,15 @@ export const App = ({ initial, fetchLive, sync, reload }: AppProps) => {
     });
 
   const select = (index: number) => setSelectedKey(rows[index]?.key);
+
+  // Mouse capture keeps drags from the terminal, so copy finished selections over OSC 52.
+  useSelectionHandler((selection) => {
+    const text = selection.getSelectedText();
+    if (!text) return;
+    setMessage(
+      renderer.copyToClipboardOSC52(text) ? `Copied ${text.length} characters.` : "Terminal does not support copying.",
+    );
+  });
 
   useKeyboard((key) => {
     if (key.name === "q") {
