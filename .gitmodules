@@ -1,0 +1,4 @@
+[submodule ".claude/references/opentui"]
+	path = .claude/references/opentui
+	url = https://github.com/anomalyco/opentui.git
+	branch = v0.5.14
