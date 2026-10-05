@@ -17,6 +17,7 @@ export type ViewModalProps = {
   view: View;
   filters: Filters;
   onPick: (index: number) => void;
+  onClose: () => void;
 };
 
 const WIDTH = 66;
@@ -62,10 +63,10 @@ const ItemLabel = ({ item, view, filters }: { item: ModalItem; view: View; filte
 /**
  * A centred overlay listing the grouping and every filter value.
  *
- * @param props - The items, cursor, current view and filters, and a click handler
+ * @param props - The items, cursor, current view and filters, and click handlers
  * @returns The rendered modal
  */
-export const ViewModal = ({ items, cursor, view, filters, onPick }: ViewModalProps) => {
+export const ViewModal = ({ items, cursor, view, filters, onPick, onClose }: ViewModalProps) => {
   const { width, height } = useTerminalDimensions();
   const scrollRef = useRef<ScrollBoxRenderable>(null);
   const modalHeight = Math.min(items.length + CHROME, height - 2);
@@ -107,9 +108,12 @@ export const ViewModal = ({ items, cursor, view, filters, onPick }: ViewModalPro
           </box>
         ))}
       </scrollbox>
-      <box height={1} flexShrink={0} paddingX={1}>
-        <text wrapMode="none" truncate fg={theme.dim}>
-          j/k move · space toggle · ←/→ change · x clear · esc close
+      <box height={1} flexShrink={0} flexDirection="row" paddingX={1}>
+        <text wrapMode="none" truncate flexShrink={1} fg={theme.dim}>
+          {"j/k move · space toggle · ←/→ change · x clear · "}
+        </text>
+        <text wrapMode="none" flexShrink={0} fg={theme.dim} onMouseDown={onClose}>
+          esc close
         </text>
       </box>
     </box>

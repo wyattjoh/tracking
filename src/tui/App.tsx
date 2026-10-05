@@ -482,7 +482,7 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer, saveView }:
           {message ?? "j/k move · h/l collapse · space toggle · v view · ctrl-d/u scroll · drag border resize · r refresh · s sync · q quit"}
         </text>
       </box>
-      {modalOpen && <ViewModal items={items} cursor={modalCursor} view={view} filters={filters} onPick={pick} />}
+      {modalOpen && <ViewModal items={items} cursor={modalCursor} view={view} filters={filters} onPick={pick} onClose={() => setModalOpen(false)} />}
     </box>
   );
 };

@@ -222,6 +222,21 @@ test("clicking the view in the header opens the modal, and closing it unchanged 
   expect(saves).toEqual([]);
 });
 
+test("clicking esc close in the modal footer closes it", async () => {
+  const tracking = await fixture();
+  const ui = await render(tracking, currentLive(tracking));
+
+  await act(async () => {
+    ui.mockInput.pressKey("v");
+  });
+  const modal = await frame();
+  const y = lineOf(modal, "esc close");
+  await act(async () => {
+    await ui.mockMouse.click(modal.split("\n")[y]!.indexOf("esc close") + 2, y);
+  });
+  expect(await frame()).not.toContain("Sub-group");
+});
+
 test("dragging the border between the panes resizes them", async () => {
   const tracking = await fixture();
   const ui = await render(tracking, currentLive(tracking));
