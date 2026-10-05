@@ -3,7 +3,7 @@
 
 import { type Document, Scalar, type YAMLMap } from "yaml";
 import type { Live, LiveMap } from "./github.ts";
-import type { PrNode, Tracking } from "./tracking.ts";
+import { loadTracking, type PrNode, type Tracking } from "./tracking.ts";
 
 /**
  * A field `sync` keeps in step with GitHub.
@@ -119,4 +119,19 @@ export const serializeTracking = (tracking: Tracking): string => tracking.doc.to
  */
 export const writeTracking = async (tracking: Tracking): Promise<void> => {
   await Bun.write(tracking.path, serializeTracking(tracking));
+};
+
+/**
+ * Sync live state into the latest file, preserving edits made since loading.
+ * Leave the file untouched when no fields changed.
+ *
+ * @param path - The tracking file path
+ * @param live - Live state keyed by pull request id
+ * @returns One change per pull request that differed
+ */
+export const syncTrackingFile = async (path: string, live: LiveMap): Promise<Change[]> => {
+  const tracking = await loadTracking(path);
+  const changes = syncTracking(tracking, live);
+  if (changes.length > 0) await writeTracking(tracking);
+  return changes;
 };

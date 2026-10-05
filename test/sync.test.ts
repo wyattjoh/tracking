@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { mkdtemp, stat, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { parseDocument } from "yaml";
-import { serializeTracking, syncTracking, toDescription } from "../src/sync.ts";
-import { modelTracking } from "../src/tracking.ts";
+import { serializeTracking, syncTracking, syncTrackingFile, toDescription } from "../src/sync.ts";
+import { loadTracking, modelTracking } from "../src/tracking.ts";
 import { currentLive, FIXTURE, fixture, fixtureText, live } from "./helpers.ts";
 
 describe("syncTracking", () => {
@@ -82,6 +85,35 @@ describe("syncTracking", () => {
     const state = currentLive(tracking);
     state.delete("acme/web#7");
     expect(syncTracking(tracking, state)).toEqual([]);
+  });
+});
+
+describe("syncTrackingFile", () => {
+  test("syncs the latest file, preserving local edits and skipping missing live state", async () => {
+    const tracking = await fixture();
+    const state = currentLive(tracking);
+    state.set("acme/api#2", { ...state.get("acme/api#2")!, status: "open", title: "refreshed" });
+    state.delete("acme/web#7");
+    const path = join(await mkdtemp(join(tmpdir(), "tracking-")), "TRACKING.yaml");
+    await writeFile(path, `${await fixtureText()}\n# Added while fetching.\nacme/new:\n  - number: 9\n    notes: local edit\n`);
+
+    expect(await syncTrackingFile(path, state)).toEqual([
+      { id: "acme/api#2", fields: ["status", "title"] },
+    ]);
+    const saved = await loadTracking(path);
+    expect(saved.prs.find((pr) => pr.id === "acme/api#2")?.status).toBe("open");
+    expect(saved.prs.find((pr) => pr.id === "acme/api#2")?.title).toBe("refreshed");
+    expect(saved.prs.find((pr) => pr.id === "acme/web#7")?.status).toBe("draft");
+    expect(saved.prs.map((pr) => pr.id)).toContain("acme/new#9");
+    const text = await Bun.file(path).text();
+    expect(text).toContain("# Keep this comment through sync.");
+    expect(text).toContain("# Added while fetching.");
+    expect(text).toContain("notes: local edit");
+
+    const before = await stat(path);
+    expect(await syncTrackingFile(path, state)).toEqual([]);
+    expect(await Bun.file(path).text()).toBe(text);
+    expect((await stat(path)).mtimeMs).toBe(before.mtimeMs);
   });
 });
 

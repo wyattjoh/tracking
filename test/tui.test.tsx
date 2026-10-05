@@ -3,7 +3,10 @@ import { testRender } from "@opentui/react/test-utils";
 import { act } from "react";
 import type { LiveMap } from "../src/github.ts";
 import type { Tracking } from "../src/tracking.ts";
-import { App } from "../src/tui/App.tsx";
+import { serializeTracking, syncTracking } from "../src/sync.ts";
+import { modelTracking } from "../src/tracking.ts";
+import { parseDocument } from "yaml";
+import { App, type AppProps } from "../src/tui/App.tsx";
 import type { ViewSettings } from "../src/view.ts";
 import { currentLive, fixture, live } from "./helpers.ts";
 
@@ -17,7 +20,7 @@ afterEach(() => {
   saves = [];
 });
 
-const render = async (tracking: Tracking, state: LiveMap) => {
+const render = async (tracking: Tracking, state: LiveMap, overrides: Partial<AppProps> = {}) => {
   await act(async () => {
     setup = await testRender(
       <App
@@ -30,6 +33,7 @@ const render = async (tracking: Tracking, state: LiveMap) => {
           saves.push(settings);
           return tracking;
         }}
+        {...overrides}
       />,
       { width: 140, height: 30 },
     );
@@ -67,6 +71,84 @@ test("renders the tree with live status, review and drift", async () => {
   expect(text).toContain("● open approved #1");
   expect(text).toContain("● open changes requested #3");
   expect(text).toContain("live ");
+});
+
+test("syncs on startup and each refresh, reloading the displayed file state", async () => {
+  const tracking = await fixture();
+  const state = currentLive(tracking);
+  state.set("acme/api#2", { ...state.get("acme/api#2")!, status: "open" });
+  let saved = tracking;
+  const sync = mock(async (current: Tracking, live: LiveMap) => {
+    saved = current;
+    return syncTracking(current, live);
+  });
+  const reload = mock(async () => modelTracking(saved.path, parseDocument(serializeTracking(saved))));
+  const ui = await render(tracking, state, { sync, reload });
+
+  expect(sync).toHaveBeenCalledTimes(1);
+  expect(reload).toHaveBeenCalledTimes(1);
+  expect(await frame()).not.toContain("draft→open");
+  state.set("acme/api#2", { ...state.get("acme/api#2")!, title: "refreshed endpoints" });
+  await act(async () => {
+    ui.mockInput.pressKey("r");
+  });
+  expect(sync).toHaveBeenCalledTimes(2);
+  expect(reload).toHaveBeenCalledTimes(2);
+  expect(await frame()).toContain("#2 refreshed endpoints");
+  expect(sync.mock.calls[1]![0].prs.find((pr) => pr.id === "acme/api#2")?.status).toBe("open");
+  const line = (await frame()).split("\n").find((line) => line.includes("#2 refreshed endpoints"))!;
+  expect(line).not.toContain("@alice ●");
+});
+
+test("a failed fetch leaves the file untouched", async () => {
+  const tracking = await fixture();
+  const sync = mock(async () => []);
+  const reload = mock(async () => tracking);
+  await render(tracking, currentLive(tracking), {
+    fetchLive: async () => { throw new Error("offline"); },
+    sync,
+    reload,
+  });
+  expect(sync).not.toHaveBeenCalled();
+  expect(reload).not.toHaveBeenCalled();
+  expect(await frame()).toContain("offline");
+});
+
+test("a failed sync keeps live state visible and reports the failure", async () => {
+  const tracking = await fixture();
+  const state = currentLive(tracking);
+  state.set("acme/api#2", { ...state.get("acme/api#2")!, status: "open" });
+  const sync = mock(async () => { throw new Error("read-only file"); });
+  const reload = mock(async () => tracking);
+  const ui = await render(tracking, state, { sync, reload });
+  expect(reload).not.toHaveBeenCalled();
+  expect(await frame()).toContain("draft→open");
+  expect(await frame()).toContain("Sync failed: read-only file");
+  await act(async () => {
+    ui.mockInput.pressKey("r");
+  });
+  expect(sync).toHaveBeenCalledTimes(2);
+});
+
+test("ignores overlapping refresh and sync requests", async () => {
+  const tracking = await fixture();
+  const state = currentLive(tracking);
+  const pending = Promise.withResolvers<LiveMap>();
+  const fetchLive = mock(async () => state);
+  const sync = mock(async () => []);
+  const ui = await render(tracking, state, { fetchLive, sync });
+  fetchLive.mockImplementation(() => pending.promise);
+  await act(async () => {
+    ui.mockInput.pressKey("r");
+    ui.mockInput.pressKey("r");
+    ui.mockInput.pressKey("s");
+  });
+  expect(fetchLive).toHaveBeenCalledTimes(2);
+  expect(sync).toHaveBeenCalledTimes(1);
+  await act(async () => {
+    pending.resolve(state);
+  });
+  expect(sync).toHaveBeenCalledTimes(2);
 });
 
 test("shows labels in the details pane only", async () => {

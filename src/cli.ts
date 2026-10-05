@@ -5,7 +5,7 @@
 import { isatty } from "node:tty";
 import { createLiveFetcher, ghViewer } from "./github.ts";
 import { toJson } from "./json.ts";
-import { syncTracking, writeTracking } from "./sync.ts";
+import { syncTracking, syncTrackingFile, writeTracking } from "./sync.ts";
 import { findTrackingFile, loadTracking } from "./tracking.ts";
 import { saveViewSettings } from "./view.ts";
 
@@ -59,17 +59,23 @@ if (command === "sync") {
     console.error(`live fetch failed: ${error instanceof Error ? error.message : String(error)}`);
     return undefined;
   });
-  console.log(JSON.stringify(toJson(tracking, live), null, 2));
+  let current = tracking;
+  if (live) {
+    try {
+      await syncTrackingFile(tracking.path, live);
+      current = await loadTracking(tracking.path);
+    } catch (error) {
+      console.error(`sync failed: ${error instanceof Error ? error.message : String(error)}`);
+      process.exitCode = 1;
+    }
+  }
+  console.log(JSON.stringify(toJson(current, live), null, 2));
 } else {
   const { runTui } = await import("./tui/run.tsx");
   await runTui({
     initial: tracking,
     fetchLive,
-    sync: async (current, live) => {
-      const changes = syncTracking(current, live);
-      if (changes.length > 0) await writeTracking(current);
-      return changes;
-    },
+    sync: (current, live) => syncTrackingFile(current.path, live),
     reload: () => loadTracking(tracking.path),
     fetchViewer: ghViewer,
     saveView: (settings) => saveViewSettings(tracking.path, settings),

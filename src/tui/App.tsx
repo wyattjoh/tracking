@@ -1,6 +1,6 @@
 // The interactive view: a collapsible tree of tracked PRs, grouped by a chosen
 // view, beside a detail pane. It renders from the file at once and refreshes
-// with live GitHub state.
+// with live GitHub state, syncing each refresh back into the file.
 
 import type { MouseEvent, ScrollBoxRenderable } from "@opentui/core";
 import { useKeyboard, useRenderer, useSelectionHandler, useTerminalDimensions } from "@opentui/react";
@@ -302,15 +302,28 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer, saveView }:
   const selectedIndex = Math.max(0, rows.findIndex((row) => row.key === selectedKey));
   const selected = rows[selectedIndex];
 
+  const syncingRef = useRef(false);
   const refresh = useCallback(async (current: Tracking) => {
+    if (syncingRef.current) return;
+    syncingRef.current = true;
+    setMessage(undefined);
     setFetchState({ kind: "loading" });
     try {
-      setLive(await fetchLive(current.prs));
+      const nextLive = await fetchLive(current.prs);
+      setLive(nextLive);
+      try {
+        await sync(current, nextLive);
+        setTracking(await reload());
+      } catch (error) {
+        setMessage(`Sync failed: ${errorMessage(error)}`);
+      }
       setFetchState({ kind: "ready", at: new Date() });
     } catch (error) {
       setFetchState({ kind: "error", message: errorMessage(error) });
+    } finally {
+      syncingRef.current = false;
     }
-  }, [fetchLive]);
+  }, [fetchLive, sync, reload]);
 
   useEffect(() => {
     void refresh(initial);
@@ -336,16 +349,20 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer, saveView }:
   }, []);
 
   const runSync = async () => {
+    if (syncingRef.current) return;
     if (!live) {
       setMessage("No live state yet; wait for the fetch to finish.");
       return;
     }
+    syncingRef.current = true;
     try {
       const changes = await sync(tracking, live);
       setTracking(await reload());
       setMessage(changes.length === 0 ? "File already current." : `Synced ${changes.length} pull requests into the file.`);
     } catch (error) {
       setMessage(`Sync failed: ${errorMessage(error)}`);
+    } finally {
+      syncingRef.current = false;
     }
   };
 

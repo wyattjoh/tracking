@@ -3,13 +3,15 @@
 A Bun CLI and OpenTUI interface for a `TRACKING.yaml` file of GitHub pull requests.
 
 - `tracking [file]` in a terminal opens the interactive view. It renders from the file
-  immediately, then fetches live state from GitHub and marks drift. `v` (or clicking the
+  immediately, then fetches live state from GitHub and syncs it into the YAML file.
+  Every `r` refresh also syncs; failed fetches leave the file untouched. `v` (or clicking the
   view in the header) opens the view modal, which sets the grouping (repo, author,
   status or review, plus an optional sub-group) and per-dimension filters. Labels
   filter but do not group; each cycles between wanted (`[+]`), unwanted (`[-]`) and
   unset. Closing the
   modal saves any change to the file's `view` key.
-- `tracking [file]` with stdout not a TTY prints the merged file and live state as JSON.
+- `tracking [file]` with stdout not a TTY syncs live state into the YAML file, then
+  prints the merged file and live state as JSON.
 - `tracking sync [--dry-run] [file]` writes live `status`, `review`, `head`, `base`,
   `title`, `labels` and `description` back into the file.
 
@@ -47,7 +49,9 @@ branches when they have been fetched. `sync` keeps `head` and `base` current so 
 reach the file.
 
 `sync` edits the file through the `yaml` Document API so comments and ordering
-survive. Keep that property when changing the write path.
+survive. Automatic sync re-reads the file before writing to preserve local edits,
+then reloads the saved state. Unchanged files are not rewritten; `sync --dry-run`
+never writes. Keep those properties when changing the write path.
 
 ## Layout
 
