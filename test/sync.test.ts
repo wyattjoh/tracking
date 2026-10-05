@@ -26,7 +26,7 @@ describe("syncTracking", () => {
     );
 
     expect(syncTracking(tracking, state)).toEqual([
-      { id: "acme/api#1", fields: ["status", "review", "base", "title", "description"] },
+      { id: "acme/api#1", fields: ["status", "review", "base", "title", "labels", "description"] },
     ]);
 
     const text = serializeTracking(tracking);
@@ -55,6 +55,26 @@ describe("syncTracking", () => {
     const reloaded = modelTracking(FIXTURE, parseDocument(serializeTracking(tracking)));
     expect(reloaded.prs.find((pr) => pr.id === "acme/api#1")?.review).toBeUndefined();
     expect(reloaded.prs.find((pr) => pr.id === "acme/api#3")?.review).toBe("changes_requested");
+  });
+
+  test("writes labels as a flow sequence and removes them when none remain", async () => {
+    const tracking = await fixture();
+    const state = currentLive(tracking);
+    state.set("acme/api#1", { ...state.get("acme/api#1")!, labels: [] });
+    state.set("acme/api#3", { ...state.get("acme/api#3")!, labels: [{ name: "bug", color: "d73a4a" }, { name: "p: high", color: "000000" }] });
+
+    expect(syncTracking(tracking, state)).toEqual([
+      { id: "acme/api#1", fields: ["labels"] },
+      { id: "acme/api#3", fields: ["labels"] },
+    ]);
+
+    const text = serializeTracking(tracking);
+    expect(text).toContain('labels: [ bug, "p: high" ]');
+
+    const reloaded = modelTracking(FIXTURE, parseDocument(text));
+    expect(reloaded.prs.find((pr) => pr.id === "acme/api#1")?.labels).toEqual([]);
+    expect(reloaded.prs.find((pr) => pr.id === "acme/api#3")?.labels).toEqual(["bug", "p: high"]);
+    expect(syncTracking(reloaded, state)).toEqual([]);
   });
 
   test("skips pull requests GitHub did not return", async () => {

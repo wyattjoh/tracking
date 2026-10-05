@@ -1,14 +1,14 @@
 // Compare file entries with live GitHub state and write live fields back into
 // the yaml Document, so comments, ordering and nesting survive.
 
-import { Scalar, type YAMLMap } from "yaml";
+import { type Document, Scalar, type YAMLMap } from "yaml";
 import type { Live, LiveMap } from "./github.ts";
 import type { PrNode, Tracking } from "./tracking.ts";
 
 /**
  * A field `sync` keeps in step with GitHub.
  */
-export type SyncedField = "status" | "review" | "head" | "base" | "title" | "description";
+export type SyncedField = "status" | "review" | "head" | "base" | "title" | "labels" | "description";
 
 /**
  * The fields of one pull request that sync changed, or would change.
@@ -33,12 +33,14 @@ export const toDescription = (body: string): string =>
     .join("\n")
     .trim();
 
+// Labels are compared as newline-joined names, which GitHub label names cannot contain.
 const wanted = (live: Live): Record<SyncedField, string> => ({
   status: live.status,
   review: live.review ?? "",
   head: live.headRefName,
   base: live.baseRefName,
   title: live.title,
+  labels: live.labels.map((label) => label.name).join("\n"),
   description: toDescription(live.body),
 });
 
@@ -57,25 +59,32 @@ export const driftFields = (pr: PrNode, live: Live): SyncedField[] => {
     head: pr.head ?? "",
     base: pr.base ?? "",
     title: pr.title ?? "",
+    labels: pr.labels.join("\n"),
     description: pr.description ?? "",
   };
-  return (["status", "review", "head", "base", "title", "description"] as const).filter((field) => current[field] !== next[field]);
+  return (["status", "review", "head", "base", "title", "labels", "description"] as const).filter((field) => current[field] !== next[field]);
 };
 
-// Set a scalar field, removing it when the value is empty.
-const setField = (node: YAMLMap, key: string, value: string, block: boolean): void => {
+// Set a field, removing it when the value is empty. Labels become a flow
+// sequence; the description a block literal.
+const setField = (doc: Document, node: YAMLMap, key: SyncedField, value: string): void => {
   if (value === "") {
     node.delete(key);
     return;
   }
 
+  if (key === "labels") {
+    node.set(key, doc.createNode(value.split("\n"), { flow: true }));
+    return;
+  }
+
   const scalar = new Scalar(value);
-  if (block) scalar.type = Scalar.BLOCK_LITERAL;
+  if (key === "description") scalar.type = Scalar.BLOCK_LITERAL;
   node.set(key, scalar);
 };
 
 /**
- * Apply live status, review, branches, title and description to every entry in the document.
+ * Apply live status, review, branches, title, labels and description to every entry in the document.
  * The model's plain fields are not refreshed; reload the file after writing.
  *
  * @param tracking - The loaded file
@@ -91,7 +100,7 @@ export const syncTracking = (tracking: Tracking, live: LiveMap): Change[] =>
     if (fields.length === 0) return [];
 
     const next = wanted(state);
-    for (const field of fields) setField(pr.yaml, field, next[field], field === "description");
+    for (const field of fields) setField(tracking.doc, pr.yaml, field, next[field]);
     return [{ id: pr.id, fields }];
   });
 

@@ -19,6 +19,7 @@ const prJson = (pr: PrNode, live: LiveMap | undefined, parents: Map<string, stri
     notes: pr.notes,
     linear: pr.linear,
     depends_on: pr.dependsOn,
+    labels: pr.labels,
     stacked_on: parents.get(pr.id) ?? null,
     live: state && {
       status: state.status,
@@ -27,6 +28,7 @@ const prJson = (pr: PrNode, live: LiveMap | undefined, parents: Map<string, stri
       author: state.author,
       head: state.headRefName,
       base: state.baseRefName,
+      labels: state.labels.map((label) => label.name),
     },
     drift: state ? driftFields(pr, state) : [],
   };

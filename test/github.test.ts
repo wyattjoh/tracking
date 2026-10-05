@@ -32,6 +32,7 @@ test("fetches each pull request once and omits ones GitHub did not find", async 
           author: { login: "alice" },
           headRefName: "h",
           baseRefName: "main",
+          labels: { nodes: [{ name: "bug", color: "d73a4a" }] },
         },
       },
       p1: { pullRequest: null },
@@ -56,5 +57,6 @@ test("fetches each pull request once and omits ones GitHub did not find", async 
     author: "alice",
     headRefName: "h",
     baseRefName: "main",
+    labels: [{ name: "bug", color: "d73a4a" }],
   });
 });

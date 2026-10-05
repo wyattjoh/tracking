@@ -16,6 +16,7 @@ export const live = (overrides: Partial<Live> = {}): Live => ({
   author: "alice",
   headRefName: "head",
   baseRefName: "main",
+  labels: [],
   ...overrides,
 });
 
@@ -32,6 +33,7 @@ export const currentLive = (tracking: Tracking): LiveMap =>
         author: pr.owner,
         headRefName: pr.head ?? "",
         baseRefName: pr.base ?? "",
+        labels: pr.labels.map((name) => ({ name, color: "d73a4a" })),
       }),
     ]),
   );

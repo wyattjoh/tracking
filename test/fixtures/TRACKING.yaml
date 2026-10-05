@@ -8,6 +8,7 @@ acme/api:
     review: approved
     head: alice/schema
     base: main
+    labels: [ backend, needs-qa ]
     # Keep this comment through sync.
   - number: 2
     owner: alice

@@ -49,6 +49,21 @@ const REVIEW_COLOURS: Record<string, string> = {
 export const reviewColour = (review: string): string => REVIEW_COLOURS[review] ?? theme.dim;
 
 /**
+ * Colours for a label chip: GitHub's label colour as the background, with dark
+ * or light text by its luminance, as GitHub draws them. Labels read from the
+ * file have no colour until live state arrives.
+ *
+ * @param color - GitHub's hex colour without `#`, when known
+ * @returns Foreground and background hex colours
+ */
+export const labelColours = (color: string | undefined): { fg: string; bg: string } => {
+  if (!color || !/^[0-9a-f]{6}$/i.test(color)) return { fg: theme.fg, bg: theme.border };
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(color.slice(i, i + 2), 16));
+  const luminance = (0.299 * r! + 0.587 * g! + 0.114 * b!) / 255;
+  return { fg: luminance > 0.5 ? "#000000" : "#ffffff", bg: `#${color}` };
+};
+
+/**
  * Create the syntax style the markdown description renders with.
  *
  * @returns A syntax style for markdown and fenced code

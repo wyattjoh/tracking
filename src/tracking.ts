@@ -33,6 +33,7 @@ export type PrNode = {
   notes: string | undefined;
   linear: string | undefined;
   dependsOn: string[];
+  labels: string[];
   description: string | undefined;
   yaml: YAMLMap;
 };
@@ -117,6 +118,7 @@ const toNode = (repo: string, node: unknown): PrNode[] => {
       notes: str(node, "notes"),
       linear: str(node, "linear"),
       dependsOn: strings(node, "depends_on"),
+      labels: strings(node, "labels"),
       description: str(node, "description"),
       yaml: node,
     },

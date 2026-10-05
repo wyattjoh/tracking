@@ -5,6 +5,14 @@ import { $ } from "bun";
 import type { Review, Status } from "./tracking.ts";
 
 /**
+ * A label on a pull request, with GitHub's hex colour (no leading `#`).
+ */
+export type Label = {
+  name: string;
+  color: string;
+};
+
+/**
  * Live state of one pull request on GitHub.
  */
 export type Live = {
@@ -15,6 +23,7 @@ export type Live = {
   author: string | undefined;
   headRefName: string;
   baseRefName: string;
+  labels: Label[];
 };
 
 /**
@@ -42,6 +51,7 @@ type RawPullRequest = {
   author: { login: string } | null;
   headRefName: string;
   baseRefName: string;
+  labels: { nodes: Label[] };
 };
 
 // Bodies make responses large, so cap each request well under GitHub's limits.
@@ -119,7 +129,7 @@ export const createLiveFetcher =
         const query = `{ ${batch
           .map(({ repo, number }, i) => {
             const [owner, name] = repo.split("/");
-            return `p${i}: repository(owner: "${owner}", name: "${name}") { pullRequest(number: ${number}) { state isDraft reviewDecision title body author { login } headRefName baseRefName } }`;
+            return `p${i}: repository(owner: "${owner}", name: "${name}") { pullRequest(number: ${number}) { state isDraft reviewDecision title body author { login } headRefName baseRefName labels(first: 20, orderBy: { field: NAME, direction: ASC }) { nodes { name color } } } }`;
           })
           .join(" ")} }`;
 
@@ -138,6 +148,7 @@ export const createLiveFetcher =
                 author: pr.author?.login,
                 headRefName: pr.headRefName,
                 baseRefName: pr.baseRefName,
+                labels: pr.labels.nodes,
               },
             ],
           ];

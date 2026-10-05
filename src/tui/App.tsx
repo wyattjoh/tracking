@@ -4,7 +4,7 @@
 
 import type { MouseEvent, ScrollBoxRenderable } from "@opentui/core";
 import { useKeyboard, useRenderer, useSelectionHandler, useTerminalDimensions } from "@opentui/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LiveFetcher, LiveMap } from "../github.ts";
 import { type Change, driftFields } from "../sync.ts";
 import { type PrNode, prUrl, type Tracking } from "../tracking.ts";
@@ -24,7 +24,7 @@ import {
   viewLabel,
   visibleRows,
 } from "./rows.ts";
-import { createMarkdownStyle, reviewColour, statusColour, theme } from "./theme.ts";
+import { createMarkdownStyle, labelColours, reviewColour, statusColour, theme } from "./theme.ts";
 import { readViewSettings, sameSettings, type View, type ViewSettings } from "../view.ts";
 import { ViewModal } from "./ViewModal.tsx";
 
@@ -60,6 +60,22 @@ const statusCounts = (prs: PrNode[], live: LiveMap | undefined): string =>
   )
     .map(([status, count]) => `${count} ${status}`)
     .join(" · ");
+
+// Live labels carry colours; the file's are names only.
+const prLabels = (pr: PrNode, live: LiveMap | undefined): { name: string; color: string | undefined }[] =>
+  live?.get(pr.id)?.labels ?? pr.labels.map((name) => ({ name, color: undefined }));
+
+// Each label as a padded chip, a space before each.
+const LabelChips = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) =>
+  prLabels(pr, live).map(({ name, color }) => {
+    const { fg, bg } = labelColours(color);
+    return (
+      <Fragment key={name}>
+        <span>{" "}</span>
+        <span fg={fg} bg={bg}>{` ${name} `}</span>
+      </Fragment>
+    );
+  });
 
 type TreeRowProps = {
   row: Row;
@@ -131,6 +147,7 @@ const PrLabel = ({ pr, onParent, showRepo, live }: PrLabelProps) => {
         {`${showRepo ? pr.repo.split("/").at(-1) : ""}#${pr.number}`}
       </a>
       <span fg={theme.fg}>{` ${state?.title ?? pr.title ?? ""}`}</span>
+      <LabelChips pr={pr} live={live} />
       {pr.owner && <span fg={theme.dim}>{` @${pr.owner}`}</span>}
       {onParent !== undefined && <span fg={theme.dim}>{` on #${onParent}`}</span>}
       {drift.length > 0 && <span fg={theme.drift}>{" ●"}</span>}
@@ -169,6 +186,11 @@ const PrDetail = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) => {
         {review && <span fg={reviewColour(review)}>{` ${valueLabel(review)}`}</span>}
         <span fg={theme.dim}>{`  ${author ? `@${author}` : "?"} · ${head}${base ? ` → ${base}` : ""}`}</span>
       </text>
+      {prLabels(pr, live).length > 0 && (
+        <text wrapMode="word" flexShrink={0}>
+          <LabelChips pr={pr} live={live} />
+        </text>
+      )}
       <text wrapMode="none" flexShrink={0}>
         <a href={url} fg={theme.accent}>
           {url}

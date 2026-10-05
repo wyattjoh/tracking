@@ -68,6 +68,20 @@ test("renders the tree with live status, review and drift", async () => {
   expect(text).toContain("live ");
 });
 
+test("shows labels in the tree and the details pane", async () => {
+  const tracking = await fixture();
+  const ui = await render(tracking, currentLive(tracking));
+
+  const before = await frame();
+  expect(before).toContain("#1 feat: add the schema  backend   needs-qa  @alice");
+
+  const y = lineOf(before, "#1 feat: add the schema");
+  await act(async () => {
+    await ui.mockMouse.click(20, y);
+  });
+  expect((await frame()).split("\n").filter((line) => line.includes(" backend   needs-qa "))).toHaveLength(2);
+});
+
 test("clicking a row selects it and shows its details", async () => {
   const tracking = await fixture();
   const ui = await render(tracking, currentLive(tracking));
