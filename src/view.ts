@@ -19,10 +19,18 @@ export type View = {
 };
 
 /**
- * Values to keep per dimension. An empty set keeps every value; dimensions
- * combine with AND and values within one with OR.
+ * Something pull requests can be filtered by: a dimension, or their labels.
+ * Labels filter but do not group, since a pull request can carry several.
  */
-export type Filters = Record<Dimension, Set<string>>;
+export type FilterKey = Dimension | "label";
+
+/**
+ * Values to keep per filter key. An empty set keeps every value; keys combine
+ * with AND and values within one with OR. A label value is a label name the
+ * pull request must carry, or `!name` for one it must not; the pull request
+ * needs any of the wanted labels and none of the unwanted ones.
+ */
+export type Filters = Record<FilterKey, Set<string>>;
 
 /**
  * Grouping and filters together, as saved in the file.
@@ -38,6 +46,11 @@ export type ViewSettings = {
 export const DIMENSIONS: Dimension[] = ["repo", "author", "status", "review"];
 
 /**
+ * Every filter key.
+ */
+export const FILTER_KEYS: FilterKey[] = [...DIMENSIONS, "label"];
+
+/**
  * The settings used when the file has no `view` key: grouped by repo then
  * author, showing open and draft pull requests only.
  */
@@ -48,6 +61,7 @@ export const DEFAULT_SETTINGS: ViewSettings = {
     author: new Set(),
     status: new Set(["open", "draft"]),
     review: new Set(),
+    label: new Set(),
   },
 };
 
@@ -77,7 +91,7 @@ export const readViewSettings = (doc: Document): ViewSettings => {
 
   const saved = node.get("filters", true);
   const filters = Object.fromEntries(
-    DIMENSIONS.map((dimension) => [dimension, new Set(isMap(saved) ? scalars(saved.get(dimension, true)) : [])]),
+    FILTER_KEYS.map((key) => [key, new Set(isMap(saved) ? scalars(saved.get(key, true)) : [])]),
   ) as Filters;
 
   return { view, filters };
@@ -93,10 +107,8 @@ export const readViewSettings = (doc: Document): ViewSettings => {
 export const sameSettings = (a: ViewSettings, b: ViewSettings): boolean =>
   a.view.group === b.view.group &&
   a.view.sub === b.view.sub &&
-  DIMENSIONS.every(
-    (dimension) =>
-      a.filters[dimension].size === b.filters[dimension].size &&
-      [...a.filters[dimension]].every((value) => b.filters[dimension].has(value)),
+  FILTER_KEYS.every(
+    (key) => a.filters[key].size === b.filters[key].size && [...a.filters[key]].every((value) => b.filters[key].has(value)),
   );
 
 /**
@@ -111,10 +123,7 @@ export const writeViewSettings = (doc: Document, settings: ViewSettings): void =
 
   const filters = doc.createNode(
     Object.fromEntries(
-      DIMENSIONS.filter((dimension) => settings.filters[dimension].size > 0).map((dimension) => [
-        dimension,
-        [...settings.filters[dimension]],
-      ]),
+      FILTER_KEYS.filter((key) => settings.filters[key].size > 0).map((key) => [key, [...settings.filters[key]]]),
     ),
   ) as YAMLMap;
   filters.flow = true;

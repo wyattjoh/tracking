@@ -13,7 +13,7 @@ import {
 import { DEFAULT_SETTINGS, type Filters } from "../src/view.ts";
 import { currentLive, fixture } from "./helpers.ts";
 
-const NONE: Filters = { repo: new Set(), author: new Set(), status: new Set(), review: new Set() };
+const NONE: Filters = { repo: new Set(), author: new Set(), status: new Set(), review: new Set(), label: new Set() };
 
 // One line per row: groups by key, PRs by guide, id and any outside parent.
 const outline = (rows: Row[]): string[] =>
@@ -94,6 +94,19 @@ describe("filters", () => {
     expect(ids({ ...NONE, status: new Set(["draft"]), author: new Set(["alice"]) })).toEqual(["acme/api#2"]);
   });
 
+  test("keep pull requests with any wanted label and none of the unwanted ones", async () => {
+    const tracking = await fixture();
+    const state = currentLive(tracking);
+    state.set("acme/api#3", { ...state.get("acme/api#3")!, labels: [{ name: "backend", color: "0e8a16" }] });
+    const ids = (label: string[]) => applyFilters(tracking.prs, { ...NONE, label: new Set(label) }, state).map((pr) => pr.id);
+
+    expect(ids(["backend"])).toEqual(["acme/api#1", "acme/api#3"]);
+    expect(ids(["needs-qa", "backend"])).toEqual(["acme/api#1", "acme/api#3"]);
+    expect(ids(["!needs-qa"])).toEqual(["acme/api#2", "acme/api#3", "acme/web#7"]);
+    expect(ids(["backend", "!needs-qa"])).toEqual(["acme/api#3"]);
+    expect(filterLabel({ ...NONE, label: new Set(["backend", "!needs-qa"]) })).toBe("label backend, not needs-qa");
+  });
+
   test("default to open and draft, which hides merged pull requests", async () => {
     const tracking = await fixture();
     const state = currentLive(tracking);
@@ -125,6 +138,14 @@ describe("filters", () => {
     expect(toggleFilter(added, "author", "bob").author.size).toBe(0);
   });
 
+  test("toggleFilter cycles a label through wanted, unwanted and unset", () => {
+    const wanted = toggleFilter(NONE, "label", "bug");
+    const unwanted = toggleFilter(wanted, "label", "bug");
+    expect([...wanted.label]).toEqual(["bug"]);
+    expect([...unwanted.label]).toEqual(["!bug"]);
+    expect(toggleFilter(unwanted, "label", "bug").label.size).toBe(0);
+  });
+
   test("filterOptions lists known statuses and reviews, then values found", async () => {
     const tracking = await fixture();
     const options = filterOptions(tracking, undefined, "bob");
@@ -133,6 +154,7 @@ describe("filters", () => {
     expect(options.review).toEqual(["changes_requested", "review_required", "approved", "none"]);
     expect(options.author).toEqual(["bob", "alice"]);
     expect(options.repo).toEqual(["acme/api", "acme/web"]);
+    expect(options.label).toEqual(["backend", "needs-qa"]);
   });
 
   test("modalItems puts the grouping first, then a section per dimension", async () => {
@@ -149,6 +171,7 @@ describe("filters", () => {
       "review",
       "author",
       "repo",
+      "label",
     ]);
   });
 });

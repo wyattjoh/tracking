@@ -5,7 +5,9 @@ A Bun CLI and OpenTUI interface for a `TRACKING.yaml` file of GitHub pull reques
 - `tracking [file]` in a terminal opens the interactive view. It renders from the file
   immediately, then fetches live state from GitHub and marks drift. `v` (or clicking the
   view in the header) opens the view modal, which sets the grouping (repo, author,
-  status or review, plus an optional sub-group) and per-dimension filters. Closing the
+  status or review, plus an optional sub-group) and per-dimension filters. Labels
+  filter but do not group; each cycles between wanted (`[+]`), unwanted (`[-]`) and
+  unset. Closing the
   modal saves any change to the file's `view` key.
 - `tracking [file]` with stdout not a TTY prints the merged file and live state as JSON.
 - `tracking sync [--dry-run] [file]` writes live `status`, `review`, `head`, `base`,
@@ -28,11 +30,14 @@ request has `number`, `owner`, `title`, `status`, `head`, `base`, and optionally
 `review`, `labels`, `notes`, `depends_on`, `linear` and `description`. `review` is GitHub's
 review decision (`approved`, `changes_requested` or `review_required`) and is only kept
 on open, non-draft pull requests. `labels` is a flow list of GitHub label names, sorted
-by name; the TUI draws them in GitHub's colours once live state arrives. The URL is never stored; it is
+by name; the TUI draws them in the detail pane in GitHub's colours once live state
+arrives. The URL is never stored; it is
 `https://github.com/<repo>/pull/<number>`.
 
 The optional top-level `view` key holds the TUI's grouping and filters
-(`group`, `sub`, and `filters` mapping a dimension to the values to show). Without it
+(`group`, `sub`, and `filters` mapping a dimension to the values to show). The
+`label` filter lists wanted label names and unwanted ones prefixed with `!`; a pull
+request must carry any wanted label and no unwanted one. Without it
 the view is `repo › author` showing open and draft pull requests. Repository keys always
 contain a `/`, so `view` cannot collide with one.
 

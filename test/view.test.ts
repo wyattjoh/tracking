@@ -17,7 +17,13 @@ import { FIXTURE, fixture, fixtureText } from "./helpers.ts";
 
 const settings: ViewSettings = {
   view: { group: "status", sub: "author" },
-  filters: { repo: new Set(), author: new Set(["alice"]), status: new Set(["open", "merged"]), review: new Set() },
+  filters: {
+    repo: new Set(),
+    author: new Set(["alice"]),
+    status: new Set(["open", "merged"]),
+    review: new Set(),
+    label: new Set(["backend", "!needs-qa"]),
+  },
 };
 
 describe("view settings", () => {
@@ -31,7 +37,7 @@ describe("view settings", () => {
     const text = serializeTracking(tracking);
 
     expect(text).toStartWith("# Fixture tracking file.\n\nview:\n  group: status\n  sub: author\n");
-    expect(text).toContain("filters: { author: [ alice ], status: [ open, merged ] }\n\nacme/api:");
+    expect(text).toContain('filters: { author: [ alice ], status: [ open, merged ], label: [ backend, "!needs-qa" ] }\n\nacme/api:');
 
     const reloaded = modelTracking(FIXTURE, parseDocument(text));
     expect(sameSettings(readViewSettings(reloaded.doc), settings)).toBe(true);

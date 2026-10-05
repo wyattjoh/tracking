@@ -5,7 +5,7 @@ import type { ScrollBoxRenderable } from "@opentui/core";
 import { useTerminalDimensions } from "@opentui/react";
 import { useEffect, useRef } from "react";
 import type { Filters, View } from "../view.ts";
-import { groupLabel, type ModalItem } from "./rows.ts";
+import { filterValueLabel, type ModalItem } from "./rows.ts";
 import { theme } from "./theme.ts";
 
 /**
@@ -47,11 +47,14 @@ const ItemLabel = ({ item, view, filters }: { item: ModalItem; view: View; filte
   }
   if (item.kind === "heading") return <span fg={theme.section}>{heading(item.dimension)}</span>;
 
+  // Labels can also be excluded, shown as [-]; wanted labels show [+].
+  const excluded = item.dimension === "label" && filters.label.has(`!${item.value}`);
   const checked = filters[item.dimension].has(item.value);
+  const mark = excluded ? "-" : checked ? (item.dimension === "label" ? "+" : "x") : " ";
   return (
     <>
-      <span fg={checked ? theme.accent : theme.dim}>{checked ? " [x] " : " [ ] "}</span>
-      <span fg={theme.fg}>{groupLabel(item.dimension, item.value)}</span>
+      <span fg={excluded ? theme.error : checked ? theme.accent : theme.dim}>{` [${mark}] `}</span>
+      <span fg={theme.fg}>{filterValueLabel(item.dimension, item.value)}</span>
     </>
   );
 };

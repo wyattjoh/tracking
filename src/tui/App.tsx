@@ -65,13 +65,13 @@ const statusCounts = (prs: PrNode[], live: LiveMap | undefined): string =>
 const prLabels = (pr: PrNode, live: LiveMap | undefined): { name: string; color: string | undefined }[] =>
   live?.get(pr.id)?.labels ?? pr.labels.map((name) => ({ name, color: undefined }));
 
-// Each label as a padded chip, a space before each.
+// Each label as a padded chip, spaced apart.
 const LabelChips = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) =>
-  prLabels(pr, live).map(({ name, color }) => {
+  prLabels(pr, live).map(({ name, color }, index) => {
     const { fg, bg } = labelColours(color);
     return (
       <Fragment key={name}>
-        <span>{" "}</span>
+        {index > 0 && <span>{" "}</span>}
         <span fg={fg} bg={bg}>{` ${name} `}</span>
       </Fragment>
     );
@@ -147,7 +147,6 @@ const PrLabel = ({ pr, onParent, showRepo, live }: PrLabelProps) => {
         {`${showRepo ? pr.repo.split("/").at(-1) : ""}#${pr.number}`}
       </a>
       <span fg={theme.fg}>{` ${state?.title ?? pr.title ?? ""}`}</span>
-      <LabelChips pr={pr} live={live} />
       {pr.owner && <span fg={theme.dim}>{` @${pr.owner}`}</span>}
       {onParent !== undefined && <span fg={theme.dim}>{` on #${onParent}`}</span>}
       {drift.length > 0 && <span fg={theme.drift}>{" ●"}</span>}

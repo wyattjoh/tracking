@@ -5,12 +5,12 @@
 
 import type { LiveMap } from "../github.ts";
 import { type PrNode, stackParents, type Tracking } from "../tracking.ts";
-import { DIMENSIONS, type Dimension, type Filters, type View } from "../view.ts";
+import { DIMENSIONS, type Dimension, type FilterKey, type Filters, type View } from "../view.ts";
 
 /**
  * The order filter sections appear in the view modal and header.
  */
-export const FILTER_ORDER: Dimension[] = ["status", "review", "author", "repo"];
+export const FILTER_ORDER: FilterKey[] = ["status", "review", "author", "repo", "label"];
 
 /**
  * One drawable line of the tree pane. `depth` counts the group levels above
@@ -60,6 +60,16 @@ export const dimensionValue = (dimension: Dimension, pr: PrNode, live: LiveMap |
   if (dimension === "status") return state?.status ?? pr.status ?? "unknown";
   return (state ? state.review : pr.review) ?? "none";
 };
+
+/**
+ * The label names a pull request carries, preferring live state.
+ *
+ * @param pr - The file entry
+ * @param live - Live state, when fetched
+ * @returns Label names
+ */
+export const labelNames = (pr: PrNode, live: LiveMap | undefined): string[] =>
+  live?.get(pr.id)?.labels.map((label) => label.name) ?? pr.labels;
 
 /**
  * Human-readable form of a group value.
@@ -115,17 +125,26 @@ const partition = (
  * @param live - Live state, when fetched
  * @returns The pull requests that pass, in the same order
  */
-export const applyFilters = (prs: PrNode[], filters: Filters, live: LiveMap | undefined): PrNode[] =>
-  prs.filter((pr) =>
-    DIMENSIONS.every((dimension) => {
-      const allowed = filters[dimension];
-      return allowed.size === 0 || allowed.has(dimensionValue(dimension, pr, live));
-    }),
-  );
+export const applyFilters = (prs: PrNode[], filters: Filters, live: LiveMap | undefined): PrNode[] => {
+  const wanted = [...filters.label].filter((value) => !value.startsWith("!"));
+  const unwanted = [...filters.label].flatMap((value) => (value.startsWith("!") ? [value.slice(1)] : []));
+  return prs.filter((pr) => {
+    const labels = labelNames(pr, live);
+    return (
+      DIMENSIONS.every((dimension) => {
+        const allowed = filters[dimension];
+        return allowed.size === 0 || allowed.has(dimensionValue(dimension, pr, live));
+      }) &&
+      (wanted.length === 0 || wanted.some((name) => labels.includes(name))) &&
+      !unwanted.some((name) => labels.includes(name))
+    );
+  });
+};
 
 /**
  * The values each dimension can be filtered by, in display order. Status and
- * review always offer their known values, then any others found.
+ * review always offer their known values, then any others found. Labels are
+ * listed by name.
  *
  * @param tracking - The loaded file
  * @param live - Live state, when fetched
@@ -136,47 +155,73 @@ export const filterOptions = (
   tracking: Tracking,
   live: LiveMap | undefined,
   viewer: string | undefined,
-): Record<Dimension, string[]> => {
+): Record<FilterKey, string[]> => {
   const values = (dimension: Dimension) => {
     const found = partition(tracking.prs, dimension, live, viewer).map(([value]) => value);
     const known = RANKS[dimension] ?? [];
     return [...known, ...found.filter((value) => !known.includes(value))];
   };
-  return { repo: values("repo"), author: values("author"), status: values("status"), review: values("review") };
+  const labels = [...new Set(tracking.prs.flatMap((pr) => labelNames(pr, live)))].toSorted((a, b) => a.localeCompare(b));
+  return {
+    repo: values("repo"),
+    author: values("author"),
+    status: values("status"),
+    review: values("review"),
+    label: labels,
+  };
 };
 
 /**
- * Add a value to a dimension's filter, or remove it if present.
+ * Add a value to a filter, or remove it if present. A label instead cycles
+ * from unset to wanted (`name`) to unwanted (`!name`) and back.
  *
  * @param filters - The current filters
- * @param dimension - The dimension
+ * @param key - The filter key
  * @param value - The value to toggle
  * @returns The new filters
  */
-export const toggleFilter = (filters: Filters, dimension: Dimension, value: string): Filters => {
-  const next = new Set(filters[dimension]);
+export const toggleFilter = (filters: Filters, key: FilterKey, value: string): Filters => {
+  const next = new Set(filters[key]);
+  if (key === "label") {
+    if (next.delete(value)) next.add(`!${value}`);
+    else if (!next.delete(`!${value}`)) next.add(value);
+    return { ...filters, [key]: next };
+  }
   if (!next.delete(value)) next.add(value);
-  return { ...filters, [dimension]: next };
+  return { ...filters, [key]: next };
 };
 
 /**
- * Remove every value from one dimension's filter.
+ * Remove every value from one filter.
  *
  * @param filters - The current filters
- * @param dimension - The dimension to clear
+ * @param key - The filter key to clear
  * @returns The new filters
  */
-export const clearFilter = (filters: Filters, dimension: Dimension): Filters => ({ ...filters, [dimension]: new Set() });
+export const clearFilter = (filters: Filters, key: FilterKey): Filters => ({ ...filters, [key]: new Set() });
+
+/**
+ * Display form of a filter value: unwanted labels read `not name`, and
+ * dimension values are shown as their groups are.
+ *
+ * @param key - The filter key
+ * @param value - The filter value
+ * @returns The label to draw
+ */
+export const filterValueLabel = (key: FilterKey, value: string): string => {
+  if (key !== "label") return groupLabel(key, value);
+  return value.startsWith("!") ? `not ${value.slice(1)}` : value;
+};
 
 /**
  * Describe the active filters for the header.
  *
  * @param filters - The filters
- * @returns Each filtered dimension with its values, or an empty string
+ * @returns Each filter key with its values, or an empty string
  */
 export const filterLabel = (filters: Filters): string =>
-  FILTER_ORDER.filter((dimension) => filters[dimension].size > 0)
-    .map((dimension) => `${dimension} ${[...filters[dimension]].map((value) => groupLabel(dimension, value)).join(", ")}`)
+  FILTER_ORDER.filter((key) => filters[key].size > 0)
+    .map((key) => `${key} ${[...filters[key]].map((value) => filterValueLabel(key, value)).join(", ")}`)
     .join("; ");
 
 type Stacks = {
@@ -321,17 +366,17 @@ export const canCollapse = (row: Row): boolean => row.kind === "group" || row.ha
 export type ModalItem =
   | { kind: "group" }
   | { kind: "sub" }
-  | { kind: "heading"; dimension: Dimension }
-  | { kind: "filter"; dimension: Dimension; value: string };
+  | { kind: "heading"; dimension: FilterKey }
+  | { kind: "filter"; dimension: FilterKey; value: string };
 
 /**
  * Lay out the view modal: the group and sub-group, then a checklist per
- * filterable dimension.
+ * filter key.
  *
- * @param options - Filterable values per dimension
+ * @param options - Filterable values per filter key
  * @returns Modal lines in display order
  */
-export const modalItems = (options: Record<Dimension, string[]>): ModalItem[] => [
+export const modalItems = (options: Record<FilterKey, string[]>): ModalItem[] => [
   { kind: "group" },
   { kind: "sub" },
   ...FILTER_ORDER.flatMap((dimension): ModalItem[] => [

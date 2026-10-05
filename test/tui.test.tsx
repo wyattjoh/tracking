@@ -68,18 +68,47 @@ test("renders the tree with live status, review and drift", async () => {
   expect(text).toContain("live ");
 });
 
-test("shows labels in the tree and the details pane", async () => {
+test("shows labels in the details pane only", async () => {
   const tracking = await fixture();
   const ui = await render(tracking, currentLive(tracking));
 
   const before = await frame();
-  expect(before).toContain("#1 feat: add the schema  backend   needs-qa  @alice");
+  expect(before).toContain("#1 feat: add the schema @alice");
+  expect(before).not.toContain("needs-qa");
 
-  const y = lineOf(before, "#1 feat: add the schema");
   await act(async () => {
-    await ui.mockMouse.click(20, y);
+    await ui.mockMouse.click(20, lineOf(before, "#1 feat: add the schema"));
   });
-  expect((await frame()).split("\n").filter((line) => line.includes(" backend   needs-qa "))).toHaveLength(2);
+  expect(await frame()).toContain(" backend   needs-qa ");
+});
+
+test("the view modal filters by label, cycling with and without", async () => {
+  const tracking = await fixture();
+  const ui = await render(tracking, currentLive(tracking));
+
+  // needs-qa is the last item, so moving down past the end lands on it.
+  await act(async () => {
+    ui.mockInput.pressKey("v");
+  });
+  await act(async () => {
+    for (let i = 0; i < 30; i++) ui.mockInput.pressKey("j");
+    ui.mockInput.pressKey(" ");
+  });
+  // The modal scrolls the cursor into view on the frame after it moves.
+  await frame();
+  const wanted = await frame();
+  expect(wanted).toContain("[+] needs-qa");
+  expect(wanted).toContain("label needs-qa");
+  expect(wanted).not.toContain("#3 fix: standalone");
+
+  await act(async () => {
+    ui.mockInput.pressKey(" ");
+  });
+  const unwanted = await frame();
+  expect(unwanted).toContain("[-] needs-qa");
+  expect(unwanted).toContain("label not needs-qa");
+  expect(unwanted).toContain("#3 fix: standalone");
+  expect(unwanted).not.toContain("#1 feat: add the schema");
 });
 
 test("clicking a row selects it and shows its details", async () => {
