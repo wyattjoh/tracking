@@ -260,25 +260,36 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer, saveView }:
   const [resizing, setResizing] = useState(false);
   // Drag events can arrive before React re-renders, so handlers read a ref.
   const resizingRef = useRef(false);
+  const pressedLinkRef = useRef<string | null>(null);
 
   const clampWidth = (columns: number) => Math.min(Math.max(columns, MIN_PANE_WIDTH), width - MIN_PANE_WIDTH);
   const paneWidth = clampWidth(treeWidth ?? Math.round(width * 0.6));
   const borderColor = resizing ? theme.borderFocus : theme.border;
 
+  // Link clicks and border drags bubble here from both panes.
   // The panes' touching borders sit at columns paneWidth - 1 and paneWidth.
-  // Pressing either starts a resize; events from inside the panes bubble here.
   const onBodyMouseDown = (event: MouseEvent) => {
-    if (event.button !== 0 || (event.x !== paneWidth - 1 && event.x !== paneWidth)) return;
+    if (event.button !== 0) return;
+    pressedLinkRef.current = renderer.getLinkAt(event.x, event.y);
+    if (event.x !== paneWidth - 1 && event.x !== paneWidth) return;
     event.stopPropagation();
     resizingRef.current = true;
     setResizing(true);
   };
   const onBodyMouseDrag = (event: MouseEvent) => {
+    pressedLinkRef.current = null;
     if (resizingRef.current) setTreeWidth(clampWidth(event.x + 1));
   };
   const endResize = () => {
     resizingRef.current = false;
     setResizing(false);
+  };
+  const onBodyMouseUp = (event: MouseEvent) => {
+    endResize();
+    const url = pressedLinkRef.current;
+    pressedLinkRef.current = null;
+    if (event.button !== 0 || !url || renderer.getLinkAt(event.x, event.y) !== url) return;
+    setMessage(renderer.copyToClipboardOSC52(url) ? "Copied URL." : "Terminal does not support copying.");
   };
 
   const rows = useMemo(
@@ -453,7 +464,7 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer, saveView }:
         onMouseDown={onBodyMouseDown}
         onMouseDrag={onBodyMouseDrag}
         onMouseDragEnd={endResize}
-        onMouseUp={endResize}
+        onMouseUp={onBodyMouseUp}
       >
         <box width={paneWidth} border borderStyle="rounded" borderColor={borderColor} title="Pull requests">
           <scrollbox ref={treeRef} flexGrow={1}>

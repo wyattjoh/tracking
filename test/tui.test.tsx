@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from "bun:test";
+import { afterEach, expect, mock, spyOn, test } from "bun:test";
 import { testRender } from "@opentui/react/test-utils";
 import { act } from "react";
 import type { LiveMap } from "../src/github.ts";
@@ -11,6 +11,7 @@ let setup: Awaited<ReturnType<typeof testRender>> | undefined;
 let saves: ViewSettings[] = [];
 
 afterEach(() => {
+  mock.restore();
   if (setup) act(() => setup!.renderer.destroy());
   setup = undefined;
   saves = [];
@@ -123,6 +124,89 @@ test("clicking a row selects it and shows its details", async () => {
   const text = await frame();
   expect(text).toContain("https://github.com/acme/api/pull/3");
   expect(text).toContain("A note.");
+});
+
+test("clicking a PR link in the tree copies its URL and selects the row", async () => {
+  const tracking = await fixture();
+  const ui = await render(tracking, currentLive(tracking));
+  const copy = spyOn(ui.renderer, "copyToClipboardOSC52").mockReturnValue(true);
+  const before = await frame();
+  const y = lineOf(before, "#3 fix: standalone");
+  const x = before.split("\n")[y]!.indexOf("#3");
+
+  await act(async () => {
+    await ui.mockMouse.click(x, y);
+  });
+
+  expect(copy.mock.calls).toEqual([["https://github.com/acme/api/pull/3"]]);
+  expect(await frame()).toContain("A note.");
+  expect(await frame()).toContain("Copied URL.");
+});
+
+test("clicking the detail URL copies it and reports unsupported clipboard access", async () => {
+  const tracking = await fixture();
+  const ui = await render(tracking, currentLive(tracking));
+  const copy = spyOn(ui.renderer, "copyToClipboardOSC52").mockReturnValue(false);
+  const before = await frame();
+  await act(async () => {
+    await ui.mockMouse.click(20, lineOf(before, "#3 fix: standalone"));
+  });
+  const detail = await frame();
+  const y = lineOf(detail, "https://github.com/acme/api/pull/3");
+  const x = detail.split("\n")[y]!.indexOf("https://");
+
+  await act(async () => {
+    await ui.mockMouse.click(x, y);
+  });
+
+  expect(copy.mock.calls).toEqual([["https://github.com/acme/api/pull/3"]]);
+  expect(await frame()).toContain("Terminal does not support copying.");
+});
+
+test("clicking a Markdown link copies its target rather than its label", async () => {
+  const tracking = await fixture();
+  const state = currentLive(tracking);
+  state.set("acme/api#3", { ...state.get("acme/api#3")!, body: "See [the docs](https://example.com/docs)." });
+  const ui = await render(tracking, state);
+  const copy = spyOn(ui.renderer, "copyToClipboardOSC52").mockReturnValue(true);
+  const before = await frame();
+  await act(async () => {
+    await ui.mockMouse.click(20, lineOf(before, "#3 fix: standalone"));
+  });
+  // Markdown lays out its blocks after the detail pane's width is known.
+  await frame();
+  await act(async () => {
+    await Bun.sleep(200);
+  });
+  const detail = await frame();
+  expect(detail).toContain("the docs");
+  const y = lineOf(detail, "the docs");
+  const x = detail.split("\n")[y]!.indexOf("the docs");
+
+  await act(async () => {
+    await ui.mockMouse.click(x, y);
+  });
+
+  expect(copy.mock.calls).toEqual([["https://example.com/docs"]]);
+});
+
+test("dragging from a link or right-clicking it does not copy the URL", async () => {
+  const tracking = await fixture();
+  const ui = await render(tracking, currentLive(tracking));
+  const copy = spyOn(ui.renderer, "copyToClipboardOSC52").mockReturnValue(true);
+  const before = await frame();
+  const y = lineOf(before, "#3 fix: standalone");
+  const x = before.split("\n")[y]!.indexOf("#3");
+
+  await act(async () => {
+    await ui.mockMouse.click(x, y, 2);
+  });
+  expect(copy).not.toHaveBeenCalled();
+
+  await act(async () => {
+    await ui.mockMouse.drag(x, y, x + 8, y);
+  });
+  expect(copy).not.toHaveBeenCalledWith("https://github.com/acme/api/pull/3");
 });
 
 test("clicking a glyph collapses its stacked children", async () => {
