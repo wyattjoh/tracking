@@ -3,6 +3,7 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseDocument } from "yaml";
+import { TEMPLATE } from "../src/init.ts";
 import { serializeTracking } from "../src/sync.ts";
 import { modelTracking } from "../src/tracking.ts";
 import {
@@ -52,6 +53,15 @@ describe("view settings", () => {
 
     expect(text.match(/^view:/gm)).toHaveLength(1);
     expect(sameSettings(readViewSettings(parseDocument(text)), DEFAULT_SETTINGS)).toBe(true);
+  });
+
+  test("write into a file with no entries, keeping its comments", () => {
+    const doc = parseDocument(TEMPLATE);
+    writeViewSettings(doc, settings);
+    const text = doc.toString();
+
+    expect(text).toStartWith(TEMPLATE);
+    expect(sameSettings(readViewSettings(parseDocument(text)), settings)).toBe(true);
   });
 
   test("ignore unknown dimensions and a sub-group equal to the group", () => {

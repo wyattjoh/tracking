@@ -118,6 +118,8 @@ export const sameSettings = (a: ViewSettings, b: ViewSettings): boolean =>
  * @param settings - The settings to store
  */
 export const writeViewSettings = (doc: Document, settings: ViewSettings): void => {
+  // A file with no entries yet, such as a fresh `tracking init`, has no root map.
+  if (doc.contents === null) doc.contents = doc.createNode({}) as YAMLMap;
   const root = doc.contents;
   if (!isMap(root)) return;
 

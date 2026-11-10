@@ -14,6 +14,9 @@ A Bun CLI and OpenTUI interface for a `TRACKING.yaml` file of GitHub pull reques
   prints the merged file and live state as JSON.
 - `tracking sync [--dry-run] [file]` writes live `status`, `review`, `head`, `base`,
   `title`, `labels` and `description` back into the file.
+- `tracking init [file]` creates a `TRACKING.yaml` (in the working directory by
+  default) whose only content is a commented-out example, so it loads with no pull
+  requests. It refuses to overwrite an existing file.
 
 Without `file`, the nearest `TRACKING.yaml` at or above the working directory is used.
 GitHub is reached through `gh api graphql`, so `gh` must be authenticated.
@@ -59,6 +62,7 @@ never writes. Keep those properties when changing the write path.
 - `src/tracking.ts`: locating, loading and modelling the file, and stack inference
 - `src/github.ts`: batched GraphQL fetch of live pull request state
 - `src/sync.ts`: write-back of live fields
+- `src/init.ts`: the starter file template written by `init`
 - `src/json.ts`: non-TTY JSON output
 - `src/view.ts`: view settings types and the `view` key's read and write
 - `src/tui/`: the `@opentui/react` interface; `rows.ts` filters and groups pull

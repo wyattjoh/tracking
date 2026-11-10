@@ -1,19 +1,24 @@
 #!/usr/bin/env bun
 // Entry point: `tracking [file]` opens the TUI (or prints JSON when stdout is
-// not a TTY), and `tracking sync [--dry-run] [file]` writes live state back.
+// not a TTY), `tracking sync [--dry-run] [file]` writes live state back, and
+// `tracking init [file]` creates a starter file.
 
+import { resolve } from "node:path";
 import { isatty } from "node:tty";
 import { createLiveFetcher, ghViewer } from "./github.ts";
+import { initTracking } from "./init.ts";
 import { toJson } from "./json.ts";
 import { syncTracking, syncTrackingFile, writeTracking } from "./sync.ts";
-import { findTrackingFile, loadTracking } from "./tracking.ts";
+import { FILE_NAME, findTrackingFile, loadTracking } from "./tracking.ts";
 import { saveViewSettings } from "./view.ts";
 
 const USAGE = `Usage:
   tracking [file]                   Open the interactive view (JSON when stdout is not a TTY)
   tracking sync [--dry-run] [file]  Write live status, review, title, labels and description into the file
+  tracking init [file]              Create a TRACKING.yaml with a commented-out example
 
-Without file, the nearest TRACKING.yaml at or above the working directory is used.`;
+Without file, the nearest TRACKING.yaml at or above the working directory is used;
+init creates one in the working directory instead.`;
 
 const fail = (message: string): never => {
   console.error(message);
@@ -26,12 +31,19 @@ if (args.includes("--help") || args.includes("-h")) {
   process.exit(0);
 }
 
-const command = args[0] === "sync" ? "sync" : "view";
-const rest = command === "sync" ? args.slice(1) : args;
+const command = args[0] === "sync" || args[0] === "init" ? args[0] : "view";
+const rest = command === "view" ? args : args.slice(1);
 const dryRun = rest.includes("--dry-run");
 const positional = rest.filter((arg) => !arg.startsWith("-"));
 const unknown = rest.filter((arg) => arg.startsWith("-") && arg !== "--dry-run");
 if (unknown.length > 0 || positional.length > 1 || (dryRun && command !== "sync")) fail(USAGE);
+
+if (command === "init") {
+  const target = resolve(positional[0] ?? FILE_NAME);
+  if (!(await initTracking(target))) fail(`already exists: ${target}`);
+  console.log(`created ${target}`);
+  process.exit(0);
+}
 
 const path = positional[0] ?? (await findTrackingFile(process.cwd())) ?? fail("no TRACKING.yaml found");
 const tracking = await loadTracking(path);

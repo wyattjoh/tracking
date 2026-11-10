@@ -56,7 +56,10 @@ export type Tracking = {
   prs: PrNode[];
 };
 
-const FILE_NAME = "TRACKING.yaml";
+/**
+ * The file name searched for when no path is given.
+ */
+export const FILE_NAME = "TRACKING.yaml";
 
 /**
  * Find the nearest TRACKING.yaml at or above `cwd`.

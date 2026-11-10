@@ -1,9 +1,10 @@
 import { expect, test } from "bun:test";
 import { execFile } from "node:child_process";
-import { chmod, mkdtemp, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, realpath, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { TEMPLATE } from "../src/init.ts";
 import { loadTracking } from "../src/tracking.ts";
 import { fixtureText } from "./helpers.ts";
 
@@ -84,6 +85,24 @@ test("non-TTY sync failures report an error but still print live state", async (
   const output = JSON.parse(result.stdout);
   expect(output.live).toBe(true);
   expect(output.repos[0].prs[0].live.status).toBe("merged");
+  expect(await Bun.file(path).text()).toBe(before);
+});
+
+test("init creates a commented template in the working directory that loads empty", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "tracking-init-"));
+  const { stdout } = await exec(process.execPath, [cli, "init"], { cwd: dir, timeout: 10_000 });
+  const path = join(await realpath(dir), "TRACKING.yaml");
+  expect(stdout).toBe(`created ${path}\n`);
+  expect(await Bun.file(path).text()).toBe(TEMPLATE);
+  expect((await loadTracking(path)).prs).toEqual([]);
+});
+
+test("init refuses to overwrite an existing file", async () => {
+  const { path } = await setup();
+  const before = await Bun.file(path).text();
+  const error = await exec(process.execPath, [cli, "init", path], { timeout: 10_000 }).catch((error) => error);
+  expect(error.code).toBe(1);
+  expect(String(error.stderr)).toContain("already exists:");
   expect(await Bun.file(path).text()).toBe(before);
 });
 
