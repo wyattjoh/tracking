@@ -67,6 +67,8 @@ never writes. Keep those properties when changing the write path.
 - `src/view.ts`: view settings types and the `view` key's read and write
 - `src/tui/`: the `@opentui/react` interface; `rows.ts` filters and groups pull
   requests into the tree for the current view, and `ViewModal.tsx` draws the view modal
+- `skills/tracking/`: agent skill that loads a `TRACKING.yaml` as working context;
+  update it when CLI commands, JSON output or the schema change
 
 ## Dependency References
 
