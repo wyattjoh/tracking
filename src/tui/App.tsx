@@ -203,6 +203,7 @@ const PrDetail = ({ pr, live }: { pr: PrNode; live: LiveMap | undefined }) => {
       {pr.notes && <Field label="Notes">{pr.notes}</Field>}
       {pr.dependsOn.length > 0 && <Field label="Depends on">{pr.dependsOn.join(", ")}</Field>}
       {pr.linear && <Field label="Linear">{pr.linear}</Field>}
+      {pr.path && <Field label="Path">{pr.path}</Field>}
       {body !== "" && <markdown content={body} syntaxStyle={markdownStyle} conceal flexShrink={0} />}
     </box>
   );

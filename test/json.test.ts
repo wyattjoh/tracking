@@ -20,6 +20,7 @@ test("lists pull requests flat with their inferred parent and drift", async () =
   expect(first!.drift).toEqual([]);
   expect(second!.stacked_on).toBe("acme/api#1");
   expect(second!.drift).toEqual(["status"]);
+  expect((json.repos[0]!.prs[2] as { path?: string }).path).toBe(tracking.prs[2]!.path);
 });
 
 test("reports no live state when the fetch failed", async () => {

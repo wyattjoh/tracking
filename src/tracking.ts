@@ -3,6 +3,7 @@
 // parsed yaml Document is kept alongside the model so sync can edit the
 // original nodes in place.
 
+import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import type { LiveMap } from "./github.ts";
 import { type Document, isMap, isScalar, isSeq, parseDocument, type YAMLMap } from "yaml";
@@ -32,6 +33,7 @@ export type PrNode = {
   base: string | undefined;
   notes: string | undefined;
   linear: string | undefined;
+  path: string | undefined;
   dependsOn: string[];
   labels: string[];
   description: string | undefined;
@@ -101,11 +103,24 @@ const strings = (node: YAMLMap, key: string): string[] => {
 
 const keyName = (key: unknown): string => String(isScalar(key) ? key.value : key);
 
-const toNode = (repo: string, node: unknown): PrNode[] => {
+/**
+ * Resolve a pull request's local path: `~` is the home directory and relative
+ * paths are relative to the tracking file's directory.
+ *
+ * @param dir - Directory holding the tracking file
+ * @param value - The path as written in the file
+ * @returns The absolute path
+ */
+export const resolveLocalPath = (dir: string, value: string): string =>
+  value === "~" || value.startsWith("~/") ? join(homedir(), value.slice(1)) : resolve(dir, value);
+
+const toNode = (dir: string, repo: string, node: unknown): PrNode[] => {
   if (!isMap(node)) return [];
 
   const number = node.get("number");
   if (typeof number !== "number") return [];
+
+  const path = str(node, "path");
 
   return [
     {
@@ -120,6 +135,7 @@ const toNode = (repo: string, node: unknown): PrNode[] => {
       base: str(node, "base"),
       notes: str(node, "notes"),
       linear: str(node, "linear"),
+      path: path === undefined ? undefined : resolveLocalPath(dir, path),
       dependsOn: strings(node, "depends_on"),
       labels: strings(node, "labels"),
       description: str(node, "description"),
@@ -141,7 +157,7 @@ export const modelTracking = (path: string, doc: Document): Tracking => {
     ? root.items.flatMap(({ key, value }) => {
         const repo = keyName(key);
         if (!isSeq(value)) return [];
-        return [{ repo, prs: value.items.flatMap((item) => toNode(repo, item)) }];
+        return [{ repo, prs: value.items.flatMap((item) => toNode(dirname(path), repo, item)) }];
       })
     : [];
 

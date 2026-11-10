@@ -25,6 +25,7 @@ acme/api:
     head: alice/fix
     base: main
     notes: A note.
+    path: worktrees/fix
 
 acme/web:
   - number: 7

@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { findTrackingFile, prUrl, stackParents } from "../src/tracking.ts";
-import { currentLive, fixture, live } from "./helpers.ts";
+import { homedir, tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { findTrackingFile, prUrl, resolveLocalPath, stackParents } from "../src/tracking.ts";
+import { currentLive, FIXTURE, fixture, live } from "./helpers.ts";
 
 describe("modelTracking", () => {
   test("models repos and their pull requests in file order", async () => {
@@ -13,6 +13,21 @@ describe("modelTracking", () => {
     expect(tracking.prs.map((pr) => pr.id)).toEqual(["acme/api#1", "acme/api#2", "acme/api#3", "acme/web#7"]);
     expect(tracking.prs[1]!.dependsOn).toEqual(["acme/infra#9"]);
     expect(tracking.prs[2]!.notes).toBe("A note.");
+  });
+
+  test("resolves local paths against the file's directory", async () => {
+    const tracking = await fixture();
+    expect(tracking.prs[2]!.path).toBe(join(dirname(FIXTURE), "worktrees/fix"));
+    expect(tracking.prs[0]!.path).toBeUndefined();
+  });
+});
+
+describe("resolveLocalPath", () => {
+  test("expands ~ and keeps absolute paths", () => {
+    expect(resolveLocalPath("/work", "~/code/api")).toBe(join(homedir(), "code/api"));
+    expect(resolveLocalPath("/work", "~")).toBe(homedir());
+    expect(resolveLocalPath("/work", "/srv/api")).toBe("/srv/api");
+    expect(resolveLocalPath("/work", "../api")).toBe("/api");
   });
 });
 

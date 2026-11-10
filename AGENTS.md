@@ -32,7 +32,10 @@ GitHub is reached through `gh api graphql`, so `gh` must be authenticated.
 
 The root maps a repository (`owner/name`) to a flat list of pull requests. Each pull
 request has `number`, `owner`, `title`, `status`, `head`, `base`, and optionally
-`review`, `labels`, `notes`, `depends_on`, `linear` and `description`. `review` is GitHub's
+`review`, `labels`, `notes`, `depends_on`, `linear`, `path` and `description`.
+`path` is the local checkout or worktree holding the pull request's code; `~` is the
+home directory and relative paths resolve against the file's directory. It is shown
+in the detail pane and JSON output, and `sync` never touches it. `review` is GitHub's
 review decision (`approved`, `changes_requested` or `review_required`) and is only kept
 on open, non-draft pull requests. `labels` is a flow list of GitHub label names, sorted
 by name; the TUI draws them in the detail pane in GitHub's colours once live state

@@ -18,6 +18,7 @@ const prJson = (pr: PrNode, live: LiveMap | undefined, parents: Map<string, stri
     base: pr.base,
     notes: pr.notes,
     linear: pr.linear,
+    path: pr.path,
     depends_on: pr.dependsOn,
     labels: pr.labels,
     stacked_on: parents.get(pr.id) ?? null,

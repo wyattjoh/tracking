@@ -13,6 +13,7 @@ export const TEMPLATE = `# Pull requests to track, keyed by repository (owner/na
 # acme/api:
 #   - number: 123
 #     notes: Optional free-form notes.
+#     path: ~/Code/acme/api  # Optional local checkout or worktree.
 `;
 
 /**

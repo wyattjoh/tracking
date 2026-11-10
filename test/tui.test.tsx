@@ -206,6 +206,7 @@ test("clicking a row selects it and shows its details", async () => {
   const text = await frame();
   expect(text).toContain("https://github.com/acme/api/pull/3");
   expect(text).toContain("A note.");
+  expect(text).toContain("Path");
 });
 
 test("clicking a PR link in the tree copies its URL and selects the row", async () => {
