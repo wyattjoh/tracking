@@ -13,8 +13,9 @@ Before acting on pull request work, you know every tracked pull request, its liv
 
 ## Completion criteria
 
+- **CLI available.** `tracking` is on `PATH` (`command -v tracking`). When it is missing, run `bun install && bun link` in the tracking repository, then check again. Use `$SKILL_DIR/../..` when its `package.json` names `tracking`, otherwise `~/Code/github.com/wyattjoh/tracking`. When neither holds the repository, ask before cloning it.
 - **Located.** You use the nearest `TRACKING.yaml` at or above the working directory, the same file the CLI picks.
-- **Loaded live.** You ran `tracking` with stdout piped (`tracking | cat`). That syncs live GitHub state into the file and prints JSON with each pull request's `url`, `live` state, `stacked_on` parent and `drift`. When the JSON reports `"live": false`, you work from the file alone and tell the user its state may be stale. Descriptions are left out of the JSON; read them from the file for any pull request you act on.
+- **Loaded live.** You ran `tracking` with stdout piped (`tracking | cat`) and read the tracked pull requests from its JSON, not from the YAML. That run syncs live GitHub state into the file and prints each pull request's file fields along with its `url`, `live` state, `stacked_on` parent and `drift`. When the JSON reports `"live": false`, you work from the file alone and tell the user its state may be stale. Descriptions are left out of the JSON; read them from the file only for pull requests you act on.
 - **Resolved.** A bare number maps to the tracked pull request with that number; when several repositories share it, ask. "The stack" means the chain formed by `stacked_on`.
 - **Located on disk.** Each repository you touch resolves to a checkout whose `origin` remote is that repository: first `<directory of TRACKING.yaml>/<name>`, then `~/Code/github.com/<owner>/<name>`. When neither exists, ask before cloning.
 - **Constrained.** `notes`, `depends_on`, labels such as `do not merge`, and "Before merge" checklists in descriptions bind the plan. Work through stacks and dependencies bottom-up, and leave a pull request in draft while anything it depends on is unmerged.
@@ -22,7 +23,7 @@ Before acting on pull request work, you know every tracked pull request, its liv
 ## Keeping the file current
 
 - When you open a pull request during this work, add `- number: <n>` under its repository key (creating the key if needed), with `notes` and `depends_on` when known, then run `tracking sync` to fill the rest.
-- Update `notes` and `depends_on` when the plan changes. `sync` owns `status`, `review`, `head`, `base`, `title`, `labels` and `description`, and the TUI owns the top-level `view` key; leave those to them.
+- Update `notes` and `depends_on` when the plan changes. The CLI has no command for these, so edit the file. `sync` owns `status`, `review`, `head`, `base`, `title`, `labels` and `description`, and the TUI owns the top-level `view` key; leave those to them, and run `tracking sync` to refresh them rather than editing them by hand.
 - Edit the file in place so its comments and ordering survive. Remove entries only when the user asks.
 - `tracking --help` lists the remaining commands, including `sync --dry-run` to preview drift without writing.
 
