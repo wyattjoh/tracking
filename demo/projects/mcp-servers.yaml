@@ -1,0 +1,991 @@
+# Demo project for the README recording (demo/tracking-tui.tape).
+# Public pull requests; `tracking sync` fills in the live fields.
+
+wyattjoh/jmap-mcp:
+  - number: 35
+    owner: "renovate[bot]"
+    status: open
+    review: review_required
+    head: renovate/all-minor-patch
+    base: main
+    title: "chore(deps): update all non-major dependencies"
+    description: |-
+      This PR contains the following updates:
+
+      | Package | Change | [Age](https://docs.renovatebot.com/merge-confidence/) | [Confidence](https://docs.renovatebot.com/merge-confidence/) | Type | Update |
+      |---|---|---|---|---|---|
+      | [@hono/node-server](https://redirect.github.com/honojs/node-server) | [`2.1.0` -> `2.1.1`](https://renovatebot.com/diffs/npm/@hono%2fnode-server/2.1.0/2.1.1) | ![age](https://developer.mend.io/api/mc/badges/age/npm/@hono%2fnode-server/2.1.1?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/npm/@hono%2fnode-server/2.1.0/2.1.1?slim=true) | overrides | patch |
+      | [docker.io/denoland/deno](https://redirect.github.com/denoland/deno_docker) | `2.9.2` → `2.9.5` | ![age](https://developer.mend.io/api/mc/badges/age/docker/docker.io%2fdenoland%2fdeno/2.9.5?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/docker/docker.io%2fdenoland%2fdeno/2.9.2/2.9.5?slim=true) | final | patch |
+      | [docker.io/denoland/deno](https://redirect.github.com/denoland/deno_docker) | `2.9.2` → `2.9.5` | ![age](https://developer.mend.io/api/mc/badges/age/docker/docker.io%2fdenoland%2fdeno/2.9.5?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/docker/docker.io%2fdenoland%2fdeno/2.9.2/2.9.5?slim=true) | stage | patch |
+      | [fast-uri](https://redirect.github.com/fastify/fast-uri) | [`3.1.5` -> `3.1.6`](https://renovatebot.com/diffs/npm/fast-uri/3.1.5/3.1.6) | ![age](https://developer.mend.io/api/mc/badges/age/npm/fast-uri/3.1.6?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/npm/fast-uri/3.1.5/3.1.6?slim=true) | overrides | patch |
+      | [hono](https://hono.dev) ([source](https://redirect.github.com/honojs/hono)) | [`4.13.1` -> `4.13.4`](https://renovatebot.com/diffs/npm/hono/4.13.1/4.13.4) | ![age](https://developer.mend.io/api/mc/badges/age/npm/hono/4.13.4?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/npm/hono/4.13.1/4.13.4?slim=true) | overrides | patch |
+      | [path-to-regexp](https://redirect.github.com/pillarjs/path-to-regexp) | [`8.4.0` -> `8.4.2`](https://renovatebot.com/diffs/npm/path-to-regexp/8.4.0/8.4.2) | ![age](https://developer.mend.io/api/mc/badges/age/npm/path-to-regexp/8.4.2?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/npm/path-to-regexp/8.4.0/8.4.2?slim=true) | overrides | patch |
+
+      ---
+
+      ### Release Notes
+
+      <details>
+      <summary>honojs/node-server (@&#8203;hono/node-server)</summary>
+
+      ### [`v2.1.1`](https://redirect.github.com/honojs/node-server/releases/tag/v2.1.1)
+
+      [Compare Source](https://redirect.github.com/honojs/node-server/compare/v2.1.0...v2.1.1)
+
+      #### What's Changed
+
+      - perf: lazily materialize request headers by [@&#8203;BlankParticle](https://redirect.github.com/BlankParticle) in [#&#8203;389](https://redirect.github.com/honojs/node-server/pull/389)
+
+      **Full Changelog**: <https://github.com/honojs/node-server/compare/v2.1.0...v2.1.1>
+
+      </details>
+
+      <details>
+      <summary>denoland/deno_docker (docker.io/denoland/deno)</summary>
+
+      ### [`v2.9.5`](https://redirect.github.com/denoland/deno_docker/compare/2.9.4...2.9.5)
+
+      [Compare Source](https://redirect.github.com/denoland/deno_docker/compare/2.9.4...2.9.5)
+
+      ### [`v2.9.4`](https://redirect.github.com/denoland/deno_docker/compare/2.9.3...2.9.4)
+
+      [Compare Source](https://redirect.github.com/denoland/deno_docker/compare/2.9.3...2.9.4)
+
+      ### [`v2.9.3`](https://redirect.github.com/denoland/deno_docker/compare/2.9.2...2.9.3)
+
+      [Compare Source](https://redirect.github.com/denoland/deno_docker/compare/2.9.2...2.9.3)
+
+      </details>
+
+      <details>
+      <summary>fastify/fast-uri (fast-uri)</summary>
+
+      ### [`v3.1.6`](https://redirect.github.com/fastify/fast-uri/compare/v3.1.5...6f970b2951fd896aa0f3a7ff28eeb6640c137d33)
+
+      [Compare Source](https://redirect.github.com/fastify/fast-uri/compare/v3.1.5...v3.1.6)
+
+      </details>
+
+      <details>
+      <summary>honojs/hono (hono)</summary>
+
+      ### [`v4.13.4`](https://redirect.github.com/honojs/hono/compare/v4.13.3...017000d6ad5bc6a65dd0f9215a4fdfea6ea80aea)
+
+      [Compare Source](https://redirect.github.com/honojs/hono/compare/v4.13.3...v4.13.4)
+
+      ### [`v4.13.3`](https://redirect.github.com/honojs/hono/releases/tag/v4.13.3)
+
+      [Compare Source](https://redirect.github.com/honojs/hono/compare/v4.13.2...v4.13.3)
+
+      #### What's Changed
+
+      - fix(client): prevent URL corruption when replaceUrlParam contains $ replacement tokens in [#&#8203;5227](https://redirect.github.com/honojs/hono/pull/5227)
+      - fix(etag): copy pending stream bytes in [#&#8203;5239](https://redirect.github.com/honojs/hono/pull/5239)
+      - fix(etag): avoid skipping headers when filtering 304 response headers in [#&#8203;5234](https://redirect.github.com/honojs/hono/pull/5234)
+      - fix(cors): append Origin to Vary header on OPTIONS preflight in [#&#8203;5235](https://redirect.github.com/honojs/hono/pull/5235)
+      - docs(context): add custom headers append option example to Context JSDoc in [#&#8203;5248](https://redirect.github.com/honojs/hono/pull/5248)
+      - fix(trie-router): match suffix wildcard routes in [#&#8203;5236](https://redirect.github.com/honojs/hono/pull/5236)
+      - fix(pattern-router/linear-router): prevent prefix overmatch on wildcard routes in [#&#8203;5252](https://redirect.github.com/honojs/hono/pull/5252)
+      - fix(csrf): exempt OPTIONS request from CSRF validation in [#&#8203;5250](https://redirect.github.com/honojs/hono/pull/5250)
+      - fix(utils/ipaddr): avoid truncation on embedded IPv4 addresses in expand IPv6 in [#&#8203;5247](https://redirect.github.com/honojs/hono/pull/5247)
+      - feat(pretty-json): support structured JSON content-types (+json) in [#&#8203;5226](https://redirect.github.com/honojs/hono/pull/5226)
+
+      **Full Changelog**: <https://github.com/honojs/hono/compare/v4.13.2...v4.13.3>
+
+      ### [`v4.13.2`](https://redirect.github.com/honojs/hono/releases/tag/v4.13.2)
+
+      [Compare Source](https://redirect.github.com/honojs/hono/compare/v4.13.1...v4.13.2)
+
+      #### What's Changed
+
+      - fix(secure-headers): output standard empty parentheses () instead of none for disabled Permissions-Policy directives in [#&#8203;5197](https://redirect.github.com/honojs/hono/pull/5197)
+      - fix(jsx): render async children of document metadata tags instead of \[object Promise] in [#&#8203;5204](https://redirect.github.com/honojs/hono/pull/5204)
+      - fix(etag): resolve incorrect incremental hashing for chunked responses in [#&#8203;5199](https://redirect.github.com/honojs/hono/pull/5199)
+      - fix(client): serialize multiple cookies correctly in [#&#8203;5202](https://redirect.github.com/honojs/hono/pull/5202)
+      - fix(etag): stabilize digest across stream chunks in [#&#8203;5205](https://redirect.github.com/honojs/hono/pull/5205)
+      - fix(url): strip trailing question mark correctly for optional params with regex quantifiers in [#&#8203;5209](https://redirect.github.com/honojs/hono/pull/5209)
+      - perf(cors): pre-join static array header options during initialization in [#&#8203;5210](https://redirect.github.com/honojs/hono/pull/5210)
+      - fix(client): send falsy JSON bodies in [#&#8203;5215](https://redirect.github.com/honojs/hono/pull/5215)
+      - feat(secure-headers): add missing W3C Permissions-Policy directives in [#&#8203;5214](https://redirect.github.com/honojs/hono/pull/5214)
+
+      **Full Changelog**: <https://github.com/honojs/hono/compare/v4.13.1...v4.13.2>
+
+      </details>
+
+      <details>
+      <summary>pillarjs/path-to-regexp (path-to-regexp)</summary>
+
+      ### [`v8.4.2`](https://redirect.github.com/pillarjs/path-to-regexp/releases/tag/v8.4.2)
+
+      [Compare Source](https://redirect.github.com/pillarjs/path-to-regexp/compare/v8.4.1...v8.4.2)
+
+      **Fixed**
+
+      - Error on trailing backslash ([#&#8203;434](https://redirect.github.com/pillarjs/path-to-regexp/issues/434))  [`9a78879`](https://redirect.github.com/pillarjs/path-to-regexp/commit/9a78879)
+
+      **Performance**
+
+      - Minimize array allocations ([#&#8203;437](https://redirect.github.com/pillarjs/path-to-regexp/issues/437))  [`937c02d`](https://redirect.github.com/pillarjs/path-to-regexp/commit/937c02d)
+      - Improve compile performance ([#&#8203;436](https://redirect.github.com/pillarjs/path-to-regexp/issues/436))  [`57247e6`](https://redirect.github.com/pillarjs/path-to-regexp/commit/57247e6)
+        - Should improve compilation performance by \~25%
+      - Remove internal tokenization during parse ([#&#8203;435](https://redirect.github.com/pillarjs/path-to-regexp/issues/435))  [`5844988`](https://redirect.github.com/pillarjs/path-to-regexp/commit/5844988)
+        - Should improve parse performance by \~20%
+
+      **Bundle size** to 1.93 kB, from 1.97 kB.
+
+      ***
+
+      ### [`v8.4.1`](https://redirect.github.com/pillarjs/path-to-regexp/releases/tag/v8.4.1)
+
+      [Compare Source](https://redirect.github.com/pillarjs/path-to-regexp/compare/v8.4.0...v8.4.1)
+
+      **Fixed**
+
+      - Remove trie deduplication ([#&#8203;431](https://redirect.github.com/pillarjs/path-to-regexp/issues/431))  [`6bc8e84`](https://redirect.github.com/pillarjs/path-to-regexp/commit/6bc8e84)
+        - Using a trie required non-greedy matching, which regressed wildcards in non-ending mode by matching them up until the first match. For example:
+          - `/*foo` with `/a/b` = `/a`
+          - `/*foo.html`with `/a/b.html/c.html` = `/a/b.html`
+      - Allow backtrack handling to match itself ([#&#8203;427](https://redirect.github.com/pillarjs/path-to-regexp/issues/427))  [`5bcd30b`](https://redirect.github.com/pillarjs/path-to-regexp/commit/5bcd30b)
+        - When backtracking was introduced, it rejected matching things like `/:"a"_:"b"` against `/foo__`. This makes intuitive sense because the second parameter is not going to backtrack on `_` anymore, but it's somewhat unexpected since there's no reason it shouldn't match the second `_`.
+
+      ***
+
+      </details>
+
+      ---
+
+      ### Configuration
+
+      📅 **Schedule**: (UTC)
+
+      - Branch creation
+        - At any time (no schedule defined)
+      - Automerge
+        - At any time (no schedule defined)
+
+      🚦 **Automerge**: Enabled.
+
+      ♻ **Rebasing**: Whenever PR is behind base branch, or you tick the rebase/retry checkbox.
+
+      👻 **Immortal**: This PR will be recreated if closed unmerged. Get [config help](https://redirect.github.com/renovatebot/renovate/discussions) if that's undesired.
+
+      ---
+
+       - [x] <!-- rebase-check -->If you want to rebase/retry this PR, check this box
+
+      ---
+
+      This PR was generated by [Mend Renovate](https://mend.io/renovate/). View the [repository job log](https://developer.mend.io/github/wyattjoh/jmap-mcp).
+      <!--renovate-debug:eyJjcmVhdGVkSW5WZXIiOiI0My4yNTkuMiIsInVwZGF0ZWRJblZlciI6IjQ0LjM5LjAiLCJ0YXJnZXRCcmFuY2giOiJtYWluIiwibGFiZWxzIjpbXX0=-->
+  - number: 42
+    owner: "Funk66"
+    notes: Community PR; check Basic auth against Fastmail.
+    status: open
+    review: review_required
+    head: main
+    base: main
+    title: "feat: support HTTP Basic auth for servers that reject bearer tokens"
+    description: |-
+      Stalwart Mail Server's JMAP endpoint rejects Authorization: Bearer (401) and only accepts HTTP Basic, so jmap-mcp could never connect to it.
+wyattjoh/caldav-mcp:
+  - number: 10
+    owner: "ilyasturki"
+    status: open
+    head: fix/emit-vtimezone-component
+    base: main
+    title: "fix(ical): emit VTIMEZONE for zoned events and render UTC as Zulu"
+    description: |-
+      ## What
+
+      `buildVEvent` references `TZID=<zone>` in `DTSTART`/`DTEND` but never emits the matching `VTIMEZONE`, so the calendar object is incomplete per RFC 5545. This generates the `VTIMEZONE` for zoned events (the way Google and Outlook invites do), emits UTC as a plain Zulu time, and keeps the current output for zones it cannot resolve.
+
+      ## Why
+
+      Fixes #9. With the event stored on a server that rewrites the bare `TZID` into the RFC global form (`/Europe/Paris`, `/UTC`), DAVx5/ical4j calls `ZoneId.of("/UTC")`, throws `Invalid ID for region based ZoneId`, and stops syncing the whole collection. Native Google/Outlook invites on the same calendar are unaffected because they embed a `VTIMEZONE`. I hit this in production on Purelymail synced to DAVx5 on Android.
+
+      ## Changes
+
+      - **VTIMEZONE generation**: `buildVTimezone` derives offsets from `Intl` (no tz-database dependency), probes a ~400 day window around the event to find the DST transitions, and emits `STANDARD`/`DAYLIGHT` observances before the `VEVENT`. Fixed-offset zones get a single `STANDARD` observance.
+      - **UTC as Zulu**: `UTC`, `Etc/UTC`, `Zulu` and `Universal` are emitted as `...Z` with no `TZID`. A bare `TZID=UTC` is exactly what gets rewritten to the invalid `/UTC`, so dropping the `TZID` avoids it entirely.
+      - **Fallback guard**: zones `Intl` cannot resolve (e.g. Windows names like `W. Europe Standard Time`, which already ship their own `VTIMEZONE`) fall back to the previous bare-`TZID` output, so nothing regresses.
+      - No new dependencies.
+
+      ## Tests
+
+      105 pass, 0 fail (was 100). Added coverage for: `Europe/Paris` summer emits a `VTIMEZONE` with a `DAYLIGHT` observance, `UTC` collapses to a Zulu time with no `TZID`, non-DST `Asia/Tokyo` emits a single `STANDARD` observance, an unresolvable Windows zone falls back to a bare `TZID`, and `parseVEvent` still round-trips a built event. `bun run check` (oxlint + oxfmt + tsc) is clean.
+wyattjoh/dokploy-mcp:
+  - number: 25
+    owner: "dependabot[bot]"
+    status: open
+    head: dependabot/bun/bun-dbe81d4269
+    base: main
+    title: "chore(deps-dev): bump the bun group across 1 directory with 5 updates"
+    labels: [ dependencies, javascript ]
+    description: |-
+      Bumps the bun group with 5 updates in the / directory:
+
+      | Package | From | To |
+      | --- | --- | --- |
+      | [@types/bun](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/HEAD/types/bun) | `1.3.12` | `1.3.14` |
+      | [bun-types](https://github.com/oven-sh/bun/tree/HEAD/packages/bun-types) | `1.3.12` | `1.3.14` |
+      | [oxfmt](https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt) | `0.45.0` | `0.57.0` |
+      | [oxlint](https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint) | `1.60.0` | `1.72.0` |
+      | [zod](https://github.com/colinhacks/zod) | `4.3.6` | `4.4.3` |
+
+
+      Updates `@types/bun` from 1.3.12 to 1.3.14
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li>See full diff in <a href="https://github.com/DefinitelyTyped/DefinitelyTyped/commits/HEAD/types/bun">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+      Updates `bun-types` from 1.3.12 to 1.3.14
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/oven-sh/bun/releases">bun-types's releases</a>.</em></p>
+      <blockquote>
+      <h2>Bun v1.3.14</h2>
+      <p>To install Bun v1.3.14</p>
+      <pre lang="bash"><code>curl -fsSL https://bun.sh/install | bash
+      # or you can use npm
+      # npm install -g bun
+      </code></pre>
+      <p>Windows:</p>
+      <pre lang="bash"><code>powershell -c &quot;irm bun.sh/install.ps1|iex&quot;
+      </code></pre>
+      <p>To upgrade to Bun v1.3.14:</p>
+      <pre lang="bash"><code>bun upgrade
+      </code></pre>
+      <h2><a href="https://bun.com/blog/bun-v1.3.14">Read Bun v1.3.14's release notes on Bun's blog</a></h2>
+      <h3>Thanks to 11 contributors!</h3>
+      <ul>
+      <li><a href="https://github.com/190n"><code>@​190n</code></a></li>
+      <li><a href="https://github.com/alii"><code>@​alii</code></a></li>
+      <li><a href="https://github.com/carlsmedstad"><code>@​carlsmedstad</code></a></li>
+      <li><a href="https://github.com/cirospaciari"><code>@​cirospaciari</code></a></li>
+      <li><a href="https://github.com/coleleavitt"><code>@​coleleavitt</code></a></li>
+      <li><a href="https://github.com/djs5008"><code>@​djs5008</code></a></li>
+      <li><a href="https://github.com/dylan-conway"><code>@​dylan-conway</code></a></li>
+      <li><a href="https://github.com/ig-ant"><code>@​ig-ant</code></a></li>
+      <li><a href="https://github.com/Jarred-Sumner"><code>@​Jarred-Sumner</code></a></li>
+      <li><a href="https://github.com/robobun"><code>@​robobun</code></a></li>
+      <li><a href="https://github.com/sosukesuzuki"><code>@​sosukesuzuki</code></a></li>
+      </ul>
+      <h2>Bun v1.3.13</h2>
+      <p>To install Bun v1.3.13</p>
+      <pre lang="bash"><code>curl -fsSL https://bun.sh/install | bash
+      # or you can use npm
+      # npm install -g bun
+      </code></pre>
+      <p>Windows:</p>
+      <pre lang="bash"><code>powershell -c &quot;irm bun.sh/install.ps1|iex&quot;
+      </code></pre>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/oven-sh/bun/commit/0d9b296af33f2b851fcbf4df3e9ec89751734ba4"><code>0d9b296</code></a> Bun.serve: rename <code>h3</code>/<code>h1</code> options to <code>http3</code>/<code>http1</code> (<a href="https://github.com/oven-sh/bun/tree/HEAD/packages/bun-types/issues/30583">#30583</a>)</li>
+      <li><a href="https://github.com/oven-sh/bun/commit/191edc04ab1ff64d423e4fae9a0d5ee00ee7f3dd"><code>191edc0</code></a> image: preserve ICC profile through WebP decode/encode (<a href="https://github.com/oven-sh/bun/tree/HEAD/packages/bun-types/issues/30211">#30211</a>)</li>
+      <li><a href="https://github.com/oven-sh/bun/commit/d0a0bc4c9a5de11df0b904ab560d95c2760b7419"><code>d0a0bc4</code></a> Preserve ICC colour profile through Bun.Image JPEG/PNG encode (<a href="https://github.com/oven-sh/bun/tree/HEAD/packages/bun-types/issues/30201">#30201</a>)</li>
+      <li><a href="https://github.com/oven-sh/bun/commit/ed75c88a5ca1b54345083721a0dd185ed61dedc5"><code>ed75c88</code></a> Bun.Image — Sharp-shaped image pipeline (jpeg/png/webp, resize, rotate, modul...</li>
+      <li><a href="https://github.com/oven-sh/bun/commit/accbff653a82d8cbb51243f4145249ca12de0bc7"><code>accbff6</code></a> fetch: experimental HTTP/2 client (<a href="https://github.com/oven-sh/bun/tree/HEAD/packages/bun-types/issues/29766">#29766</a>)</li>
+      <li><a href="https://github.com/oven-sh/bun/commit/b424bb7147fc60ef5cc38ea7e3cafd2cc3abca6a"><code>b424bb7</code></a> Bun.serve: HTTP/3 (QUIC) support via <code>h3: true</code> (<a href="https://github.com/oven-sh/bun/tree/HEAD/packages/bun-types/issues/29768">#29768</a>)</li>
+      <li><a href="https://github.com/oven-sh/bun/commit/e2017e79956d0a040fcaab15071da5beac474f7f"><code>e2017e7</code></a> ws: respect perMessageDeflate: false in upgrade request (<a href="https://github.com/oven-sh/bun/tree/HEAD/packages/bun-types/issues/29685">#29685</a>)</li>
+      <li><a href="https://github.com/oven-sh/bun/commit/dc578b12eca413e16b6bbea117ff24b73b48187f"><code>dc578b1</code></a> spawn: return caller-supplied fds from Subprocess.stdio[N] (<a href="https://github.com/oven-sh/bun/tree/HEAD/packages/bun-types/issues/29629">#29629</a>)</li>
+      <li><a href="https://github.com/oven-sh/bun/commit/890ef5a3b633333b3d15773d26db173c073ae811"><code>890ef5a</code></a> spawn: don't close caller-owned fds passed as extra stdio (<a href="https://github.com/oven-sh/bun/tree/HEAD/packages/bun-types/issues/29606">#29606</a>)</li>
+      <li><a href="https://github.com/oven-sh/bun/commit/b424e70e3a45a8f9a18bbde90f0f08863800d0f9"><code>b424e70</code></a> bun-types: dedupe alias enum keys in FFI type maps (<a href="https://github.com/oven-sh/bun/tree/HEAD/packages/bun-types/issues/29193">#29193</a>)</li>
+      <li>See full diff in <a href="https://github.com/oven-sh/bun/commits/bun-v1.3.14/packages/bun-types">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+      Updates `oxfmt` from 0.45.0 to 0.57.0
+      <details>
+      <summary>Changelog</summary>
+      <p><em>Sourced from <a href="https://github.com/oxc-project/oxc/blob/main/npm/oxfmt/CHANGELOG.md">oxfmt's changelog</a>.</em></p>
+      <blockquote>
+      <h1>Changelog</h1>
+      <p>All notable changes to this package will be documented in this file.</p>
+      <p>The format is based on <a href="https://keepachangelog.com/en/1.0.0">Keep a Changelog</a>.</p>
+      <h2>[0.55.0] - 2026-06-15</h2>
+      <h3>🚀 Features</h3>
+      <ul>
+      <li>9a2788b linter/unicorn: Implement <code>prefer-export-from</code> rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22935">#22935</a>) (AliceLanniste)</li>
+      </ul>
+      <h2>[0.54.0] - 2026-06-08</h2>
+      <h3>📚 Documentation</h3>
+      <ul>
+      <li>dadafe3 oxlint, oxfmt: Mention migrate skills in npm READMEs (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22965">#22965</a>) (Boshen)</li>
+      <li>f88961a oxfmt: Annotate each config option with supported languages (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22953">#22953</a>) (leaysgur)</li>
+      </ul>
+      <h2>[0.52.0] - 2026-05-26</h2>
+      <h3>🚀 Features</h3>
+      <ul>
+      <li>16b8058 oxfmt: Support <code>vite-plus/resolveConfig</code> for vite.config.ts (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22454">#22454</a>) (leaysgur)</li>
+      </ul>
+      <h2>[0.50.0] - 2026-05-15</h2>
+      <h3>🐛 Bug Fixes</h3>
+      <ul>
+      <li>43b9978 formatter/sort_imports: Treat subpath imports as internal (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22440">#22440</a>) (leaysgur)</li>
+      </ul>
+      <h2>[0.49.0] - 2026-05-11</h2>
+      <h3>🚀 Features</h3>
+      <ul>
+      <li>6e8e818 oxfmt: Experimental .svelte support (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/21700">#21700</a>) (leaysgur)</li>
+      </ul>
+      </blockquote>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/oxc-project/oxc/commit/5306f24d9e82ae36ad9c3c964f33075bc589c799"><code>5306f24</code></a> release(apps): oxlint v1.72.0 &amp;&amp; oxfmt v0.57.0 (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/23935">#23935</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/c4be770f24adc4026efa96fb82182f743c55e423"><code>c4be770</code></a> release(apps): oxlint v1.71.0 &amp;&amp; oxfmt v0.56.0 (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/23707">#23707</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/aa79b5be9915068f60bc361febf2e7496b92fc24"><code>aa79b5b</code></a> release(apps): oxlint v1.70.0 &amp;&amp; oxfmt v0.55.0 (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/23442">#23442</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/9a2788b3ae60c033a969fbba63733748f8c6130a"><code>9a2788b</code></a> feat(linter/unicorn): implement <code>prefer-export-from</code> rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22935">#22935</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/44ae845fe19d3700128e50e7e61d98c7a85f3f47"><code>44ae845</code></a> release(apps): oxlint v1.69.0 &amp;&amp; oxfmt v0.54.0 (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/23116">#23116</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/dadafe3e0874b2b75775d265b24d19d7f446e2bf"><code>dadafe3</code></a> docs(oxlint, oxfmt): mention migrate skills in npm READMEs (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22965">#22965</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/f88961ae2968ae2a12035111d07c72797812d2fd"><code>f88961a</code></a> docs(oxfmt): annotate each config option with supported languages (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22953">#22953</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/964a7580840f394d67c149ea083e35a1e74c128f"><code>964a758</code></a> release(apps): oxlint v1.68.0 &amp;&amp; oxfmt v0.53.0 (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22883">#22883</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/68b455d84f0b18bd6646cfe4f9babb12ec4fc448"><code>68b455d</code></a> release(apps): oxlint v1.67.0 &amp;&amp; oxfmt v0.52.0 (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22735">#22735</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/16b8058cd6fd55472cb3a225852ca22db24bb461"><code>16b8058</code></a> feat(oxfmt): Support <code>vite-plus/resolveConfig</code> for vite.config.ts (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxfmt/issues/22454">#22454</a>)</li>
+      <li>Additional commits viewable in <a href="https://github.com/oxc-project/oxc/commits/oxfmt_v0.57.0/npm/oxfmt">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+      Updates `oxlint` from 1.60.0 to 1.72.0
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/oxc-project/oxc/releases">oxlint's releases</a>.</em></p>
+      <blockquote>
+      <h2>oxlint v1.27.0 &amp;&amp; oxfmt v0.12.0</h2>
+      <h1>Oxlint v1.27.0</h1>
+      <h3>🚀 Features</h3>
+      <ul>
+      <li>222a8f0 linter/plugins: Implement <code>SourceCode#isSpaceBetween</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15498">#15498</a>) (overlookmotel)</li>
+      <li>2f9735d linter/plugins: Implement <code>context.languageOptions</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15486">#15486</a>) (overlookmotel)</li>
+      <li>bc731ff linter/plugins: Stub out all <code>Context</code> APIs (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15479">#15479</a>) (overlookmotel)</li>
+      <li>5822cb4 linter/plugins: Add <code>extend</code> method to <code>FILE_CONTEXT</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15477">#15477</a>) (overlookmotel)</li>
+      <li>7b1e6f3 apps: Add pure rust binaries and release to github (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15469">#15469</a>) (Boshen)</li>
+      <li>2a89b43 linter: Introduce debug assertions after fixes to assert validity (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15389">#15389</a>) (camc314)</li>
+      <li>ad3c45a editor: Add <code>oxc.path.node</code> option (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15040">#15040</a>) (Sysix)</li>
+      </ul>
+      <h3>🐛 Bug Fixes</h3>
+      <ul>
+      <li>6f3cd77 linter/no-var: Incorrect warning for blocks (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15504">#15504</a>) (Hamir Mahal)</li>
+      <li>6957fb9 linter/plugins: Do not allow access to <code>Context#id</code> in <code>createOnce</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15489">#15489</a>) (overlookmotel)</li>
+      <li>7409630 linter/plugins: Allow access to <code>cwd</code> in <code>createOnce</code> in ESLint interop mode (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15488">#15488</a>) (overlookmotel)</li>
+      <li>732205e parser: Reject <code>using</code> / <code>await using</code> in a switch <code>case</code> / <code>default</code> clause (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15225">#15225</a>) (sapphi-red)</li>
+      <li>a17ca32 linter/plugins: Replace <code>Context</code> class (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15448">#15448</a>) (overlookmotel)</li>
+      <li>ecf2f7b language_server: Fail gracefully when tsgolint executable not found (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15436">#15436</a>) (camc314)</li>
+      <li>3c8d3a7 lang-server: Improve logging in failure case for tsgolint (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15299">#15299</a>) (camc314)</li>
+      <li>ef71410 linter: Use jsx if source type is JS in fix debug assertion (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15434">#15434</a>) (camc314)</li>
+      <li>e32bbf6 linter/no-var: Handle TypeScript declare keyword in fixer (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15426">#15426</a>) (camc314)</li>
+      <li>6565dbe linter/switch-case-braces: Skip comments when searching for <code>:</code> token (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15425">#15425</a>) (camc314)</li>
+      <li>85bd19a linter/prefer-class-fields: Insert value after type annotation in fixer (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15423">#15423</a>) (camc314)</li>
+      <li>fde753e linter/plugins: Block access to <code>context.settings</code> in <code>createOnce</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15394">#15394</a>) (overlookmotel)</li>
+      <li>ddd9f9f linter/forward-ref-uses-ref: Dont suggest removing wrapper in invalid positions (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15388">#15388</a>) (camc314)</li>
+      <li>dac2a9c linter/no-template-curly-in-string: Remove fixer (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15387">#15387</a>) (camc314)</li>
+      <li>989b8e3 linter/no-var: Only fix to <code>const</code> if the var has an initializer (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15385">#15385</a>) (camc314)</li>
+      <li>cc403f5 linter/plugins: Return empty object for unimplemented parserServices (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15364">#15364</a>) (magic-akari)</li>
+      </ul>
+      <h3>⚡ Performance</h3>
+      <ul>
+      <li>25d577e language_server: Start tools in parallel (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15500">#15500</a>) (Sysix)</li>
+      <li>3c57291 linter/plugins: Optimize loops (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15449">#15449</a>) (overlookmotel)</li>
+      <li>3166233 linter/plugins: Remove <code>Arc</code>s (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15431">#15431</a>) (overlookmotel)</li>
+      <li>9de1322 linter/plugins: Lazily deserialize settings JSON (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15395">#15395</a>) (overlookmotel)</li>
+      <li>3049ec2 linter/plugins: Optimize <code>deepFreezeSettings</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15392">#15392</a>) (overlookmotel)</li>
+      <li>444ebfd linter/plugins: Use single object for <code>parserServices</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15378">#15378</a>) (overlookmotel)</li>
+      </ul>
+      <h3>📚 Documentation</h3>
+      <ul>
+      <li>97d2104 linter: Update comment in lint.rs about default value for tsconfig path (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15530">#15530</a>) (Connor Shea)</li>
+      <li>2c6bd9e linter: Always refer as &quot;ES2015&quot; instead of &quot;ES6&quot; (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15411">#15411</a>) (sapphi-red)</li>
+      <li>a0c5203 linter/import/named: Update &quot;ES7&quot; comment in examples (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15410">#15410</a>) (sapphi-red)</li>
+      <li>3dc24b5 linter,minifier: Always refer as &quot;ES Modules&quot; instead of &quot;ES6 Modules&quot; (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15409">#15409</a>) (sapphi-red)</li>
+      <li>2ad77fb linter/no-this-before-super: Correct &quot;Why is this bad?&quot; section (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15408">#15408</a>) (sapphi-red)</li>
+      <li>57f0ce1 linter: Add backquotes where appropriate (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/15407">#15407</a>) (sapphi-red)</li>
+      </ul>
+      <h1>Oxfmt v0.12.0</h1>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Changelog</summary>
+      <p><em>Sourced from <a href="https://github.com/oxc-project/oxc/blob/main/npm/oxlint/CHANGELOG.md">oxlint's changelog</a>.</em></p>
+      <blockquote>
+      <h2>[1.72.0] - 2026-06-29</h2>
+      <h3>🚀 Features</h3>
+      <ul>
+      <li>1c8f50c linter: Add schema for <code>eslint/no-restricted-import</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23642">#23642</a>) (Sysix)</li>
+      </ul>
+      <h3>🐛 Bug Fixes</h3>
+      <ul>
+      <li>742be36 refactor/node/handle-callback-err: Reject invalid regex config (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23740">#23740</a>) (camc314)</li>
+      </ul>
+      <h2>[1.71.0] - 2026-06-22</h2>
+      <h3>🚀 Features</h3>
+      <ul>
+      <li>0dc2405 linter: Add schema for <code>eslint/no-restricted-properties</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23619">#23619</a>) (Sysix)</li>
+      <li>b638d0e linter: Add schema for <code>node/callback-return</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23615">#23615</a>) (Sysix)</li>
+      <li>eb8bedc linter: Add schema for <code>import/extensions</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23557">#23557</a>) (WaterWhisperer)</li>
+      <li>46f3625 linter: Implement node/no-sync rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23589">#23589</a>) (fujitani sora)</li>
+      <li>b01739a linter: Add schema for <code>unicorn/numeric-separators-style</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23554">#23554</a>) (Mikhail Baev)</li>
+      <li>68afd2a linter/node: Implement <code>no-mixed-requires</code> rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23539">#23539</a>) (fujitani sora)</li>
+      <li>a421215 linter: Add schema for <code>eslint/prefer-destructuring</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23410">#23410</a>) (WaterWhisperer)</li>
+      <li>84438be linter/jsdoc: Added missing options to <code>require-param-description</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23416">#23416</a>) (kapobajza)</li>
+      <li>51910df linter/jsdoc: Add missing options to <code>require-param-type</code> rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23418">#23418</a>) (kapobajza)</li>
+      <li>e90925f linter/unicorn: Implement prefer-number-coercion rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23497">#23497</a>) (Shekhu☺️)</li>
+      <li>dd1c866 linter/vue: Implement no-async-in-computed-properties rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23493">#23493</a>) (bab)</li>
+      <li>b02444e linter: Add schema for <code>react/jsx-no-script-url</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23475">#23475</a>) (WaterWhisperer)</li>
+      <li>a8dce46 linter/unicorn: Implement <code>max-nested-calls</code> rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23461">#23461</a>) (arieleli01212)</li>
+      </ul>
+      <h3>🐛 Bug Fixes</h3>
+      <ul>
+      <li>a303c23 linter/jsx-a11y: Align <code>anchor-is-valid</code> config with upstream (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23446">#23446</a>) (camc314)</li>
+      </ul>
+      <h3>📚 Documentation</h3>
+      <ul>
+      <li>b50bf4d linter: Remove manually written options doc for <code>eslint/arrow-body-style</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23490">#23490</a>) (Mikhail Baev)</li>
+      </ul>
+      <h2>[1.70.0] - 2026-06-15</h2>
+      <h3>🚀 Features</h3>
+      <ul>
+      <li>2e8bda4 linter/vue: Implement no-dupe-keys rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23350">#23350</a>) (bab)</li>
+      <li>1490a0a linter/react: Implement react-compiler rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23202">#23202</a>) (Boshen)</li>
+      <li>dd560ae linter/unicorn: Implement <code>no-array-fill-with-reference-type</code> rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23397">#23397</a>) (Mikhail Baev)</li>
+      <li>af36c2f linter: Add schema for <code>react/jsx-curly-brace-presence</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23400">#23400</a>) (WaterWhisperer)</li>
+      <li>47d34a3 linter: Add schema for <code>react/jsx-handler-names</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23393">#23393</a>) (WaterWhisperer)</li>
+      <li>f4250d0 linter: Add schema for <code>unicorn/import-style</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23386">#23386</a>) (WaterWhisperer)</li>
+      <li>30c74ce linter: Add schema for <code>jsx_a11y/no-noninteractive-element-to-interactive-role</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23384">#23384</a>) (Sysix)</li>
+      <li>cfbe8dc linter: Add schema for <code>jsx_a11y/no-interactive-element-to-noninteractive-role</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23382">#23382</a>) (WaterWhisperer)</li>
+      <li>d15b7ff linter: Add schema for <code>typescript/no-restricted-types</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23381">#23381</a>) (WaterWhisperer)</li>
+      <li>028a811 linter: Add schema for <code>jsx-a11y/media-has-caption</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23377">#23377</a>) (Sysix)</li>
+      </ul>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/oxc-project/oxc/commit/5306f24d9e82ae36ad9c3c964f33075bc589c799"><code>5306f24</code></a> release(apps): oxlint v1.72.0 &amp;&amp; oxfmt v0.57.0 (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23935">#23935</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/742be3616fc8df27053b09bdf9ff166e16761838"><code>742be36</code></a> fix(refactor/node/handle-callback-err): reject invalid regex config (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23740">#23740</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/1c8f50c67ff636b9d8193d3d7be1511a7960f25d"><code>1c8f50c</code></a> feat(linter): add schema for <code>eslint/no-restricted-import</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23642">#23642</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/c4be770f24adc4026efa96fb82182f743c55e423"><code>c4be770</code></a> release(apps): oxlint v1.71.0 &amp;&amp; oxfmt v0.56.0 (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23707">#23707</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/0dc24054119b22247c6a7b9bdb20cc6e589f267a"><code>0dc2405</code></a> feat(linter): add schema for <code>eslint/no-restricted-properties</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23619">#23619</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/b638d0ee1df63487e7c04e031b4b71ab10d592ce"><code>b638d0e</code></a> feat(linter): add schema for <code>node/callback-return</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23615">#23615</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/6d355ab8b3644505c4491da5fc4ec88695de50f7"><code>6d355ab</code></a> refactor(linter): remove <code>number_as_object_schema</code> helper (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23614">#23614</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/eb8bedc2fba9cead8632a75bb7936205fae7dcf0"><code>eb8bedc</code></a> feat(linter): add schema for <code>import/extensions</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23557">#23557</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/46f362530da1c2c5e868613e339999314b9f3a72"><code>46f3625</code></a> feat(linter): implement node/no-sync rule (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23589">#23589</a>)</li>
+      <li><a href="https://github.com/oxc-project/oxc/commit/953c7b3f1c9e2c80ee1b782f1540d277cc22ed99"><code>953c7b3</code></a> refactor(linter): make <code>unicorn/numeric-separators-style</code> options <code>u32</code> (<a href="https://github.com/oxc-project/oxc/tree/HEAD/npm/oxlint/issues/23558">#23558</a>)</li>
+      <li>Additional commits viewable in <a href="https://github.com/oxc-project/oxc/commits/oxlint_v1.72.0/npm/oxlint">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+      Updates `zod` from 4.3.6 to 4.4.3
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/colinhacks/zod/releases">zod's releases</a>.</em></p>
+      <blockquote>
+      <h2>v4.4.3</h2>
+      <h2>Commits:</h2>
+      <ul>
+      <li>4c2fa95ce3f3390fbc522324e406b4e9e89b88f9 docs: use Zernio primary wordmark for gold sponsor logo</li>
+      <li>2aeec83eb135e3a83756e973ef44845fc5a455d2 docs: prune lapsed gold sponsors and rebalance logo sizing</li>
+      <li>7391be88ac1ee5cd02057f5ccc012a1f5df4efd0 docs: prune lapsed silver/bronze sponsors and add active ones</li>
+      <li>2c703322a21b4e2b12f33f49ea8430c451a68b4f docs: normalize bronze sponsor logos to github avatar pattern</li>
+      <li>9195250cab0e7950efe39c3926d6c203b4b0a170 docs: remove Mintlify from bronze sponsors (churned)</li>
+      <li>b8dffe9e62f17e6571e6249d05cc5102b54d94e4 docs: remove Numeric and Speakeasy (2+ missed monthly cycles)</li>
+      <li>1cab69383fcdeae2a366d5e2a2fc4d8fc765d168 fix(v4): restore catch handling for absent object keys (<a href="https://redirect.github.com/colinhacks/zod/issues/5937">#5937</a>) (<a href="https://redirect.github.com/colinhacks/zod/issues/5939">#5939</a>)</li>
+      <li>c2be4f819064eed62c7c350a2d399b5faecd15f8 fix(v4): generalize optin/fallback to transform; restore preprocess on absent keys (<a href="https://redirect.github.com/colinhacks/zod/issues/5941">#5941</a>)</li>
+      <li>f3c9ec03ba7a28ae72d25cc295f38674bee0f559 4.4.3</li>
+      <li>1fb56a5c18c27102dbc92260a4007c7732a0ccca docs: document release procedure in AGENTS.md</li>
+      </ul>
+      <h2>v4.4.2</h2>
+      <h2>Commits:</h2>
+      <ul>
+      <li>0c62df0ea19fd05abdf90473e9eef7eea530fab2 Clean up docs navigation and stale labels (<a href="https://redirect.github.com/colinhacks/zod/issues/5901">#5901</a>)</li>
+      <li>20cc794895cc8604fe0c87d83a5d1c3f89fad0ac chore: add security policy and refresh tooling deps</li>
+      <li>6fbe07b0177efdd1bf1c0b05160e70d7a0702337 fix(docs): heading anchor links now include the hash so it doesnt scoll all the way up, follows navbar logic (<a href="https://redirect.github.com/colinhacks/zod/issues/5791">#5791</a>)</li>
+      <li>4bbed1b1c73eca4ce9e59b1189ed236aa6c8b5bd Tighten discriminated union option typing</li>
+      <li>bbac3e567e7fccfaaf7cdc97f1ce30c295e2c908 Update PR guidance for agents</li>
+      <li>cf0dc942a32805c292fff59ade20a7ace980735a Merge remote-tracking branch 'origin/main' into fix-discriminated-union-key-constraint</li>
+      <li>292c894a5fd2aa42e527900b83d8d7a3009a709c docs: add Zernio gold sponsor</li>
+      <li>1fc9f311c28dcf80d0bb5a36b177086cbc3d8eca docs: document codec inversion</li>
+      <li>1373c85da9aeff704a9762d27bc58699618aefb7 docs: remove AI disclosure guidance</li>
+      <li>e20d02b473c08e3a4e557bc610b1b5fac079b649 chore: ignore triage notes</li>
+      <li>e58ea4d91b1dfe8194b73508203213cbc7e9c936 docs: test Zod Mini tab code heights</li>
+      <li>905761a5d127e8d5dd2ebb3bc88c75cb0b8149ff docs: document preprocess input type narrowing</li>
+      <li>bf64bac850d4dee2b7dde7e64909d5d796d32043 chore: tighten test guidance in AGENTS.md</li>
+      <li>8ec4e73f4c4693b6361ad591be40fb41eb8a9f95 chore: update play.ts scratch</li>
+      <li>02c2baf7d0d615872fa4528a8020603b71211702 Make z.preprocess defer optionality to inner schema (<a href="https://redirect.github.com/colinhacks/zod/issues/5929">#5929</a>)</li>
+      <li>88015df8e25c44fb5385eb3ef28935119cd5edea fix(docs): drop deprecated <code>baseUrl</code> from tsconfig</li>
+      <li>c59d4474e3b4cad1b323462186cf607178ce8267 4.4.2</li>
+      </ul>
+      <h2>v4.4.1</h2>
+      <h2>Commits:</h2>
+      <ul>
+      <li>481f7be4238c83ed58183f921b2646f340a91c6a ci: gate release publishing on full test workflow</li>
+      <li>95ccab423aec720b2523c3a64cdc7e3204537cc7 test(v3): restore optional undefined expectations</li>
+      <li>cede2c63739a5823d6aa5093d291e9a111da943d fix(v4): reject tuple holes before required defaults (<a href="https://redirect.github.com/colinhacks/zod/issues/5900">#5900</a>)</li>
+      <li>edd0bf0f5ada4a8dc581c259407d7bbad0a71ea7 release: 4.4.1</li>
+      <li>180d83d1dbe6a59260710cc8637a3dea2281ee56 docs: remove Jazz featured sponsor</li>
+      </ul>
+      <h2>v4.4.0</h2>
+      <h2>4.4.0</h2>
+      <p>This is a minor release with a wide set of correctness and soundness fixes. Some fixes intentionally make Zod stricter, so code that depended on previously accepted invalid or ambiguous inputs may need small updates.</p>
+      <h2>Potentially breaking bug fixes</h2>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/colinhacks/zod/commit/1fb56a5c18c27102dbc92260a4007c7732a0ccca"><code>1fb56a5</code></a> docs: document release procedure in AGENTS.md</li>
+      <li><a href="https://github.com/colinhacks/zod/commit/f3c9ec03ba7a28ae72d25cc295f38674bee0f559"><code>f3c9ec0</code></a> 4.4.3</li>
+      <li><a href="https://github.com/colinhacks/zod/commit/c2be4f819064eed62c7c350a2d399b5faecd15f8"><code>c2be4f8</code></a> fix(v4): generalize optin/fallback to transform; restore preprocess on absent...</li>
+      <li><a href="https://github.com/colinhacks/zod/commit/1cab69383fcdeae2a366d5e2a2fc4d8fc765d168"><code>1cab693</code></a> fix(v4): restore catch handling for absent object keys (<a href="https://redirect.github.com/colinhacks/zod/issues/5937">#5937</a>) (<a href="https://redirect.github.com/colinhacks/zod/issues/5939">#5939</a>)</li>
+      <li><a href="https://github.com/colinhacks/zod/commit/b8dffe9e62f17e6571e6249d05cc5102b54d94e4"><code>b8dffe9</code></a> docs: remove Numeric and Speakeasy (2+ missed monthly cycles)</li>
+      <li><a href="https://github.com/colinhacks/zod/commit/9195250cab0e7950efe39c3926d6c203b4b0a170"><code>9195250</code></a> docs: remove Mintlify from bronze sponsors (churned)</li>
+      <li><a href="https://github.com/colinhacks/zod/commit/2c703322a21b4e2b12f33f49ea8430c451a68b4f"><code>2c70332</code></a> docs: normalize bronze sponsor logos to github avatar pattern</li>
+      <li><a href="https://github.com/colinhacks/zod/commit/7391be88ac1ee5cd02057f5ccc012a1f5df4efd0"><code>7391be8</code></a> docs: prune lapsed silver/bronze sponsors and add active ones</li>
+      <li><a href="https://github.com/colinhacks/zod/commit/2aeec83eb135e3a83756e973ef44845fc5a455d2"><code>2aeec83</code></a> docs: prune lapsed gold sponsors and rebalance logo sizing</li>
+      <li><a href="https://github.com/colinhacks/zod/commit/4c2fa95ce3f3390fbc522324e406b4e9e89b88f9"><code>4c2fa95</code></a> docs: use Zernio primary wordmark for gold sponsor logo</li>
+      <li>Additional commits viewable in <a href="https://github.com/colinhacks/zod/compare/v4.3.6...v4.4.3">compare view</a></li>
+      </ul>
+      </details>
+      <details>
+      <summary>Maintainer changes</summary>
+      <p>This version was pushed to npm by <a href="https://www.npmjs.com/~GitHub%20Actions">GitHub Actions</a>, a new releaser for zod since your current version.</p>
+      </details>
+      <br />
+
+
+      Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
+
+      [//]: # (dependabot-automerge-start)
+      [//]: # (dependabot-automerge-end)
+
+      ---
+
+      <details>
+      <summary>Dependabot commands and options</summary>
+      <br />
+
+      You can trigger Dependabot actions by commenting on this PR:
+      - `@dependabot rebase` will rebase this PR
+      - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+      - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency
+      - `@dependabot ignore <dependency name> major version` will close this group update PR and stop Dependabot creating any more for the specific dependency's major version (unless you unignore this specific dependency's major version or upgrade to it yourself)
+      - `@dependabot ignore <dependency name> minor version` will close this group update PR and stop Dependabot creating any more for the specific dependency's minor version (unless you unignore this specific dependency's minor version or upgrade to it yourself)
+      - `@dependabot ignore <dependency name>` will close this group update PR and stop Dependabot creating any more for the specific dependency (unless you unignore this specific dependency or upgrade to it yourself)
+      - `@dependabot unignore <dependency name>` will remove all of the ignore conditions of the specified dependency
+      - `@dependabot unignore <dependency name> <ignore condition>` will remove the ignore condition of the specified dependency and ignore conditions
+
+
+      </details>
+  - number: 26
+    owner: "dependabot[bot]"
+    status: open
+    head: dependabot/github_actions/actions-d8795aee2c
+    base: main
+    title: "chore(deps): bump the actions group across 1 directory with 3 updates"
+    labels: [ dependencies, github_actions ]
+    description: |-
+      Bumps the actions group with 3 updates in the / directory: [actions/checkout](https://github.com/actions/checkout), [googleapis/release-please-action](https://github.com/googleapis/release-please-action) and [actions/setup-node](https://github.com/actions/setup-node).
+
+      Updates `actions/checkout` from 6 to 7
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/actions/checkout/releases">actions/checkout's releases</a>.</em></p>
+      <blockquote>
+      <h2>v7.0.0</h2>
+      <h2>What's Changed</h2>
+      <ul>
+      <li>block checking out fork pr for pull_request_target and workflow_run by <a href="https://github.com/aiqiaoy"><code>@​aiqiaoy</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2454">actions/checkout#2454</a></li>
+      <li>Bump actions/publish-immutable-action from 0.0.3 to 0.0.4 in the minor-actions-dependencies group across 1 directory by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2458">actions/checkout#2458</a></li>
+      <li>Bump flatted from 3.3.1 to 3.4.2 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2460">actions/checkout#2460</a></li>
+      <li>Bump js-yaml from 4.1.0 to 4.2.0 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2461">actions/checkout#2461</a></li>
+      <li>Bump <code>@​actions/core</code> and <code>@​actions/tool-cache</code> and Remove uuid by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2459">actions/checkout#2459</a></li>
+      <li>upgrade module to esm and update dependencies by <a href="https://github.com/aiqiaoy"><code>@​aiqiaoy</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2463">actions/checkout#2463</a></li>
+      <li>Bump the minor-npm-dependencies group across 1 directory with 3 updates by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2462">actions/checkout#2462</a></li>
+      <li>getting ready for checkout v7 release by <a href="https://github.com/aiqiaoy"><code>@​aiqiaoy</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2464">actions/checkout#2464</a></li>
+      <li>update error wording by <a href="https://github.com/aiqiaoy"><code>@​aiqiaoy</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2467">actions/checkout#2467</a></li>
+      </ul>
+      <h2>New Contributors</h2>
+      <ul>
+      <li><a href="https://github.com/aiqiaoy"><code>@​aiqiaoy</code></a> made their first contribution in <a href="https://redirect.github.com/actions/checkout/pull/2454">actions/checkout#2454</a></li>
+      </ul>
+      <p><strong>Full Changelog</strong>: <a href="https://github.com/actions/checkout/compare/v6.0.3...v7.0.0">https://github.com/actions/checkout/compare/v6.0.3...v7.0.0</a></p>
+      <h2>v6.0.3</h2>
+      <h2>What's Changed</h2>
+      <ul>
+      <li>Update changelog by <a href="https://github.com/ericsciple"><code>@​ericsciple</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2357">actions/checkout#2357</a></li>
+      <li>fix: expand merge commit SHA regex and add SHA-256 test cases by <a href="https://github.com/yaananth"><code>@​yaananth</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2414">actions/checkout#2414</a></li>
+      <li>Fix checkout init for SHA-256 repositories by <a href="https://github.com/yaananth"><code>@​yaananth</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2439">actions/checkout#2439</a></li>
+      <li>Update changelog for v6.0.3 by <a href="https://github.com/yaananth"><code>@​yaananth</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2446">actions/checkout#2446</a></li>
+      </ul>
+      <h2>New Contributors</h2>
+      <ul>
+      <li><a href="https://github.com/yaananth"><code>@​yaananth</code></a> made their first contribution in <a href="https://redirect.github.com/actions/checkout/pull/2414">actions/checkout#2414</a></li>
+      </ul>
+      <p><strong>Full Changelog</strong>: <a href="https://github.com/actions/checkout/compare/v6...v6.0.3">https://github.com/actions/checkout/compare/v6...v6.0.3</a></p>
+      <h2>v6.0.2</h2>
+      <h2>What's Changed</h2>
+      <ul>
+      <li>Add orchestration_id to git user-agent when ACTIONS_ORCHESTRATION_ID is set by <a href="https://github.com/TingluoHuang"><code>@​TingluoHuang</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2355">actions/checkout#2355</a></li>
+      <li>Fix tag handling: preserve annotations and explicit fetch-tags by <a href="https://github.com/ericsciple"><code>@​ericsciple</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2356">actions/checkout#2356</a></li>
+      </ul>
+      <p><strong>Full Changelog</strong>: <a href="https://github.com/actions/checkout/compare/v6.0.1...v6.0.2">https://github.com/actions/checkout/compare/v6.0.1...v6.0.2</a></p>
+      <h2>v6.0.1</h2>
+      <h2>What's Changed</h2>
+      <ul>
+      <li>Update all references from v5 and v4 to v6 by <a href="https://github.com/ericsciple"><code>@​ericsciple</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2314">actions/checkout#2314</a></li>
+      <li>Add worktree support for persist-credentials includeIf by <a href="https://github.com/ericsciple"><code>@​ericsciple</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2327">actions/checkout#2327</a></li>
+      <li>Clarify v6 README by <a href="https://github.com/ericsciple"><code>@​ericsciple</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2328">actions/checkout#2328</a></li>
+      </ul>
+      <p><strong>Full Changelog</strong>: <a href="https://github.com/actions/checkout/compare/v6...v6.0.1">https://github.com/actions/checkout/compare/v6...v6.0.1</a></p>
+      </blockquote>
+      </details>
+      <details>
+      <summary>Changelog</summary>
+      <p><em>Sourced from <a href="https://github.com/actions/checkout/blob/main/CHANGELOG.md">actions/checkout's changelog</a>.</em></p>
+      <blockquote>
+      <h1>Changelog</h1>
+      <h2>v7.0.1</h2>
+      <ul>
+      <li>Bump github/codeql-action from 3 to 4 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2475">actions/checkout#2475</a></li>
+      <li>Bump actions/setup-node from 4 to 6 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2477">actions/checkout#2477</a></li>
+      <li>Bump docker/build-push-action from 6.5.0 to 7.2.0 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2478">actions/checkout#2478</a></li>
+      <li>Bump docker/login-action from 3.3.0 to 4.2.0 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2479">actions/checkout#2479</a></li>
+      <li>Bump actions/checkout from 6 to 7 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2488">actions/checkout#2488</a></li>
+      <li>Bump actions/upload-artifact from 4 to 7 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2476">actions/checkout#2476</a></li>
+      <li>eslint 9 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2474">actions/checkout#2474</a></li>
+      <li>Bump the minor-actions-dependencies group with 2 updates by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2499">actions/checkout#2499</a></li>
+      <li>skip running unsafe pr check if input is default by <a href="https://github.com/aiqiaoy"><code>@​aiqiaoy</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2518">actions/checkout#2518</a></li>
+      <li>trim only ascii whitespace for branch by <a href="https://github.com/aiqiaoy"><code>@​aiqiaoy</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2521">actions/checkout#2521</a></li>
+      <li>escape values passed to --unset by <a href="https://github.com/aiqiaoy"><code>@​aiqiaoy</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2530">actions/checkout#2530</a></li>
+      </ul>
+      <h2>v7.0.0</h2>
+      <ul>
+      <li>Block checking out fork PR for pull_request_target and workflow_run by <a href="https://github.com/aiqiaoy"><code>@​aiqiaoy</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2454">actions/checkout#2454</a></li>
+      <li>Bump actions/publish-immutable-action from 0.0.3 to 0.0.4 in the minor-actions-dependencies group across 1 directory by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2458">actions/checkout#2458</a></li>
+      <li>Bump flatted from 3.3.1 to 3.4.2 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2460">actions/checkout#2460</a></li>
+      <li>Bump js-yaml from 4.1.0 to 4.2.0 by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2461">actions/checkout#2461</a></li>
+      <li>Bump <code>@​actions/core</code> and <code>@​actions/tool-cache</code> and Remove uuid by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2459">actions/checkout#2459</a></li>
+      <li>upgrade module to esm and update dependencies by <a href="https://github.com/aiqiaoy"><code>@​aiqiaoy</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2463">actions/checkout#2463</a></li>
+      <li>Bump the minor-npm-dependencies group across 1 directory with 3 updates by <a href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a href="https://redirect.github.com/actions/checkout/pull/2462">actions/checkout#2462</a></li>
+      </ul>
+      <h2>v6.0.3</h2>
+      <ul>
+      <li>Fix checkout init for SHA-256 repositories by <a href="https://github.com/yaananth"><code>@​yaananth</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2439">actions/checkout#2439</a></li>
+      <li>fix: expand merge commit SHA regex and add SHA-256 test cases by <a href="https://github.com/yaananth"><code>@​yaananth</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2414">actions/checkout#2414</a></li>
+      </ul>
+      <h2>v6.0.2</h2>
+      <ul>
+      <li>Fix tag handling: preserve annotations and explicit fetch-tags by <a href="https://github.com/ericsciple"><code>@​ericsciple</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2356">actions/checkout#2356</a></li>
+      </ul>
+      <h2>v6.0.1</h2>
+      <ul>
+      <li>Add worktree support for persist-credentials includeIf by <a href="https://github.com/ericsciple"><code>@​ericsciple</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2327">actions/checkout#2327</a></li>
+      </ul>
+      <h2>v6.0.0</h2>
+      <ul>
+      <li>Persist creds to a separate file by <a href="https://github.com/ericsciple"><code>@​ericsciple</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2286">actions/checkout#2286</a></li>
+      <li>Update README to include Node.js 24 support details and requirements by <a href="https://github.com/salmanmkc"><code>@​salmanmkc</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2248">actions/checkout#2248</a></li>
+      </ul>
+      <h2>v5.0.1</h2>
+      <ul>
+      <li>Port v6 cleanup to v5 by <a href="https://github.com/ericsciple"><code>@​ericsciple</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2301">actions/checkout#2301</a></li>
+      </ul>
+      <h2>v5.0.0</h2>
+      <ul>
+      <li>Update actions checkout to use node 24 by <a href="https://github.com/salmanmkc"><code>@​salmanmkc</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2226">actions/checkout#2226</a></li>
+      </ul>
+      <h2>v4.3.1</h2>
+      <ul>
+      <li>Port v6 cleanup to v4 by <a href="https://github.com/ericsciple"><code>@​ericsciple</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/2305">actions/checkout#2305</a></li>
+      </ul>
+      <h2>v4.3.0</h2>
+      <ul>
+      <li>docs: update README.md by <a href="https://github.com/motss"><code>@​motss</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/1971">actions/checkout#1971</a></li>
+      <li>Add internal repos for checking out multiple repositories by <a href="https://github.com/mouismail"><code>@​mouismail</code></a> in <a href="https://redirect.github.com/actions/checkout/pull/1977">actions/checkout#1977</a></li>
+      </ul>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/actions/checkout/commit/9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0"><code>9c091bb</code></a> update error wording (<a href="https://redirect.github.com/actions/checkout/issues/2467">#2467</a>)</li>
+      <li><a href="https://github.com/actions/checkout/commit/1044a6dea927916f2c38ba5aeffbc0a847b1221a"><code>1044a6d</code></a> getting ready for checkout v7 release (<a href="https://redirect.github.com/actions/checkout/issues/2464">#2464</a>)</li>
+      <li><a href="https://github.com/actions/checkout/commit/f0282184c7ce73ab54c7e4ab5a617122602e575f"><code>f028218</code></a> Bump the minor-npm-dependencies group across 1 directory with 3 updates (<a href="https://redirect.github.com/actions/checkout/issues/2462">#2462</a>)</li>
+      <li><a href="https://github.com/actions/checkout/commit/d914b262ffc244530a203ab40decab34c3abf34d"><code>d914b26</code></a> upgrade module to esm and update dependencies (<a href="https://redirect.github.com/actions/checkout/issues/2463">#2463</a>)</li>
+      <li><a href="https://github.com/actions/checkout/commit/537c7ef99cef6e5ddb5e7ff5d16d14510503801d"><code>537c7ef</code></a> Bump <code>@​actions/core</code> and <code>@​actions/tool-cache</code> and Remove uuid (<a href="https://redirect.github.com/actions/checkout/issues/2459">#2459</a>)</li>
+      <li><a href="https://github.com/actions/checkout/commit/130a169078a413d3a5246a393625e8e742f387f6"><code>130a169</code></a> Bump js-yaml from 4.1.0 to 4.2.0 (<a href="https://redirect.github.com/actions/checkout/issues/2461">#2461</a>)</li>
+      <li><a href="https://github.com/actions/checkout/commit/7d09575332117a40b46e5e020664df234cd416f3"><code>7d09575</code></a> Bump flatted from 3.3.1 to 3.4.2 (<a href="https://redirect.github.com/actions/checkout/issues/2460">#2460</a>)</li>
+      <li><a href="https://github.com/actions/checkout/commit/0f9f3aa320cb53abeb534aeb54048075d9697a0e"><code>0f9f3aa</code></a> Bump actions/publish-immutable-action (<a href="https://redirect.github.com/actions/checkout/issues/2458">#2458</a>)</li>
+      <li><a href="https://github.com/actions/checkout/commit/f9e715a95fcd1f9253f77dd28f11e88d2d6460c7"><code>f9e715a</code></a> block checking out fork pr for pull_request_target and workflow_run (<a href="https://redirect.github.com/actions/checkout/issues/2454">#2454</a>)</li>
+      <li>See full diff in <a href="https://github.com/actions/checkout/compare/v6...v7">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+      Updates `googleapis/release-please-action` from 4 to 5
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/googleapis/release-please-action/releases">googleapis/release-please-action's releases</a>.</em></p>
+      <blockquote>
+      <h2>v5.0.0</h2>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v4.4.1...v5.0.0">5.0.0</a> (2026-04-22)</h2>
+      <h3>⚠ BREAKING CHANGES</h3>
+      <ul>
+      <li>upgrade to node24 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1188">#1188</a>)</li>
+      </ul>
+      <h3>Features</h3>
+      <ul>
+      <li>upgrade to node24 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1188">#1188</a>) (<a href="https://github.com/googleapis/release-please-action/commit/46dfc01594fc6ec99626bc73e479c52bdf554f88">46dfc01</a>)</li>
+      </ul>
+      <h3>Bug Fixes</h3>
+      <ul>
+      <li>bump release-please from 17.3.0 to 17.6.0 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1199">#1199</a>) (<a href="https://github.com/googleapis/release-please-action/commit/f533c26b74c2778db7edc90c96b63a7d08035765">f533c26</a>)</li>
+      </ul>
+      <h2>v4.4.1</h2>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v4.4.0...v4.4.1">4.4.1</a> (2026-02-20)</h2>
+      <h3>Bug Fixes</h3>
+      <ul>
+      <li>bump release-please from 17.1.3 to 17.3.0 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1183">#1183</a>) (<a href="https://github.com/googleapis/release-please-action/commit/ef9c2745dbfb629d38ebfafa3347a81ab2d51409">ef9c274</a>)</li>
+      </ul>
+      <h2>v4.4.0</h2>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v4.3.0...v4.4.0">4.4.0</a> (2025-10-09)</h2>
+      <h3>Features</h3>
+      <ul>
+      <li>add ability to select versioning-strategy and release-as (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1121">#1121</a>) (<a href="https://github.com/googleapis/release-please-action/commit/ee0f5bae453367755be0c4340193531b3f538374">ee0f5ba</a>)</li>
+      </ul>
+      <h3>Bug Fixes</h3>
+      <ul>
+      <li><code>changelog-host</code> parameter ignored when using manifest configuration (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1151">#1151</a>) (<a href="https://github.com/googleapis/release-please-action/commit/535c4130c1030110bdacd1b3076f98c046c3a227">535c413</a>)</li>
+      <li>bump mocha from 11.7.1 to 11.7.2 in the npm_and_yarn group across 1 directory (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1149">#1149</a>) (<a href="https://github.com/googleapis/release-please-action/commit/3612a99d75bd7a010bb03d6e2ee3e2392b7392fb">3612a99</a>)</li>
+      <li>bump release-please from 17.1.2 to 17.1.3 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1158">#1158</a>) (<a href="https://github.com/googleapis/release-please-action/commit/66fbfe9439cb7a3660ecdc00d42573ef0bd00764">66fbfe9</a>)</li>
+      </ul>
+      <h2>v4.3.0</h2>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v4.2.0...v4.3.0">4.3.0</a> (2025-08-20)</h2>
+      <h3>Features</h3>
+      <ul>
+      <li><strong>deps:</strong> update release-please to 17.1.2 (<a href="https://github.com/googleapis/release-please-action/commit/f07192c046b10acd083f4665a3d8b6350526f9df">f07192c</a>)</li>
+      </ul>
+      <h2>v4.2.0</h2>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v4.1.5...v4.2.0">4.2.0</a> (2025-03-07)</h2>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Changelog</summary>
+      <p><em>Sourced from <a href="https://github.com/googleapis/release-please-action/blob/main/CHANGELOG.md">googleapis/release-please-action's changelog</a>.</em></p>
+      <blockquote>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v4.1.0...v4.1.1">4.1.1</a> (2024-05-14)</h2>
+      <h3>Bug Fixes</h3>
+      <ul>
+      <li>bump release-please from 16.10.0 to 16.10.2 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/969">#969</a>) (<a href="https://github.com/googleapis/release-please-action/commit/aa764e0b5db70af7b607fa690b4d1799ceb802d6">aa764e0</a>)</li>
+      <li>bump the npm_and_yarn group with 1 update (<a href="https://redirect.github.com/googleapis/release-please-action/issues/967">#967</a>) (<a href="https://github.com/googleapis/release-please-action/commit/ce529d4a4014c4760ec75d3ba6482e3b80d58862">ce529d4</a>)</li>
+      </ul>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v4.0.3...v4.1.0">4.1.0</a> (2024-03-11)</h2>
+      <h3>Features</h3>
+      <ul>
+      <li>add <code>changelog-host</code> input to <code>action.yml</code> (<a href="https://redirect.github.com/googleapis/release-please-action/issues/948">#948</a>) (<a href="https://github.com/googleapis/release-please-action/commit/863b06fd1cd7f36c1d74d697ddebe3cf5be4c6b0">863b06f</a>)</li>
+      </ul>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v4.0.2...v4.0.3">4.0.3</a> (2024-03-11)</h2>
+      <h3>Bug Fixes</h3>
+      <ul>
+      <li>bump release-please from 16.5.0 to 16.10.0 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/953">#953</a>) (<a href="https://github.com/googleapis/release-please-action/commit/d7e88e0fd9e1a56d1075f610183d571f8347ff9b">d7e88e0</a>)</li>
+      </ul>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v4.0.1...v4.0.2">4.0.2</a> (2023-12-18)</h2>
+      <h3>Bug Fixes</h3>
+      <ul>
+      <li>bump release-please from 16.4.0 to 16.5.0 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/905">#905</a>) (<a href="https://github.com/googleapis/release-please-action/commit/df719633a752e335dfde3e62e037315a25ecf6fc">df71963</a>)</li>
+      <li>log release-please version (<a href="https://redirect.github.com/googleapis/release-please-action/issues/910">#910</a>) (<a href="https://github.com/googleapis/release-please-action/commit/2a496d1db5f8860ae46f6066f5dcb73490a99d02">2a496d1</a>), closes <a href="https://redirect.github.com/googleapis/release-please-action/issues/325">#325</a></li>
+      </ul>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v4.0.0...v4.0.1">4.0.1</a> (2023-12-07)</h2>
+      <h3>Bug Fixes</h3>
+      <ul>
+      <li>bump release-please from 16.3.1 to 16.4.0 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/897">#897</a>) (<a href="https://github.com/googleapis/release-please-action/commit/2463dad9b20163a40708db720b9fde34c2a2ab0e">2463dad</a>)</li>
+      </ul>
+      <h2><a href="https://github.com/googleapis/release-please-action/compare/v3.7.13...v4.0.0">4.0.0</a> (2023-12-01)</h2>
+      <h3>⚠ BREAKING CHANGES</h3>
+      <ul>
+      <li>remove most configuration options in favor of manifest configuration to configure the release-please-action</li>
+      <li>rewrite in typescript</li>
+      <li>remove command option in favor of setting <code>release-type</code> and <code>skip-github-release</code>/<code>skip-github-pull-request</code></li>
+      <li>run on node20</li>
+      <li><strong>deps:</strong> upgrade release-please to v16</li>
+      <li>v4 release</li>
+      </ul>
+      <h3>Features</h3>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/googleapis/release-please-action/commit/45996ed1f6d02564a971a2fa1b5860e934307cf7"><code>45996ed</code></a> chore(main): release 5.0.0 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1200">#1200</a>)</li>
+      <li><a href="https://github.com/googleapis/release-please-action/commit/a8121b99c9779b09ad890de46417b7cad74eb3a2"><code>a8121b9</code></a> chore: build dist (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1201">#1201</a>)</li>
+      <li><a href="https://github.com/googleapis/release-please-action/commit/f533c26b74c2778db7edc90c96b63a7d08035765"><code>f533c26</code></a> fix: bump release-please from 17.3.0 to 17.6.0 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1199">#1199</a>)</li>
+      <li><a href="https://github.com/googleapis/release-please-action/commit/46dfc01594fc6ec99626bc73e479c52bdf554f88"><code>46dfc01</code></a> feat!: upgrade to node24 (<a href="https://redirect.github.com/googleapis/release-please-action/issues/1188">#1188</a>)</li>
+      <li>See full diff in <a href="https://github.com/googleapis/release-please-action/compare/v4...v5">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+      Updates `actions/setup-node` from 6 to 7
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/actions/setup-node/releases">actions/setup-node's releases</a>.</em></p>
+      <blockquote>
+      <h2>v7.0.0</h2>
+      <h2>What's Changed</h2>
+      <h3>Enhancements:</h3>
+      <ul>
+      <li>Add cache-primary-key and cache-matched-key as outputs by <a href="https://github.com/gowridurgad"><code>@​gowridurgad</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1577">actions/setup-node#1577</a></li>
+      <li>Migrate to ESM and upgrade dependencies by <a href="https://github.com/gowridurgad"><code>@​gowridurgad</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1574">actions/setup-node#1574</a></li>
+      </ul>
+      <h3>Bug fixes:</h3>
+      <ul>
+      <li>Remove dummy NODE_AUTH_TOKEN export by <a href="https://github.com/gowridurgad"><code>@​gowridurgad</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1558">actions/setup-node#1558</a></li>
+      <li>Only use <code>mirrorToken</code> in <code>getManifest</code> if it's provided by <a href="https://github.com/deiga"><code>@​deiga</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1548">actions/setup-node#1548</a></li>
+      </ul>
+      <h3>Documentation updates:</h3>
+      <ul>
+      <li>Add documentation for publishing to npm with Trusted Publisher (OIDC) by <a href="https://github.com/chiranjib-swain"><code>@​chiranjib-swain</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1536">actions/setup-node#1536</a></li>
+      <li>docs: Update restore-only cache documentation by <a href="https://github.com/priya-kinthali"><code>@​priya-kinthali</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1550">actions/setup-node#1550</a></li>
+      <li>docs: Update caching recommendations to mitigate cache poisoning risks by <a href="https://github.com/chiranjib-swain"><code>@​chiranjib-swain</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1567">actions/setup-node#1567</a></li>
+      </ul>
+      <h3>Dependency update:</h3>
+      <ul>
+      <li>Upgrade <code>@​actions/cache</code> to 5.1.0, log cache write denied by <a href="https://github.com/jasongin"><code>@​jasongin</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1569">actions/setup-node#1569</a></li>
+      </ul>
+      <h2>New Contributors</h2>
+      <ul>
+      <li><a href="https://github.com/chiranjib-swain"><code>@​chiranjib-swain</code></a> made their first contribution in <a href="https://redirect.github.com/actions/setup-node/pull/1536">actions/setup-node#1536</a></li>
+      <li><a href="https://github.com/deiga"><code>@​deiga</code></a> made their first contribution in <a href="https://redirect.github.com/actions/setup-node/pull/1548">actions/setup-node#1548</a></li>
+      <li><a href="https://github.com/jasongin"><code>@​jasongin</code></a> made their first contribution in <a href="https://redirect.github.com/actions/setup-node/pull/1569">actions/setup-node#1569</a></li>
+      </ul>
+      <p><strong>Full Changelog</strong>: <a href="https://github.com/actions/setup-node/compare/v6...v7.0.0">https://github.com/actions/setup-node/compare/v6...v7.0.0</a></p>
+      <h2>v6.5.0</h2>
+      <h2>What's Changed</h2>
+      <ul>
+      <li>Update <code>@​actions/cache</code> to 5.1.0 and add security overrides for undici and fast-xml-parser by <a href="https://github.com/HarithaVattikuti"><code>@​HarithaVattikuti</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1579">actions/setup-node#1579</a></li>
+      </ul>
+      <p><strong>Full Changelog</strong>: <a href="https://github.com/actions/setup-node/compare/v6.4.0...v6.5.0">https://github.com/actions/setup-node/compare/v6.4.0...v6.5.0</a></p>
+      <h2>v6.4.0</h2>
+      <h2>What's Changed</h2>
+      <h3>Dependency updates:</h3>
+      <ul>
+      <li>Upgrade <a href="https://github.com/actions"><code>@​actions</code></a> dependencies by <a href="https://github.com/Copilot"><code>@​Copilot</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1525">actions/setup-node#1525</a></li>
+      <li>Update Node.js versions in versions.yml and bump package to v6.4.0  by <a href="https://github.com/priya-kinthali"><code>@​priya-kinthali</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1533">actions/setup-node#1533</a></li>
+      </ul>
+      <h2>New Contributors</h2>
+      <ul>
+      <li><a href="https://github.com/Copilot"><code>@​Copilot</code></a> made their first contribution in <a href="https://redirect.github.com/actions/setup-node/pull/1525">actions/setup-node#1525</a></li>
+      </ul>
+      <p><strong>Full Changelog</strong>: <a href="https://github.com/actions/setup-node/compare/v6...v6.4.0">https://github.com/actions/setup-node/compare/v6...v6.4.0</a></p>
+      <h2>v6.3.0</h2>
+      <h2>What's Changed</h2>
+      <h3>Enhancements:</h3>
+      <ul>
+      <li>Support parsing <code>devEngines</code> field by <a href="https://github.com/susnux"><code>@​susnux</code></a> in <a href="https://redirect.github.com/actions/setup-node/pull/1283">actions/setup-node#1283</a></li>
+      </ul>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/actions/setup-node/commit/820762786026740c76f36085b0efc47a31fe5020"><code>8207627</code></a> Migrate to ESM and upgrade dependencies (<a href="https://redirect.github.com/actions/setup-node/issues/1574">#1574</a>)</li>
+      <li><a href="https://github.com/actions/setup-node/commit/04be95cf3511ea51ebf9f224ddfb99cc7ab87cd4"><code>04be95c</code></a> Add cache-primary-key and cache-matched-key as outputs (<a href="https://redirect.github.com/actions/setup-node/issues/1577">#1577</a>)</li>
+      <li><a href="https://github.com/actions/setup-node/commit/7c2c68d20d402ed6a201ada70a81341941093140"><code>7c2c68d</code></a> docs: Update caching recommendations to mitigate cache poisoning risks (<a href="https://redirect.github.com/actions/setup-node/issues/1567">#1567</a>)</li>
+      <li><a href="https://github.com/actions/setup-node/commit/6a61c0375d66246de94630495909f12cf8dac84d"><code>6a61c03</code></a> Merge pull request <a href="https://redirect.github.com/actions/setup-node/issues/1569">#1569</a> from jasongin/update-actions-cache-5.1.0</li>
+      <li><a href="https://github.com/actions/setup-node/commit/30eb73b41ded577900c1ebf968ef95cdf8f7434f"><code>30eb73b</code></a> Resolve high-severity audit issues</li>
+      <li><a href="https://github.com/actions/setup-node/commit/4e1a87a501d0302f99e30e2748568adcb388d09f"><code>4e1a87a</code></a> Update dist</li>
+      <li><a href="https://github.com/actions/setup-node/commit/360237f0c01778d0c17291f75c56d6feae4f7574"><code>360237f</code></a> Strict equality</li>
+      <li><a href="https://github.com/actions/setup-node/commit/4f8aac5beb2f0854bc79651567a18c67eb0b9de3"><code>4f8aac5</code></a> Bump <code>@​actions/cache</code> to 5.1.0, log cache write denied</li>
+      <li><a href="https://github.com/actions/setup-node/commit/f4a67bbeca970f103397d3d2b9462cf787cd2980"><code>f4a67bb</code></a> Only use <code>mirrorToken</code> in <code>getManifest</code> if it's provided (<a href="https://redirect.github.com/actions/setup-node/issues/1548">#1548</a>)</li>
+      <li><a href="https://github.com/actions/setup-node/commit/0355742c943ddb13ca8a6b700f824231caa91e75"><code>0355742</code></a> Remove dummy NODE_AUTH_TOKEN export (<a href="https://redirect.github.com/actions/setup-node/issues/1558">#1558</a>)</li>
+      <li>Additional commits viewable in <a href="https://github.com/actions/setup-node/compare/v6...v7">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+
+      Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
+
+      [//]: # (dependabot-automerge-start)
+      [//]: # (dependabot-automerge-end)
+
+      ---
+
+      <details>
+      <summary>Dependabot commands and options</summary>
+      <br />
+
+      You can trigger Dependabot actions by commenting on this PR:
+      - `@dependabot rebase` will rebase this PR
+      - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+      - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency
+      - `@dependabot ignore <dependency name> major version` will close this group update PR and stop Dependabot creating any more for the specific dependency's major version (unless you unignore this specific dependency's major version or upgrade to it yourself)
+      - `@dependabot ignore <dependency name> minor version` will close this group update PR and stop Dependabot creating any more for the specific dependency's minor version (unless you unignore this specific dependency's minor version or upgrade to it yourself)
+      - `@dependabot ignore <dependency name>` will close this group update PR and stop Dependabot creating any more for the specific dependency (unless you unignore this specific dependency or upgrade to it yourself)
+      - `@dependabot unignore <dependency name>` will remove all of the ignore conditions of the specified dependency
+      - `@dependabot unignore <dependency name> <ignore condition>` will remove the ignore condition of the specified dependency and ignore conditions
+
+
+      </details>
+wyattjoh/media-server-mcp:
+  - number: 19
+    owner: "github-actions[bot]"
+    status: open
+    head: release-please--branches--main
+    base: main
+    title: "chore: release main"
+    labels: [ "autorelease: pending" ]
+    description: |-
+      :robot: I have created a release *beep* *boop*
+      ---
+
+
+      <details><summary>@wyattjoh/plex: 0.7.0</summary>
+
+      ## [0.7.0](https://github.com/wyattjoh/media-server-mcp/compare/@wyattjoh/plex-v0.6.0...@wyattjoh/plex-v0.7.0) (2026-08-30)
+
+
+      ### Features
+
+      * **plex:** add global watch history ([#18](https://github.com/wyattjoh/media-server-mcp/issues/18)) ([a24695d](https://github.com/wyattjoh/media-server-mcp/commit/a24695d93e6b39402e8c9cceaf370b4611d3628a))
+      </details>
+
+      <details><summary>@wyattjoh/media-server-mcp: 2.5.0</summary>
+
+      ## [2.5.0](https://github.com/wyattjoh/media-server-mcp/compare/@wyattjoh/media-server-mcp-v2.4.0...@wyattjoh/media-server-mcp-v2.5.0) (2026-08-30)
+
+
+      ### Features
+
+      * **plex:** add global watch history ([#18](https://github.com/wyattjoh/media-server-mcp/issues/18)) ([a24695d](https://github.com/wyattjoh/media-server-mcp/commit/a24695d93e6b39402e8c9cceaf370b4611d3628a))
+      </details>
+
+      ---
+      This PR was generated with [Release Please](https://github.com/googleapis/release-please). See [documentation](https://github.com/googleapis/release-please#release-please).

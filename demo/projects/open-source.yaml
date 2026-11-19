@@ -1,0 +1,955 @@
+# Demo project for the README recording (demo/tracking-tui.tape).
+# Public pull requests; `tracking sync` fills in the live fields.
+
+wyattjoh/tracking:
+  - number: 1
+    owner: "dependabot[bot]"
+    status: open
+    head: dependabot/bun/dependencies-14d948ba12
+    base: main
+    title: "fix(deps): bump the dependencies group with 4 updates"
+    labels: [ dependencies, javascript ]
+    description: |-
+      Bumps the dependencies group with 4 updates: [@opentui/core](https://github.com/anomalyco/opentui/tree/HEAD/packages/core), [@opentui/react](https://github.com/anomalyco/opentui/tree/HEAD/packages/react), [react](https://github.com/react/react/tree/HEAD/packages/react) and [@types/bun](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/HEAD/types/bun).
+
+      Updates `@opentui/core` from 0.5.14 to 0.9.2
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/anomalyco/opentui/releases">@​opentui/core's releases</a>.</em></p>
+      <blockquote>
+      <h2>Release v0.9.2</h2>
+      <h2>Fixed</h2>
+      <ul>
+      <li><strong>native:</strong> If the native library is missing outside an OpenTUI checkout, the <code>opentui-sys</code> build script names the release archive to extract, such as <code>opentui-native-v0.9.2-linux-x64.zip</code>, instead of <code>bun run build</code>. Set <code>OPENTUI_LIB_HINT</code> to replace this advice with your own setup step. See <a href="https://opentui.com/docs/bindings/rust">Rust</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2150">#2150</a>)</li>
+      </ul>
+      <p>API changes and documentation: <a href="https://opentui.com/docs/releases/0.9.2">https://opentui.com/docs/releases/0.9.2</a></p>
+      <h2>What's Changed</h2>
+      <ul>
+      <li>rust: give git consumers usable advice for a missing native library by <a href="https://github.com/simonklee"><code>@​simonklee</code></a> in <a href="https://redirect.github.com/anomalyco/opentui/pull/2150">anomalyco/opentui#2150</a></li>
+      </ul>
+      <p><strong>Full Changelog</strong>: <a href="https://github.com/anomalyco/opentui/compare/v0.9.1...v0.9.2">https://github.com/anomalyco/opentui/compare/v0.9.1...v0.9.2</a></p>
+      <h2>Release v0.9.1</h2>
+      <p><code>createCliRenderer()</code> returns before the terminal answers its startup queries, and an answer can change the width method. Up to 0.9.0, text created before that answer kept the startup guess. In tmux inside GNU Screen over ssh, a textarea put its cursor at cell 4 after <code>👍🏽</code> while the terminal drew the emoji in 2 cells, and selections and colors could land on other text.</p>
+      <p>In 0.9.1, a renderer whose width method changes measures the text in its scene again: Text, Code, Input, Textarea, <code>TextTable</code>, and Markdown tables. Cursors, selections, marks, colors, and undo points stay on their text. Applications that use these renderables need no changes.</p>
+      <p>A <code>TextBuffer</code> or <code>EditBuffer</code> that you create yourself keeps its width method. Pass <code>true</code> as the new third argument of <code>create()</code> to make it follow the renderer that shows it. Only one renderer at a time can show such a buffer. For a buffer that you draw outside a scene, call <code>setWidthMethod()</code> when the capabilities change:</p>
+      <pre lang="typescript"><code>import { CliRenderEvents, TextBuffer, createCliRenderer } from &quot;@opentui/core&quot;
+      <p>const renderer = await createCliRenderer()<br />
+      const widthMethod = renderer.capabilities?.unicode ?? &quot;unicode&quot;</p>
+      <p>const shown = TextBuffer.create(widthMethod, renderer.nativeScene, true)</p>
+      <p>const offscreen = TextBuffer.create(widthMethod, renderer.nativeScene)<br />
+      renderer.on(CliRenderEvents.CAPABILITIES, (capabilities) =&gt; {<br />
+      if (capabilities) offscreen.setWidthMethod(capabilities.unicode)<br />
+      })<br />
+      </code></pre></p>
+      <h2>Breaking changes</h2>
+      <ul>
+      <li><strong>native:</strong> The <code>reserved</code> field of <code>ot_edit_buffer_options</code> is now <code>flags</code>. C code that names the field must rename it; code that zeroes the struct compiles unchanged. See <a href="https://opentui.com/docs/native/c">C</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2148">#2148</a>)</li>
+      </ul>
+      <h2>Added</h2>
+      <ul>
+      <li><strong>core:</strong> <code>TextBuffer.create()</code> and <code>EditBuffer.create()</code> take an optional <code>followSessionWidth</code> argument. A second renderer that shows a following buffer throws a <code>NativeError</code> with <code>NativeStatus.WrongSession</code>. See <a href="https://opentui.com/docs/extend/editing">Editing buffers and views</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2148">#2148</a>)</li>
+      <li><strong>core:</strong> <code>TextBuffer.setWidthMethod()</code> changes the width method of a buffer that you draw outside a scene, and <code>TextBufferView.setSelectionColors()</code> recolors the current selection without moving it. See <a href="https://opentui.com/docs/extend/editing">Editing buffers and views</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2148">#2148</a>, <a href="https://redirect.github.com/anomalyco/opentui/pull/2149">#2149</a>)</li>
+      <li><strong>native:</strong> The C side of the same features: the <code>OT_EDIT_BUFFER_FOLLOW_SESSION_WIDTH</code> flag, <code>ot_text_buffer_set_width_method</code>, and the <code>OT_SCENE_TEXT_SELECTION_COLORS</code> operation. See <a href="https://opentui.com/docs/native/c">C</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2148">#2148</a>, <a href="https://redirect.github.com/anomalyco/opentui/pull/2149">#2149</a>)</li>
+      <li><strong>native:</strong> <code>link.exe</code> can link <code>opentui-static.lib</code> into Windows MSVC executables, which also need <code>ntdll</code>, <code>user32</code>, <code>bcrypt</code>, and <code>legacy_stdio_definitions</code>. See <a href="https://opentui.com/docs/native/c">C</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2140">#2140</a>)</li>
+      </ul>
+      <h2>Changed</h2>
+      <ul>
+      <li><strong>native:</strong> The release archives and npm packages also ship <code>LICENSE-ZIG</code>, <code>LICENSE-LLVM</code>, <code>LICENSE-MINGW-W64</code>, <code>LICENSE-GDTOA</code>, and <code>LICENSE-YOGA</code>. See <a href="https://opentui.com/docs/native/c">C</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2140">#2140</a>)</li>
+      </ul>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/anomalyco/opentui/commit/3a7a56cbfac57de0fa302d2379ea09ed3ae5fe80"><code>3a7a56c</code></a> Release v0.9.2</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/a865cdc28617234da656725c539cb0356df2b41d"><code>a865cdc</code></a> Release v0.9.1</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/cee1698ad0d3c33fee7bf40bb4ec7273107f733e"><code>cee1698</code></a> native, core, rust: keep table cells at the terminal's width method (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/core/issues/2149">#2149</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/100a75e9e5984d57dc477337ef3b2ac528fbed6c"><code>100a75e</code></a> native, core, rust: measure live text with the terminal's current width (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/core/issues/2148">#2148</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/e477ffa3abde407f06e0161bd1e2509bcdf68f0e"><code>e477ffa</code></a> native, rust: link OpenTUI statically into Windows MSVC executables (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/core/issues/2140">#2140</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/0c48678dddcc6a371c0783f26735f5ed788f8ccb"><code>0c48678</code></a> Release v0.9.0</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/494ab2597381a74e17ba66d037360f80ba014769"><code>494ab25</code></a> native: clamp setCursorByOffset past the end to the document end (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/core/issues/2131">#2131</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/ba83d44d8b5d4d87f0fd3708af30d3c6f1b12bbe"><code>ba83d44</code></a> native: add a CELLS paint record for runs of cells (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/core/issues/2128">#2128</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/bd7a03782861bd0a36671c6f5886c255199729df"><code>bd7a037</code></a> core: start video ticks with the native start (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/core/issues/2127">#2127</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/9294df0d46b9118e998f5daf6cbce262fc0e7d86"><code>9294df0</code></a> rust: share Core's animation clock (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/core/issues/2120">#2120</a>)</li>
+      <li>Additional commits viewable in <a href="https://github.com/anomalyco/opentui/commits/v0.9.2/packages/core">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+      Updates `@opentui/react` from 0.5.14 to 0.9.2
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/anomalyco/opentui/releases">@​opentui/react's releases</a>.</em></p>
+      <blockquote>
+      <h2>Release v0.9.2</h2>
+      <h2>Fixed</h2>
+      <ul>
+      <li><strong>native:</strong> If the native library is missing outside an OpenTUI checkout, the <code>opentui-sys</code> build script names the release archive to extract, such as <code>opentui-native-v0.9.2-linux-x64.zip</code>, instead of <code>bun run build</code>. Set <code>OPENTUI_LIB_HINT</code> to replace this advice with your own setup step. See <a href="https://opentui.com/docs/bindings/rust">Rust</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2150">#2150</a>)</li>
+      </ul>
+      <p>API changes and documentation: <a href="https://opentui.com/docs/releases/0.9.2">https://opentui.com/docs/releases/0.9.2</a></p>
+      <h2>What's Changed</h2>
+      <ul>
+      <li>rust: give git consumers usable advice for a missing native library by <a href="https://github.com/simonklee"><code>@​simonklee</code></a> in <a href="https://redirect.github.com/anomalyco/opentui/pull/2150">anomalyco/opentui#2150</a></li>
+      </ul>
+      <p><strong>Full Changelog</strong>: <a href="https://github.com/anomalyco/opentui/compare/v0.9.1...v0.9.2">https://github.com/anomalyco/opentui/compare/v0.9.1...v0.9.2</a></p>
+      <h2>Release v0.9.1</h2>
+      <p><code>createCliRenderer()</code> returns before the terminal answers its startup queries, and an answer can change the width method. Up to 0.9.0, text created before that answer kept the startup guess. In tmux inside GNU Screen over ssh, a textarea put its cursor at cell 4 after <code>👍🏽</code> while the terminal drew the emoji in 2 cells, and selections and colors could land on other text.</p>
+      <p>In 0.9.1, a renderer whose width method changes measures the text in its scene again: Text, Code, Input, Textarea, <code>TextTable</code>, and Markdown tables. Cursors, selections, marks, colors, and undo points stay on their text. Applications that use these renderables need no changes.</p>
+      <p>A <code>TextBuffer</code> or <code>EditBuffer</code> that you create yourself keeps its width method. Pass <code>true</code> as the new third argument of <code>create()</code> to make it follow the renderer that shows it. Only one renderer at a time can show such a buffer. For a buffer that you draw outside a scene, call <code>setWidthMethod()</code> when the capabilities change:</p>
+      <pre lang="typescript"><code>import { CliRenderEvents, TextBuffer, createCliRenderer } from &quot;@opentui/core&quot;
+      <p>const renderer = await createCliRenderer()<br />
+      const widthMethod = renderer.capabilities?.unicode ?? &quot;unicode&quot;</p>
+      <p>const shown = TextBuffer.create(widthMethod, renderer.nativeScene, true)</p>
+      <p>const offscreen = TextBuffer.create(widthMethod, renderer.nativeScene)<br />
+      renderer.on(CliRenderEvents.CAPABILITIES, (capabilities) =&gt; {<br />
+      if (capabilities) offscreen.setWidthMethod(capabilities.unicode)<br />
+      })<br />
+      </code></pre></p>
+      <h2>Breaking changes</h2>
+      <ul>
+      <li><strong>native:</strong> The <code>reserved</code> field of <code>ot_edit_buffer_options</code> is now <code>flags</code>. C code that names the field must rename it; code that zeroes the struct compiles unchanged. See <a href="https://opentui.com/docs/native/c">C</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2148">#2148</a>)</li>
+      </ul>
+      <h2>Added</h2>
+      <ul>
+      <li><strong>core:</strong> <code>TextBuffer.create()</code> and <code>EditBuffer.create()</code> take an optional <code>followSessionWidth</code> argument. A second renderer that shows a following buffer throws a <code>NativeError</code> with <code>NativeStatus.WrongSession</code>. See <a href="https://opentui.com/docs/extend/editing">Editing buffers and views</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2148">#2148</a>)</li>
+      <li><strong>core:</strong> <code>TextBuffer.setWidthMethod()</code> changes the width method of a buffer that you draw outside a scene, and <code>TextBufferView.setSelectionColors()</code> recolors the current selection without moving it. See <a href="https://opentui.com/docs/extend/editing">Editing buffers and views</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2148">#2148</a>, <a href="https://redirect.github.com/anomalyco/opentui/pull/2149">#2149</a>)</li>
+      <li><strong>native:</strong> The C side of the same features: the <code>OT_EDIT_BUFFER_FOLLOW_SESSION_WIDTH</code> flag, <code>ot_text_buffer_set_width_method</code>, and the <code>OT_SCENE_TEXT_SELECTION_COLORS</code> operation. See <a href="https://opentui.com/docs/native/c">C</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2148">#2148</a>, <a href="https://redirect.github.com/anomalyco/opentui/pull/2149">#2149</a>)</li>
+      <li><strong>native:</strong> <code>link.exe</code> can link <code>opentui-static.lib</code> into Windows MSVC executables, which also need <code>ntdll</code>, <code>user32</code>, <code>bcrypt</code>, and <code>legacy_stdio_definitions</code>. See <a href="https://opentui.com/docs/native/c">C</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2140">#2140</a>)</li>
+      </ul>
+      <h2>Changed</h2>
+      <ul>
+      <li><strong>native:</strong> The release archives and npm packages also ship <code>LICENSE-ZIG</code>, <code>LICENSE-LLVM</code>, <code>LICENSE-MINGW-W64</code>, <code>LICENSE-GDTOA</code>, and <code>LICENSE-YOGA</code>. See <a href="https://opentui.com/docs/native/c">C</a>. (<a href="https://redirect.github.com/anomalyco/opentui/pull/2140">#2140</a>)</li>
+      </ul>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/anomalyco/opentui/commit/3a7a56cbfac57de0fa302d2379ea09ed3ae5fe80"><code>3a7a56c</code></a> Release v0.9.2</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/a865cdc28617234da656725c539cb0356df2b41d"><code>a865cdc</code></a> Release v0.9.1</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/0c48678dddcc6a371c0783f26735f5ed788f8ccb"><code>0c48678</code></a> Release v0.9.0</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/445540f3c94a23e3729c85badad1afdef6125fcd"><code>445540f</code></a> core: share host runtime modules with linked plugin packages (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/react/issues/2095">#2095</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/2e05313f90a058f4b8bd190fbeeaec8f23de781b"><code>2e05313</code></a> react: use production JSX in the published bundle (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/react/issues/2092">#2092</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/91b940352d4c80a8c4cba3d9fc5c6f22bb2f7a56"><code>91b9403</code></a> core: run Markdown on the native engine (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/react/issues/2079">#2079</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/bb4812570580293a61bf9954d40f215e93b92656"><code>bb48125</code></a> core: remove the vnode/construct composition API (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/react/issues/2000">#2000</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/087a97a8eeccab7e54c7e29e53f3cf749636bf62"><code>087a97a</code></a> core: share one prop mapping between React and Solid (<a href="https://github.com/anomalyco/opentui/tree/HEAD/packages/react/issues/2018">#2018</a>)</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/b9e9d46b9303ca3ae20d38f867d6211f2d7ecaa5"><code>b9e9d46</code></a> Release v0.8.3</li>
+      <li><a href="https://github.com/anomalyco/opentui/commit/b7d9797f72a00afd4149175aa25f94475075a350"><code>b7d9797</code></a> Release v0.8.2</li>
+      <li>Additional commits viewable in <a href="https://github.com/anomalyco/opentui/commits/v0.9.2/packages/react">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+      Updates `react` from 19.3.0 to 19.3.1
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/react/react/releases">react's releases</a>.</em></p>
+      <blockquote>
+      <h2>19.3.1 (October 14th, 2026)</h2>
+      <h2>React Server Components</h2>
+      <ul>
+      <li>Improve transport protocol (<a href="https://redirect.github.com/facebook/react/pull/37845">#37845</a> by <a href="https://github.com/unstubbable"><code>@​unstubbable</code></a> and <a href="https://github.com/eps1lon"><code>@​eps1lon</code></a>)</li>
+      </ul>
+      </blockquote>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/react/react/commit/61aa00df822d0eb76d0362eb8b6fdd3527693efe"><code>61aa00d</code></a> [19.3.x][Flight] Improve transport protocol (<a href="https://github.com/react/react/tree/HEAD/packages/react/issues/37845">#37845</a>)</li>
+      <li>See full diff in <a href="https://github.com/react/react/commits/v19.3.1/packages/react">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+      Updates `@types/bun` from 1.4.2 to 1.4.4
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li>See full diff in <a href="https://github.com/DefinitelyTyped/DefinitelyTyped/commits/HEAD/types/bun">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+
+      Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
+
+      [//]: # (dependabot-automerge-start)
+      [//]: # (dependabot-automerge-end)
+
+      ---
+
+      <details>
+      <summary>Dependabot commands and options</summary>
+      <br />
+
+      You can trigger Dependabot actions by commenting on this PR:
+      - `@dependabot rebase` will rebase this PR
+      - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+      - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency
+      - `@dependabot ignore <dependency name> major version` will close this group update PR and stop Dependabot creating any more for the specific dependency's major version (unless you unignore this specific dependency's major version or upgrade to it yourself)
+      - `@dependabot ignore <dependency name> minor version` will close this group update PR and stop Dependabot creating any more for the specific dependency's minor version (unless you unignore this specific dependency's minor version or upgrade to it yourself)
+      - `@dependabot ignore <dependency name>` will close this group update PR and stop Dependabot creating any more for the specific dependency (unless you unignore this specific dependency or upgrade to it yourself)
+      - `@dependabot unignore <dependency name>` will remove all of the ignore conditions of the specified dependency
+      - `@dependabot unignore <dependency name> <ignore condition>` will remove the ignore condition of the specified dependency and ignore conditions
+
+
+      </details>
+  - number: 2
+    owner: "github-actions[bot]"
+    status: open
+    head: release-please--branches--main--components--tracking
+    base: main
+    title: "chore(main): release 0.1.0"
+    labels: [ "autorelease: pending" ]
+    description: |-
+      :robot: I have created a release *beep* *boop*
+      ---
+
+
+      ## 0.1.0 (2026-11-19)
+
+
+      ### Features
+
+      * add init command that writes a commented starter TRACKING.yaml ([1ce5bd1](https://github.com/wyattjoh/tracking/commit/1ce5bd108b3cb95cbc0dd590165a8a08511e042a))
+      * add the tracking CLI with an OpenTUI view, JSON output and sync ([a2609a9](https://github.com/wyattjoh/tracking/commit/a2609a933c78d04f1b654c9622d355cfc7278e83))
+      * add tracking skill that loads TRACKING.yaml as agent context ([efcc108](https://github.com/wyattjoh/tracking/commit/efcc1087b415df3e72f763bd43c76544e8f65d46))
+      * fetch, sync and show pull request labels in the TUI ([4a389c3](https://github.com/wyattjoh/tracking/commit/4a389c32c042a6eabc079b6aff6bb71bca2fd8b0))
+      * flatten TRACKING.yaml to repos with inferred stacks and add switchable TUI grouping ([a69e4df](https://github.com/wyattjoh/tracking/commit/a69e4dfd92746a4c709f7e1049b208bd5766b2cb))
+      * named projects in the config directory ([686539a](https://github.com/wyattjoh/tracking/commit/686539abe22204332a1394d915e55d793fb30336))
+      * **skill:** accept a project argument and confirm the project when none is named ([125cbcb](https://github.com/wyattjoh/tracking/commit/125cbcbf59ccf7a5edcd2e6d469aabb388497083))
+      * sync live state to YAML on every refresh ([6d34e69](https://github.com/wyattjoh/tracking/commit/6d34e6922e6be715096d82fcd23907d78ac86b05))
+      * track a local checkout or worktree path per pull request ([77fd0de](https://github.com/wyattjoh/tracking/commit/77fd0dedc5ef8f87f2e32b54f56d1ea1d718ba45))
+      * track GitHub review decision for open pull requests ([fa91dae](https://github.com/wyattjoh/tracking/commit/fa91dae1a9d00214bf56b3a764c370b039081718))
+      * **tui:** add filters and a view modal for grouping ([e70c4fa](https://github.com/wyattjoh/tracking/commit/e70c4fa3529fa8caf05ecd15f47deb23558fc613))
+      * **tui:** close the view modal by clicking esc close in its footer ([2e0adc2](https://github.com/wyattjoh/tracking/commit/2e0adc255be73c9d3bb60ff088c3021c4094abec))
+      * **tui:** copy mouse selections to the clipboard over OSC 52 ([38374e3](https://github.com/wyattjoh/tracking/commit/38374e3c4d4311d0422aecbd6b080634178d7398))
+      * **tui:** default the view to repo › author ([6accca9](https://github.com/wyattjoh/tracking/commit/6accca95111768ada37e9cca3cdb8fa69b732bcc))
+      * **tui:** filter by label in the view modal and show labels only in the detail pane ([d4c18a2](https://github.com/wyattjoh/tracking/commit/d4c18a2b35ca65d9de9863a2a2143d33896e4d5e))
+      * **tui:** persist view settings to TRACKING.yaml, pad the view modal and open it from the header ([4d65613](https://github.com/wyattjoh/tracking/commit/4d656138449c84884c691df8654d77768dbc5984))
+      * **tui:** prefix usernames with @ ([117a5b5](https://github.com/wyattjoh/tracking/commit/117a5b5eb07327a54a13348c0aabeb2875c87b1b))
+      * **tui:** space out sections, resize panes by dragging the border, rename pull_requests to my_work ([b1d9769](https://github.com/wyattjoh/tracking/commit/b1d97696cd0c0a680cbaed7e288c3f1cf675c52f))
+
+
+      ### Bug Fixes
+
+      * **tui:** copy clicked URLs to the clipboard ([3bc1bf4](https://github.com/wyattjoh/tracking/commit/3bc1bf449bbdf00c9cb6c93d91aa16263eb1ab4e))
+      * **tui:** keep underscores in repo and author group labels ([ea55560](https://github.com/wyattjoh/tracking/commit/ea55560ff208578cd750ec0344e4cd487f466af3))
+
+      ---
+      This PR was generated with [Release Please](https://github.com/googleapis/release-please). See [documentation](https://github.com/googleapis/release-please#release-please).
+wyattjoh/waku:
+  - number: 1
+    owner: "wyattjoh"
+    notes: Base of the automations stack.
+    status: draft
+    head: wyattjoh/automations-native-prep
+    base: main
+    title: "refactor(ui): share toggle and activation primitives"
+    description: |-
+      ## Summary
+
+      - Add shared keyboard and mouse activation behavior for focusable controls.
+      - Centralize toggle-switch rendering and interaction.
+      - Migrate Settings controls onto the shared primitives.
+
+      ## Why
+
+      This removes duplicated interaction logic and gives automation controls the same focus and keyboard behavior as existing Settings controls.
+
+      ## Validation
+
+      - `cargo check -p waku`
+  - number: 2
+    owner: "wyattjoh"
+    status: draft
+    head: wyattjoh/automations-domain
+    base: wyattjoh/automations-native-prep
+    title: "feat(automations): add scheduling domain model"
+    description: |-
+      ## Summary
+
+      - Define durable automation, schedule, overlap, notification, and run-history types.
+      - Add clock-free next-occurrence and firing planners.
+      - Generate matching TypeScript domain types.
+
+      ## Why
+
+      This concentrates scheduling behavior behind a pure, directly testable interface before adding storage or execution.
+
+      ## Validation
+
+      - 33 protocol automation tests
+      - `cargo check -p waku`
+  - number: 3
+    owner: "wyattjoh"
+    status: draft
+    head: wyattjoh/automations-persistence
+    base: wyattjoh/automations-domain
+    title: "feat(automations): persist automations and run provenance"
+    description: |-
+      ## Summary
+
+      - Add SQLite storage for automation records.
+      - Record the originating automation on spawned sessions.
+      - Reconcile, delete, and round-trip durable automation state.
+
+      ## Why
+
+      This gives the daemon durable automation state while keeping persistence separate from scheduling and execution.
+
+      ## Validation
+
+      - `cargo check -p waku`
+  - number: 4
+    owner: "wyattjoh"
+    status: draft
+    head: wyattjoh/automations-execution
+    base: wyattjoh/automations-persistence
+    title: "feat(automations): run schedules in daemon"
+    description: |-
+      ## Summary
+
+      - Add atomic automation mutations and client synchronization.
+      - Run manual and scheduled automations in the daemon.
+      - Handle catch-up, overlap, lifecycle settlement, notifications, and shutdown.
+
+      ## Why
+
+      This makes the daemon the single owner of automation state and execution across native and browser clients.
+
+      ## Validation
+
+      - 15 core automation tests
+      - Rust client automation tests
+      - TypeScript client tests
+      - Generated protocol check
+      - `cargo check -p waku`
+  - number: 5
+    owner: "wyattjoh"
+    status: draft
+    head: wyattjoh/automations-native-authoring
+    base: wyattjoh/automations-execution
+    title: "feat(automations): add native authoring"
+    description: |-
+      ## Summary
+
+      - Add the native Automations list and editor.
+      - Reuse composer agent, project, and workspace controls.
+      - Support schedules, validation, auto-commit, run-now, deletion, and localized lifecycle UX.
+
+      ## Why
+
+      This provides complete native creation and management over the daemon-owned automation contract.
+
+      ## Validation
+
+      - `cargo check -p waku`
+wyattjoh/jmap-mcp:
+  - number: 35
+    owner: "renovate[bot]"
+    status: open
+    review: review_required
+    head: renovate/all-minor-patch
+    base: main
+    title: "chore(deps): update all non-major dependencies"
+    description: |-
+      This PR contains the following updates:
+
+      | Package | Change | [Age](https://docs.renovatebot.com/merge-confidence/) | [Confidence](https://docs.renovatebot.com/merge-confidence/) | Type | Update |
+      |---|---|---|---|---|---|
+      | [@hono/node-server](https://redirect.github.com/honojs/node-server) | [`2.1.0` -> `2.1.1`](https://renovatebot.com/diffs/npm/@hono%2fnode-server/2.1.0/2.1.1) | ![age](https://developer.mend.io/api/mc/badges/age/npm/@hono%2fnode-server/2.1.1?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/npm/@hono%2fnode-server/2.1.0/2.1.1?slim=true) | overrides | patch |
+      | [docker.io/denoland/deno](https://redirect.github.com/denoland/deno_docker) | `2.9.2` → `2.9.5` | ![age](https://developer.mend.io/api/mc/badges/age/docker/docker.io%2fdenoland%2fdeno/2.9.5?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/docker/docker.io%2fdenoland%2fdeno/2.9.2/2.9.5?slim=true) | final | patch |
+      | [docker.io/denoland/deno](https://redirect.github.com/denoland/deno_docker) | `2.9.2` → `2.9.5` | ![age](https://developer.mend.io/api/mc/badges/age/docker/docker.io%2fdenoland%2fdeno/2.9.5?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/docker/docker.io%2fdenoland%2fdeno/2.9.2/2.9.5?slim=true) | stage | patch |
+      | [fast-uri](https://redirect.github.com/fastify/fast-uri) | [`3.1.5` -> `3.1.6`](https://renovatebot.com/diffs/npm/fast-uri/3.1.5/3.1.6) | ![age](https://developer.mend.io/api/mc/badges/age/npm/fast-uri/3.1.6?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/npm/fast-uri/3.1.5/3.1.6?slim=true) | overrides | patch |
+      | [hono](https://hono.dev) ([source](https://redirect.github.com/honojs/hono)) | [`4.13.1` -> `4.13.4`](https://renovatebot.com/diffs/npm/hono/4.13.1/4.13.4) | ![age](https://developer.mend.io/api/mc/badges/age/npm/hono/4.13.4?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/npm/hono/4.13.1/4.13.4?slim=true) | overrides | patch |
+      | [path-to-regexp](https://redirect.github.com/pillarjs/path-to-regexp) | [`8.4.0` -> `8.4.2`](https://renovatebot.com/diffs/npm/path-to-regexp/8.4.0/8.4.2) | ![age](https://developer.mend.io/api/mc/badges/age/npm/path-to-regexp/8.4.2?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/npm/path-to-regexp/8.4.0/8.4.2?slim=true) | overrides | patch |
+
+      ---
+
+      ### Release Notes
+
+      <details>
+      <summary>honojs/node-server (@&#8203;hono/node-server)</summary>
+
+      ### [`v2.1.1`](https://redirect.github.com/honojs/node-server/releases/tag/v2.1.1)
+
+      [Compare Source](https://redirect.github.com/honojs/node-server/compare/v2.1.0...v2.1.1)
+
+      #### What's Changed
+
+      - perf: lazily materialize request headers by [@&#8203;BlankParticle](https://redirect.github.com/BlankParticle) in [#&#8203;389](https://redirect.github.com/honojs/node-server/pull/389)
+
+      **Full Changelog**: <https://github.com/honojs/node-server/compare/v2.1.0...v2.1.1>
+
+      </details>
+
+      <details>
+      <summary>denoland/deno_docker (docker.io/denoland/deno)</summary>
+
+      ### [`v2.9.5`](https://redirect.github.com/denoland/deno_docker/compare/2.9.4...2.9.5)
+
+      [Compare Source](https://redirect.github.com/denoland/deno_docker/compare/2.9.4...2.9.5)
+
+      ### [`v2.9.4`](https://redirect.github.com/denoland/deno_docker/compare/2.9.3...2.9.4)
+
+      [Compare Source](https://redirect.github.com/denoland/deno_docker/compare/2.9.3...2.9.4)
+
+      ### [`v2.9.3`](https://redirect.github.com/denoland/deno_docker/compare/2.9.2...2.9.3)
+
+      [Compare Source](https://redirect.github.com/denoland/deno_docker/compare/2.9.2...2.9.3)
+
+      </details>
+
+      <details>
+      <summary>fastify/fast-uri (fast-uri)</summary>
+
+      ### [`v3.1.6`](https://redirect.github.com/fastify/fast-uri/compare/v3.1.5...6f970b2951fd896aa0f3a7ff28eeb6640c137d33)
+
+      [Compare Source](https://redirect.github.com/fastify/fast-uri/compare/v3.1.5...v3.1.6)
+
+      </details>
+
+      <details>
+      <summary>honojs/hono (hono)</summary>
+
+      ### [`v4.13.4`](https://redirect.github.com/honojs/hono/compare/v4.13.3...017000d6ad5bc6a65dd0f9215a4fdfea6ea80aea)
+
+      [Compare Source](https://redirect.github.com/honojs/hono/compare/v4.13.3...v4.13.4)
+
+      ### [`v4.13.3`](https://redirect.github.com/honojs/hono/releases/tag/v4.13.3)
+
+      [Compare Source](https://redirect.github.com/honojs/hono/compare/v4.13.2...v4.13.3)
+
+      #### What's Changed
+
+      - fix(client): prevent URL corruption when replaceUrlParam contains $ replacement tokens in [#&#8203;5227](https://redirect.github.com/honojs/hono/pull/5227)
+      - fix(etag): copy pending stream bytes in [#&#8203;5239](https://redirect.github.com/honojs/hono/pull/5239)
+      - fix(etag): avoid skipping headers when filtering 304 response headers in [#&#8203;5234](https://redirect.github.com/honojs/hono/pull/5234)
+      - fix(cors): append Origin to Vary header on OPTIONS preflight in [#&#8203;5235](https://redirect.github.com/honojs/hono/pull/5235)
+      - docs(context): add custom headers append option example to Context JSDoc in [#&#8203;5248](https://redirect.github.com/honojs/hono/pull/5248)
+      - fix(trie-router): match suffix wildcard routes in [#&#8203;5236](https://redirect.github.com/honojs/hono/pull/5236)
+      - fix(pattern-router/linear-router): prevent prefix overmatch on wildcard routes in [#&#8203;5252](https://redirect.github.com/honojs/hono/pull/5252)
+      - fix(csrf): exempt OPTIONS request from CSRF validation in [#&#8203;5250](https://redirect.github.com/honojs/hono/pull/5250)
+      - fix(utils/ipaddr): avoid truncation on embedded IPv4 addresses in expand IPv6 in [#&#8203;5247](https://redirect.github.com/honojs/hono/pull/5247)
+      - feat(pretty-json): support structured JSON content-types (+json) in [#&#8203;5226](https://redirect.github.com/honojs/hono/pull/5226)
+
+      **Full Changelog**: <https://github.com/honojs/hono/compare/v4.13.2...v4.13.3>
+
+      ### [`v4.13.2`](https://redirect.github.com/honojs/hono/releases/tag/v4.13.2)
+
+      [Compare Source](https://redirect.github.com/honojs/hono/compare/v4.13.1...v4.13.2)
+
+      #### What's Changed
+
+      - fix(secure-headers): output standard empty parentheses () instead of none for disabled Permissions-Policy directives in [#&#8203;5197](https://redirect.github.com/honojs/hono/pull/5197)
+      - fix(jsx): render async children of document metadata tags instead of \[object Promise] in [#&#8203;5204](https://redirect.github.com/honojs/hono/pull/5204)
+      - fix(etag): resolve incorrect incremental hashing for chunked responses in [#&#8203;5199](https://redirect.github.com/honojs/hono/pull/5199)
+      - fix(client): serialize multiple cookies correctly in [#&#8203;5202](https://redirect.github.com/honojs/hono/pull/5202)
+      - fix(etag): stabilize digest across stream chunks in [#&#8203;5205](https://redirect.github.com/honojs/hono/pull/5205)
+      - fix(url): strip trailing question mark correctly for optional params with regex quantifiers in [#&#8203;5209](https://redirect.github.com/honojs/hono/pull/5209)
+      - perf(cors): pre-join static array header options during initialization in [#&#8203;5210](https://redirect.github.com/honojs/hono/pull/5210)
+      - fix(client): send falsy JSON bodies in [#&#8203;5215](https://redirect.github.com/honojs/hono/pull/5215)
+      - feat(secure-headers): add missing W3C Permissions-Policy directives in [#&#8203;5214](https://redirect.github.com/honojs/hono/pull/5214)
+
+      **Full Changelog**: <https://github.com/honojs/hono/compare/v4.13.1...v4.13.2>
+
+      </details>
+
+      <details>
+      <summary>pillarjs/path-to-regexp (path-to-regexp)</summary>
+
+      ### [`v8.4.2`](https://redirect.github.com/pillarjs/path-to-regexp/releases/tag/v8.4.2)
+
+      [Compare Source](https://redirect.github.com/pillarjs/path-to-regexp/compare/v8.4.1...v8.4.2)
+
+      **Fixed**
+
+      - Error on trailing backslash ([#&#8203;434](https://redirect.github.com/pillarjs/path-to-regexp/issues/434))  [`9a78879`](https://redirect.github.com/pillarjs/path-to-regexp/commit/9a78879)
+
+      **Performance**
+
+      - Minimize array allocations ([#&#8203;437](https://redirect.github.com/pillarjs/path-to-regexp/issues/437))  [`937c02d`](https://redirect.github.com/pillarjs/path-to-regexp/commit/937c02d)
+      - Improve compile performance ([#&#8203;436](https://redirect.github.com/pillarjs/path-to-regexp/issues/436))  [`57247e6`](https://redirect.github.com/pillarjs/path-to-regexp/commit/57247e6)
+        - Should improve compilation performance by \~25%
+      - Remove internal tokenization during parse ([#&#8203;435](https://redirect.github.com/pillarjs/path-to-regexp/issues/435))  [`5844988`](https://redirect.github.com/pillarjs/path-to-regexp/commit/5844988)
+        - Should improve parse performance by \~20%
+
+      **Bundle size** to 1.93 kB, from 1.97 kB.
+
+      ***
+
+      ### [`v8.4.1`](https://redirect.github.com/pillarjs/path-to-regexp/releases/tag/v8.4.1)
+
+      [Compare Source](https://redirect.github.com/pillarjs/path-to-regexp/compare/v8.4.0...v8.4.1)
+
+      **Fixed**
+
+      - Remove trie deduplication ([#&#8203;431](https://redirect.github.com/pillarjs/path-to-regexp/issues/431))  [`6bc8e84`](https://redirect.github.com/pillarjs/path-to-regexp/commit/6bc8e84)
+        - Using a trie required non-greedy matching, which regressed wildcards in non-ending mode by matching them up until the first match. For example:
+          - `/*foo` with `/a/b` = `/a`
+          - `/*foo.html`with `/a/b.html/c.html` = `/a/b.html`
+      - Allow backtrack handling to match itself ([#&#8203;427](https://redirect.github.com/pillarjs/path-to-regexp/issues/427))  [`5bcd30b`](https://redirect.github.com/pillarjs/path-to-regexp/commit/5bcd30b)
+        - When backtracking was introduced, it rejected matching things like `/:"a"_:"b"` against `/foo__`. This makes intuitive sense because the second parameter is not going to backtrack on `_` anymore, but it's somewhat unexpected since there's no reason it shouldn't match the second `_`.
+
+      ***
+
+      </details>
+
+      ---
+
+      ### Configuration
+
+      📅 **Schedule**: (UTC)
+
+      - Branch creation
+        - At any time (no schedule defined)
+      - Automerge
+        - At any time (no schedule defined)
+
+      🚦 **Automerge**: Enabled.
+
+      ♻ **Rebasing**: Whenever PR is behind base branch, or you tick the rebase/retry checkbox.
+
+      👻 **Immortal**: This PR will be recreated if closed unmerged. Get [config help](https://redirect.github.com/renovatebot/renovate/discussions) if that's undesired.
+
+      ---
+
+       - [x] <!-- rebase-check -->If you want to rebase/retry this PR, check this box
+
+      ---
+
+      This PR was generated by [Mend Renovate](https://mend.io/renovate/). View the [repository job log](https://developer.mend.io/github/wyattjoh/jmap-mcp).
+      <!--renovate-debug:eyJjcmVhdGVkSW5WZXIiOiI0My4yNTkuMiIsInVwZGF0ZWRJblZlciI6IjQ0LjM5LjAiLCJ0YXJnZXRCcmFuY2giOiJtYWluIiwibGFiZWxzIjpbXX0=-->
+  - number: 42
+    owner: "Funk66"
+    notes: Community PR; check Basic auth against Fastmail.
+    status: open
+    review: review_required
+    head: main
+    base: main
+    title: "feat: support HTTP Basic auth for servers that reject bearer tokens"
+    description: |-
+      Stalwart Mail Server's JMAP endpoint rejects Authorization: Bearer (401) and only accepts HTTP Basic, so jmap-mcp could never connect to it.
+wyattjoh/herdr-plugin-renamer:
+  - number: 22
+    owner: "dependabot[bot]"
+    status: open
+    review: review_required
+    head: dependabot/cargo/cargo-minor-2f076ef168
+    base: main
+    title: "build(deps): bump the cargo-minor group across 1 directory with 2 updates"
+    labels: [ dependencies, rust ]
+    description: |-
+      Bumps the cargo-minor group with 2 updates in the / directory: [serde_json](https://github.com/serde-rs/json) and [libc](https://github.com/rust-lang/libc).
+
+      Updates `serde_json` from 1.0.151 to 1.0.154
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/serde-rs/json/releases">serde_json's releases</a>.</em></p>
+      <blockquote>
+      <h2>v1.0.154</h2>
+      <ul>
+      <li>Support preserve_order in no_std builds (<a href="https://redirect.github.com/serde-rs/json/issues/1333">#1333</a>, thanks <a href="https://github.com/razmser"><code>@​razmser</code></a>)</li>
+      </ul>
+      <h2>v1.0.153</h2>
+      <ul>
+      <li>Report invalid UTF-8 at the first bad byte (<a href="https://redirect.github.com/serde-rs/json/issues/1345">#1345</a>, thanks <a href="https://github.com/00200200"><code>@​00200200</code></a>)</li>
+      </ul>
+      <h2>v1.0.152</h2>
+      <ul>
+      <li>Preserve sign of <code>-0</code> in arbitrary_precision mode (<a href="https://redirect.github.com/serde-rs/json/issues/1346">#1346</a>, thanks <a href="https://github.com/yuxi-liu-wired"><code>@​yuxi-liu-wired</code></a>)</li>
+      <li>Fix comparison of large non-integer values with f32::INFINITY (<a href="https://redirect.github.com/serde-rs/json/issues/1347">#1347</a>, thanks <a href="https://github.com/yuxi-liu-wired"><code>@​yuxi-liu-wired</code></a>)</li>
+      </ul>
+      </blockquote>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/serde-rs/json/commit/20572a6d066958542d79cdd6cf1a7cd9f0c8e1f8"><code>20572a6</code></a> Release 1.0.154</li>
+      <li><a href="https://github.com/serde-rs/json/commit/a91bfaf539aa7927ab88086d7a9ff522cb090f7a"><code>a91bfaf</code></a> Fix RandomState links in map documentation</li>
+      <li><a href="https://github.com/serde-rs/json/commit/3c932c05f73bcbc7626db4e1959cbce075d7106e"><code>3c932c0</code></a> Merge pull request <a href="https://redirect.github.com/serde-rs/json/issues/1333">#1333</a> from razmser/no-std-preserve-order</li>
+      <li><a href="https://github.com/serde-rs/json/commit/4b2d7264cef72ef297058ef7d731e7d77574cf3e"><code>4b2d726</code></a> Release 1.0.153</li>
+      <li><a href="https://github.com/serde-rs/json/commit/83335eed01fcfe5f3cfb8064938df935e99e3d61"><code>83335ee</code></a> Touch up PR 1345</li>
+      <li><a href="https://github.com/serde-rs/json/commit/4b4810a451a3095c7bcce792782e460cf1105d8d"><code>4b4810a</code></a> Resolve range_plus_one pedantic clippy lint</li>
+      <li><a href="https://github.com/serde-rs/json/commit/8af71cc0d7ceecd53b9c9b5a9ac512e98d1c78e7"><code>8af71cc</code></a> Merge pull request <a href="https://redirect.github.com/serde-rs/json/issues/1345">#1345</a> from 00200200/fix-invalid-utf8-error-column</li>
+      <li><a href="https://github.com/serde-rs/json/commit/452afa2630f1d568ba06a5f43ad2e2f5303ac000"><code>452afa2</code></a> Correct multiline raw UTF-8 error positions and simplify indexing</li>
+      <li><a href="https://github.com/serde-rs/json/commit/c9f1e3b0216328591262889d9a1c2771f3dd5fff"><code>c9f1e3b</code></a> Release 1.0.152</li>
+      <li><a href="https://github.com/serde-rs/json/commit/854fc70fa3449c302265b75e750401b009b85cd1"><code>854fc70</code></a> Touch up PR 1347</li>
+      <li>Additional commits viewable in <a href="https://github.com/serde-rs/json/compare/v1.0.151...v1.0.154">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+      Updates `libc` from 0.2.189 to 0.2.190
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/rust-lang/libc/releases">libc's releases</a>.</em></p>
+      <blockquote>
+      <h2>0.2.190</h2>
+      <p>There is now a single config for enabling 64-bit <code>time_t</code>: <code>libc_unstable_time64</code>. This can be set
+      unconditionally; it opts in to 64-bit <code>time_t</code> on the following platforms that use 32-bit by
+      default:</p>
+      <ul>
+      <li>32-bit Linux-GNU</li>
+      <li>32-bit Linux-uClibc</li>
+      <li>32-bit Linux-musl. Note that setting this flag also enables some other changes that happend in
+      musl v1.2.</li>
+      <li>32-bit Windows-GNU</li>
+      <li>ESP-IDF (all targets with this environment are 32-bit)</li>
+      </ul>
+      <p>Most other 32-bit platforms are either already using 64-bit <code>time_t</code>, or are considered legacy
+      and will not be gaining support from their upstream maintainers.</p>
+      <p>You can enable this using <code>RUSTFLAGS</code>:</p>
+      <pre lang="sh"><code>RUSTFLAGS='--cfg=libc_unstable_time64' cargo ...
+      </code></pre>
+      <p>Note that there may still be some changes to features gated by this config option, hence &quot;unstable&quot;
+      in its name. In the near future we will rename it to just <code>libc_time64</code>. Until then, please test it
+      out and report any bugs you find!</p>
+      <h3>Support</h3>
+      <ul>
+      <li>Add initial support for HelenOS (<a href="https://redirect.github.com/rust-lang/libc/pull/4355">#4355</a>)</li>
+      </ul>
+      <h3>Added</h3>
+      <p>We are slowly filling out the <code>Default</code> implementations, to reduce the need for <code>mem::zeroed()</code> in user code:</p>
+      <ul>
+      <li>Unix: Implement <code>Default</code> for a number of structs, especially on Apple platforms (<a href="https://redirect.github.com/rust-lang/libc/pull/5576">#5576</a>)</li>
+      <li>Linux, NetBSD: Give <code>statvfs</code> a <code>Default</code> impl (<a href="https://redirect.github.com/rust-lang/libc/pull/5583">#5583</a>)</li>
+      <li>Linux: Add <code>Default</code> to a <code>linux/can.rs</code> structs (<a href="https://redirect.github.com/rust-lang/libc/pull/5257">#5257</a>)</li>
+      </ul>
+      <p>Other additions:</p>
+      <ul>
+      <li>Expose the <code>libc_unstable_time64</code> cfg (<a href="https://redirect.github.com/rust-lang/libc/pull/5411">#5411</a>)</li>
+      <li>Android, Glibc: Add <code>pthread_gettid_np</code> (<a href="https://redirect.github.com/rust-lang/libc/pull/5359">#5359</a>)</li>
+      <li>Android: Add <code>RTLD_NEXT</code> (<a href="https://redirect.github.com/rust-lang/libc/pull/5323">#5323</a>)</li>
+      <li>Android: Add reuseport BPF socket options (<a href="https://redirect.github.com/rust-lang/libc/pull/5366">#5366</a>)</li>
+      <li>Apple: Add TCP header flags, options and SACK limits (<a href="https://redirect.github.com/rust-lang/libc/pull/5358">#5358</a>)</li>
+      <li>Apple: Add <code>NET_RT_DUMP2</code> (<a href="https://redirect.github.com/rust-lang/libc/pull/5442">#5442</a>)</li>
+      <li>Apple: Add <code>posix_spawn_file_actions_add(f)chdir(_np)</code> (<a href="https://redirect.github.com/rust-lang/libc/pull/5558">#5558</a>)</li>
+      <li>BSD: Add <code>BPF_WORDALIGN</code> (<a href="https://redirect.github.com/rust-lang/libc/pull/5320">#5320</a>)</li>
+      <li>BSD: Add <code>lchmod</code> and <code>lchflags</code> where supported (<a href="https://redirect.github.com/rust-lang/libc/pull/5400">#5400</a>)</li>
+      <li>BSD: Add <code>minherit</code> and related constants (<a href="https://redirect.github.com/rust-lang/libc/pull/4849">#4849</a>)</li>
+      <li>Docs: Add more links to public headers and manual pages (<a href="https://redirect.github.com/rust-lang/libc/pull/5407">#5407</a>), (<a href="https://redirect.github.com/rust-lang/libc/pull/5485">#5485</a>)</li>
+      </ul>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Changelog</summary>
+      <p><em>Sourced from <a href="https://github.com/rust-lang/libc/blob/0.2.190/CHANGELOG.md">libc's changelog</a>.</em></p>
+      <blockquote>
+      <h2><a href="https://github.com/rust-lang/libc/compare/0.2.189...0.2.190">0.2.190</a> - 2026-10-02</h2>
+      <p>There is now a single config for enabling 64-bit <code>time_t</code>: <code>libc_unstable_time64</code>. This can be set
+      unconditionally; it opts in to 64-bit <code>time_t</code> on the following platforms that use 32-bit by
+      default:</p>
+      <ul>
+      <li>32-bit Linux-GNU</li>
+      <li>32-bit Linux-uClibc</li>
+      <li>32-bit Linux-musl. Note that setting this flag also enables some other changes that happend in
+      musl v1.2.</li>
+      <li>32-bit Windows-GNU</li>
+      <li>ESP-IDF (all targets with this environment are 32-bit)</li>
+      </ul>
+      <p>Most other 32-bit platforms are either already using 64-bit <code>time_t</code>, or are considered legacy
+      and will not be gaining support from their upstream maintainers.</p>
+      <p>You can enable this using <code>RUSTFLAGS</code>:</p>
+      <pre lang="sh"><code>RUSTFLAGS='--cfg=libc_unstable_time64' cargo ...
+      </code></pre>
+      <p>Note that there may still be some changes to features gated by this config option, hence &quot;unstable&quot;
+      in its name. In the near future we will rename it to just <code>libc_time64</code>. Until then, please test it
+      out and report any bugs you find!</p>
+      <h3>Support</h3>
+      <ul>
+      <li>Add initial support for HelenOS (<a href="https://redirect.github.com/rust-lang/libc/pull/4355">#4355</a>)</li>
+      </ul>
+      <h3>Added</h3>
+      <p>We are slowly filling out the <code>Default</code> implementations, to reduce the need for <code>mem::zeroed()</code> in user code:</p>
+      <ul>
+      <li>Unix: Implement <code>Default</code> for a number of structs, especially on Apple platforms (<a href="https://redirect.github.com/rust-lang/libc/pull/5576">#5576</a>)</li>
+      <li>Linux, NetBSD: Give <code>statvfs</code> a <code>Default</code> impl (<a href="https://redirect.github.com/rust-lang/libc/pull/5583">#5583</a>)</li>
+      <li>Linux: Add <code>Default</code> to a <code>linux/can.rs</code> structs (<a href="https://redirect.github.com/rust-lang/libc/pull/5257">#5257</a>)</li>
+      </ul>
+      <p>Other additions:</p>
+      <ul>
+      <li>Expose the <code>libc_unstable_time64</code> cfg (<a href="https://redirect.github.com/rust-lang/libc/pull/5411">#5411</a>)</li>
+      <li>Android, Glibc: Add <code>pthread_gettid_np</code> (<a href="https://redirect.github.com/rust-lang/libc/pull/5359">#5359</a>)</li>
+      <li>Android: Add <code>RTLD_NEXT</code> (<a href="https://redirect.github.com/rust-lang/libc/pull/5323">#5323</a>)</li>
+      <li>Android: Add reuseport BPF socket options (<a href="https://redirect.github.com/rust-lang/libc/pull/5366">#5366</a>)</li>
+      <li>Apple: Add TCP header flags, options and SACK limits (<a href="https://redirect.github.com/rust-lang/libc/pull/5358">#5358</a>)</li>
+      <li>Apple: Add <code>NET_RT_DUMP2</code> (<a href="https://redirect.github.com/rust-lang/libc/pull/5442">#5442</a>)</li>
+      <li>Apple: Add <code>posix_spawn_file_actions_add(f)chdir(_np)</code> (<a href="https://redirect.github.com/rust-lang/libc/pull/5558">#5558</a>)</li>
+      <li>BSD: Add <code>BPF_WORDALIGN</code> (<a href="https://redirect.github.com/rust-lang/libc/pull/5320">#5320</a>)</li>
+      <li>BSD: Add <code>lchmod</code> and <code>lchflags</code> where supported (<a href="https://redirect.github.com/rust-lang/libc/pull/5400">#5400</a>)</li>
+      <li>BSD: Add <code>minherit</code> and related constants (<a href="https://redirect.github.com/rust-lang/libc/pull/4849">#4849</a>)</li>
+      </ul>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/rust-lang/libc/commit/7b0ab5528dc7f361f3a0b4c06c2cad9971617f75"><code>7b0ab55</code></a> ci: Rename <code>publish_0.2.yml</code> to <code>release.yaml</code></li>
+      <li><a href="https://github.com/rust-lang/libc/commit/ac85dde5fc269ab4a8cd935d3f76adf85372677c"><code>ac85dde</code></a> ci: Sync release permissions with <code>main</code></li>
+      <li><a href="https://github.com/rust-lang/libc/commit/8f8cd2032060e1477c08077cd5f89215384723e2"><code>8f8cd20</code></a> libc: Release 0.2.190</li>
+      <li><a href="https://github.com/rust-lang/libc/commit/052c6e6a0186eeecf22c743d57c65a9963571241"><code>052c6e6</code></a> changelog: Fix an incorrect commit link</li>
+      <li><a href="https://github.com/rust-lang/libc/commit/ea19fd7fba435c629ed247de7138d5cdb1dea309"><code>ea19fd7</code></a> test: Remove explicit <code>libc</code> version</li>
+      <li><a href="https://github.com/rust-lang/libc/commit/6dbf3a29a0a972087b684bc6d6cbf20f92143b66"><code>6dbf3a2</code></a> dragonfly: Move <code>INHERIT_ZERO</code> to the freebsd module</li>
+      <li><a href="https://github.com/rust-lang/libc/commit/8a64766c8514865dea77cfc3216f5a9dc38c6728"><code>8a64766</code></a> apple: add <code>posix_spawn_file_actions_add(f)chdir(_np)</code></li>
+      <li><a href="https://github.com/rust-lang/libc/commit/28de5147ff5665b835472f00ead49da71084a593"><code>28de514</code></a> linux, netbsd: Give statvfs a <code>Default</code> impl</li>
+      <li><a href="https://github.com/rust-lang/libc/commit/a58a95f01d0561e75261052f5d8b3ad188f1ae4e"><code>a58a95f</code></a> cygwin: Change <code>POSIX_SPAWN_*</code> flags to <code>c_short</code></li>
+      <li><a href="https://github.com/rust-lang/libc/commit/d175264e718db4f216df7aad5f1291fd0ec34139"><code>d175264</code></a> apple: <code>timeval32</code> is exhaustive</li>
+      <li>Additional commits viewable in <a href="https://github.com/rust-lang/libc/compare/0.2.189...0.2.190">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+
+      Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
+
+      [//]: # (dependabot-automerge-start)
+      [//]: # (dependabot-automerge-end)
+
+      ---
+
+      <details>
+      <summary>Dependabot commands and options</summary>
+      <br />
+
+      You can trigger Dependabot actions by commenting on this PR:
+      - `@dependabot rebase` will rebase this PR
+      - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+      - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency
+      - `@dependabot ignore <dependency name> major version` will close this group update PR and stop Dependabot creating any more for the specific dependency's major version (unless you unignore this specific dependency's major version or upgrade to it yourself)
+      - `@dependabot ignore <dependency name> minor version` will close this group update PR and stop Dependabot creating any more for the specific dependency's minor version (unless you unignore this specific dependency's minor version or upgrade to it yourself)
+      - `@dependabot ignore <dependency name>` will close this group update PR and stop Dependabot creating any more for the specific dependency (unless you unignore this specific dependency or upgrade to it yourself)
+      - `@dependabot unignore <dependency name>` will remove all of the ignore conditions of the specified dependency
+      - `@dependabot unignore <dependency name> <ignore condition>` will remove the ignore condition of the specified dependency and ignore conditions
+
+
+      </details>
+  - number: 23
+    owner: "dependabot[bot]"
+    status: open
+    review: review_required
+    head: dependabot/github_actions/actions-6dcc66fbd4
+    base: main
+    title: "ci: bump Swatinem/rust-cache from 2.9.2 to 2.9.3 in the actions group"
+    labels: [ dependencies, github_actions ]
+    description: |-
+      Bumps the actions group with 1 update: [Swatinem/rust-cache](https://github.com/swatinem/rust-cache).
+
+      Updates `Swatinem/rust-cache` from 2.9.2 to 2.9.3
+      <details>
+      <summary>Release notes</summary>
+      <p><em>Sourced from <a href="https://github.com/swatinem/rust-cache/releases">Swatinem/rust-cache's releases</a>.</em></p>
+      <blockquote>
+      <h2>v2.9.3</h2>
+      <h2>What's Changed</h2>
+      <ul>
+      <li>Issue-375: stop cleanup timestamp pruning after the first entry by <a href="https://github.com/TethysSvensson"><code>@​TethysSvensson</code></a> in <a href="https://redirect.github.com/Swatinem/rust-cache/pull/377">Swatinem/rust-cache#377</a></li>
+      <li>fix: log rustup toolchain list failure as info instead of warning by <a href="https://github.com/SDAChess"><code>@​SDAChess</code></a> in <a href="https://redirect.github.com/Swatinem/rust-cache/pull/394">Swatinem/rust-cache#394</a></li>
+      </ul>
+      <h2>New Contributors</h2>
+      <ul>
+      <li><a href="https://github.com/TethysSvensson"><code>@​TethysSvensson</code></a> made their first contribution in <a href="https://redirect.github.com/Swatinem/rust-cache/pull/377">Swatinem/rust-cache#377</a></li>
+      <li><a href="https://github.com/SDAChess"><code>@​SDAChess</code></a> made their first contribution in <a href="https://redirect.github.com/Swatinem/rust-cache/pull/394">Swatinem/rust-cache#394</a></li>
+      </ul>
+      <p><strong>Full Changelog</strong>: <a href="https://github.com/Swatinem/rust-cache/compare/v2.9.2...v2.9.3">https://github.com/Swatinem/rust-cache/compare/v2.9.2...v2.9.3</a></p>
+      </blockquote>
+      </details>
+      <details>
+      <summary>Changelog</summary>
+      <p><em>Sourced from <a href="https://github.com/Swatinem/rust-cache/blob/master/CHANGELOG.md">Swatinem/rust-cache's changelog</a>.</em></p>
+      <blockquote>
+      <h1>Changelog</h1>
+      <h2>2.9.3</h2>
+      <ul>
+      <li>Fix timestamp based pruning</li>
+      <li>Add missing <code>await</code>s</li>
+      <li>Do not emit warning on missing <code>rustup</code></li>
+      </ul>
+      <h2>2.9.2</h2>
+      <ul>
+      <li>Fix <code>credentials.toml</code> cleanup</li>
+      <li>Improvements to cleanup, preserving more valid targets</li>
+      <li>Improvements to <code>cargo install</code> handling</li>
+      <li>Correctly sort/dedupe Rust versions</li>
+      </ul>
+      <h2>2.9.1</h2>
+      <ul>
+      <li>Fix regression in hash calculation</li>
+      </ul>
+      <h2>2.9.0</h2>
+      <ul>
+      <li>Update to <code>node24</code></li>
+      <li>Support running from within a <code>nix</code> shell</li>
+      <li>Consider all installed toolchains for cache key</li>
+      <li>Use case-insensitive comparison to determine exact cache hit</li>
+      </ul>
+      <h2>2.8.2</h2>
+      <ul>
+      <li>Don't overwrite env for cargo-metadata call</li>
+      </ul>
+      <h2>2.8.1</h2>
+      <ul>
+      <li>Set empty <code>CARGO_ENCODED_RUSTFLAGS</code> when retrieving metadata</li>
+      <li>Various dependency updates</li>
+      </ul>
+      <h2>2.8.0</h2>
+      <ul>
+      <li>Add support for <code>warpbuild</code> cache provider</li>
+      <li>Add new <code>cache-workspace-crates</code> feature</li>
+      </ul>
+      <h2>2.7.8</h2>
+      <ul>
+      <li>Include CPU arch in the cache key</li>
+      </ul>
+      <h2>2.7.7</h2>
+      <ul>
+      <li>Also cache <code>cargo install</code> metadata</li>
+      </ul>
+      <h2>2.7.6</h2>
+      <!-- raw HTML omitted -->
+      </blockquote>
+      <p>... (truncated)</p>
+      </details>
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/Swatinem/rust-cache/commit/d1527c8f67ef9af357290475d4af4b0fab8f12e0"><code>d1527c8</code></a> 2.9.3</li>
+      <li><a href="https://github.com/Swatinem/rust-cache/commit/f0fca6fc1c91b0c4158e7b92bdd2582341575c8e"><code>f0fca6f</code></a> update dependencies and rebuild</li>
+      <li><a href="https://github.com/Swatinem/rust-cache/commit/b49b17f98024bf3c4d14fb465de5bad92750344b"><code>b49b17f</code></a> add missing awaits</li>
+      <li><a href="https://github.com/Swatinem/rust-cache/commit/6a7bc3ebce750e0a16a430dd57485acfdb38b05f"><code>6a7bc3e</code></a> Bump the dev-minor group across 1 directory with 2 updates (<a href="https://redirect.github.com/swatinem/rust-cache/issues/383">#383</a>)</li>
+      <li><a href="https://github.com/Swatinem/rust-cache/commit/4ece996238f932eddbc3099e93131a4089950e4f"><code>4ece996</code></a> Bump the actions group across 1 directory with 6 updates (<a href="https://redirect.github.com/swatinem/rust-cache/issues/392">#392</a>)</li>
+      <li><a href="https://github.com/Swatinem/rust-cache/commit/8103aff431aa12c1132e226b21f6a655ea749803"><code>8103aff</code></a> Bump the prd-minor group across 1 directory with 2 updates (<a href="https://redirect.github.com/swatinem/rust-cache/issues/389">#389</a>)</li>
+      <li><a href="https://github.com/Swatinem/rust-cache/commit/0e361f3528cccdd0ac5d0e0dda2bde9bcfc77a1f"><code>0e361f3</code></a> fix: log rustup toolchain list failure as info instead of warning (<a href="https://redirect.github.com/swatinem/rust-cache/issues/393">#393</a>) (<a href="https://redirect.github.com/swatinem/rust-cache/issues/394">#394</a>)</li>
+      <li><a href="https://github.com/Swatinem/rust-cache/commit/f0d9c3887740aee45f6153b24b3a6b815192ec16"><code>f0d9c38</code></a> Merge pull request <a href="https://redirect.github.com/swatinem/rust-cache/issues/380">#380</a> from Swatinem/dependabot/github_actions/actions-8ff58...</li>
+      <li><a href="https://github.com/Swatinem/rust-cache/commit/ccd9742ce3913201b7e871cc4b4f95ee3930f15b"><code>ccd9742</code></a> Bump the actions group with 2 updates</li>
+      <li><a href="https://github.com/Swatinem/rust-cache/commit/258712b0b7b1ddf8bddc9fc3b0faca682b2736c3"><code>258712b</code></a> fix: stop cleanup timestamp pruning after the first entry (<a href="https://redirect.github.com/swatinem/rust-cache/issues/377">#377</a>)</li>
+      <li>Additional commits viewable in <a href="https://github.com/swatinem/rust-cache/compare/6323deb102c322ba6fcbdcafc7e3dddab59af2b6...d1527c8f67ef9af357290475d4af4b0fab8f12e0">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+
+      [![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=Swatinem/rust-cache&package-manager=github_actions&previous-version=2.9.2&new-version=2.9.3)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+      Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
+
+      [//]: # (dependabot-automerge-start)
+      [//]: # (dependabot-automerge-end)
+
+      ---
+
+      <details>
+      <summary>Dependabot commands and options</summary>
+      <br />
+
+      You can trigger Dependabot actions by commenting on this PR:
+      - `@dependabot rebase` will rebase this PR
+      - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+      - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency
+      - `@dependabot ignore <dependency name> major version` will close this group update PR and stop Dependabot creating any more for the specific dependency's major version (unless you unignore this specific dependency's major version or upgrade to it yourself)
+      - `@dependabot ignore <dependency name> minor version` will close this group update PR and stop Dependabot creating any more for the specific dependency's minor version (unless you unignore this specific dependency's minor version or upgrade to it yourself)
+      - `@dependabot ignore <dependency name>` will close this group update PR and stop Dependabot creating any more for the specific dependency (unless you unignore this specific dependency or upgrade to it yourself)
+      - `@dependabot unignore <dependency name>` will remove all of the ignore conditions of the specified dependency
+      - `@dependabot unignore <dependency name> <ignore condition>` will remove the ignore condition of the specified dependency and ignore conditions
+
+
+      </details>
+  - number: 24
+    owner: "vivgui"
+    notes: Needs an OMP session to test.
+    status: open
+    review: review_required
+    head: feat/omp-support
+    base: main
+    title: "feat: support OMP sessions"
+    description: |-
+      ## Summary
+
+      OMP reports its session to herdr through `herdr integration install omp`, with the same `agent_session_path` field Pi uses, and writes Pi's JSONL format. The renamer skipped it because `omp` wasn't a known agent.
+
+      ```diff
+       resolve_path_with_home(agent, session_id)
+      -  if agent == "pi"                         -> use reported path
+      +  if agent == "pi" or (agent == "omp" and session_id is absolute)
+      +                                           -> use reported path
+      +  "omp" (id only) -> $PI_CODING_AGENT_DIR or ~/.omp/agent/sessions/*/*_<id>.jsonl
+
+       first_prompt(agent)
+      -  "pi" => first_prompt_pi
+      +  "pi" | "omp" => first_prompt_pi
+      ```
+
+      The id fallback covers the case where OMP reports `agent_session_id` because it has no session file path yet. Files are named `<timestamp>_<session id>.jsonl`.
+
+      ## Evidence
+
+      - **Before:** `first_prompt("omp", …)` → `None`, so OMP panes in `worktree/*` branches were never renamed.
+        **After:** `cargo test` passes 45 tests, including three new ones: `omp_path_does_not_require_home`, `omp_session_id_resolves_under_agent_dir`, and `omp_reads_first_user_text_message`, which uses a fixture shaped like a real OMP session (title/session/model_change/custom records before the first user message).
+      - `cargo fmt --check` and `cargo clippy --all-targets -- -D warnings` are clean.
+
+      ## Merge Danger
+
+      **Door:** two-way
+
+      **Blast Radius:** OMP panes only. Claude, Codex and Pi code paths are unchanged.
+wyattjoh/claude-code-notification:
+  - number: 11
+    owner: "dependabot[bot]"
+    status: open
+    head: dependabot/cargo/rustls-0.23.46
+    base: main
+    title: "chore(deps): bump rustls from 0.23.43 to 0.23.46"
+    labels: [ dependencies, rust ]
+    description: |-
+      Bumps [rustls](https://github.com/rustls/rustls) from 0.23.43 to 0.23.46.
+      <details>
+      <summary>Commits</summary>
+      <ul>
+      <li><a href="https://github.com/rustls/rustls/commit/f04804fa13341a9b1dc02b5d1dd8a746f2c4b7fb"><code>f04804f</code></a> Delay saving KX hint until handshake confirmation</li>
+      <li><a href="https://github.com/rustls/rustls/commit/049d39b975ef5c39f546a10fa03d420dcf053510"><code>049d39b</code></a> Bump version to 0.23.46</li>
+      <li><a href="https://github.com/rustls/rustls/commit/6d0ba089d6d446959d113bdad43042780949ba48"><code>6d0ba08</code></a> Eliminate secret from impl Debug for <code>ServerSessionValue</code></li>
+      <li><a href="https://github.com/rustls/rustls/commit/2b82b8141ae090fa193a9961705598b81d3aae9c"><code>2b82b81</code></a> unbuffered: update TLS 1.3 traffic keys before exhausting them</li>
+      <li><a href="https://github.com/rustls/rustls/commit/74343e7047d7179b9bd7e67cef543b6c490518a1"><code>74343e7</code></a> conn: update TLS 1.3 traffic keys within fragmented writes</li>
+      <li><a href="https://github.com/rustls/rustls/commit/795eea719e9491ee45aae38acc62a60a98969fbe"><code>795eea7</code></a> Advance the HPKE sequence only after seal succeeds</li>
+      <li><a href="https://github.com/rustls/rustls/commit/d67cb716e6a086a9d88b69b966ab10c470087119"><code>d67cb71</code></a> stream: provide backpressure while buffering received plaintext</li>
+      <li><a href="https://github.com/rustls/rustls/commit/7a69adee8fb37d17f1af241e44212bc83a911804"><code>7a69ade</code></a> util: fuse flushes from connections with errors</li>
+      <li><a href="https://github.com/rustls/rustls/commit/493d08934775c115b2e6d6727789dd359850070b"><code>493d089</code></a> conn: fuse writes for connections with errors</li>
+      <li><a href="https://github.com/rustls/rustls/commit/db00e0187de977ab6f1018d8158511ba4432c53c"><code>db00e01</code></a> util: keep flushing after short writes</li>
+      <li>Additional commits viewable in <a href="https://github.com/rustls/rustls/compare/v/0.23.43...v/0.23.46">compare view</a></li>
+      </ul>
+      </details>
+      <br />
+
+
+      [![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=rustls&package-manager=cargo&previous-version=0.23.43&new-version=0.23.46)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+      Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
+
+      [//]: # (dependabot-automerge-start)
+      [//]: # (dependabot-automerge-end)
+
+      ---
+
+      <details>
+      <summary>Dependabot commands and options</summary>
+      <br />
+
+      You can trigger Dependabot actions by commenting on this PR:
+      - `@dependabot rebase` will rebase this PR
+      - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+      - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency
+      - `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)
+      - `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)
+      - `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)
+      You can disable automated security fix PRs for this repo from the [Security Alerts page](https://github.com/wyattjoh/claude-code-notification/network/alerts).
+
+      </details>
