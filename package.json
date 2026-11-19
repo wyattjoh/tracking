@@ -1,6 +1,6 @@
 {
   "name": "@wyattjoh/tracking",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A terminal dashboard and CLI for the GitHub pull requests you track in YAML",
   "license": "MIT",
   "author": "Wyatt Johnson",
