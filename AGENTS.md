@@ -97,8 +97,9 @@ never writes. Keep those properties when changing the write path.
   requests into the tree for the current view, `ViewModal.tsx` draws the view modal, and `ProjectPicker.tsx` (run by `pickProject` in
   `run.tsx`) chooses a project before the view starts
 - `demo/`: the README recording; `tracking-tui.tape` drives the TUI against the
-  public pull requests in `projects/`, and `setup.sh` copies them to
-  `/tmp/tracking-demo` so live syncs never touch the seeds. Only the GIF is committed
+  public pull requests in `projects/`, and `setup.sh` points `HOME` at
+  `/tmp/tracking-demo` with a copy of them, so live syncs never touch the seeds and
+  paths show as `~/.config/tracking/…`. Only the GIF is committed
 - `.github/workflows/`: CI and the release-please release and npm publish
 - `skills/tracking/`: agent skill that loads a `TRACKING.yaml` as working context;
   update it when CLI commands, JSON output or the schema change

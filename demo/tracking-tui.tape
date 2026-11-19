@@ -2,14 +2,15 @@
 #
 # Render from the repository root:  vhs demo/tracking-tui.tape
 #
-# Opens the project picker, chooses the "open-source" project (public pull
-# requests in vercel/next.js, oven-sh/bun and anomalyco/opentui), walks the
-# tree and its stacks, then regroups and filters it in the view modal.
+# Opens the project picker, chooses the "open-source" project (open pull
+# requests on public wyattjoh repositories: Dependabot and Renovate updates,
+# community contributions and a stack of drafts), walks the tree, then groups
+# by author and filters to the "dependencies" label in the view modal.
 # Live state comes from GitHub through your authenticated `gh`, so the
-# render needs network access and titles or statuses may drift over time.
-# demo/setup.sh syncs into a copy of demo/projects/ under /tmp/tracking-demo,
-# never the seeds. The label step counts filter rows (Down 18 lands on "tests"),
-# so re-check it if the projects gain authors, repositories or labels.
+# render needs network access and pull requests may close over time.
+# demo/setup.sh points HOME at /tmp/tracking-demo and syncs into a copy of
+# demo/projects/ there, never the seeds. The label step counts filter rows (Down 22 lands on
+# "dependencies"), so re-check it if the projects gain authors, repos or labels.
 
 Output demo/tracking-tui.gif
 Output demo/tracking-tui.mp4
@@ -43,32 +44,28 @@ Sleep 400ms
 Enter
 
 # Project picker
-Wait+Screen /turbopack/
+Wait+Screen /open-source/
 Sleep 1.5s
 Down
-Sleep 700ms
-Up
-Sleep 700ms
+Sleep 1s
 Enter
 
-# Tree with live state
+# Tree with live state: walk into the stack of drafts and on to contributions
 Wait+Screen /live \d/
 Sleep 2s
-Down@700ms 5
+Down@700ms 6
 Sleep 1.5s
-Ctrl+D
-Sleep 1.5s
-Down@700ms 3
-Sleep 1.5s
+Down@600ms 4
+Sleep 2s
+Down@600ms 6
+Sleep 2s
 
-# View modal: group by status, then show only pull requests labelled "tests"
+# View modal: group by author, then show only the "dependencies" label
 Type "v"
 Sleep 1.5s
 Right
-Sleep 800ms
-Right
 Sleep 1.2s
-Down@120ms 18
+Down@100ms 22
 Sleep 800ms
 Space
 Sleep 1.2s
