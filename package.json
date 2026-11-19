@@ -1,9 +1,30 @@
 {
-  "name": "tracking",
+  "name": "@wyattjoh/tracking",
+  "version": "0.0.0",
+  "description": "A terminal dashboard and CLI for the GitHub pull requests you track in YAML",
+  "license": "MIT",
+  "author": "Wyatt Johnson",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wyattjoh/tracking.git"
+  },
+  "homepage": "https://github.com/wyattjoh/tracking#readme",
+  "bugs": {
+    "url": "https://github.com/wyattjoh/tracking/issues"
+  },
   "type": "module",
-  "private": true,
   "bin": {
     "tracking": "src/cli.ts"
+  },
+  "files": [
+    "src",
+    "skills"
+  ],
+  "engines": {
+    "bun": ">=1.4"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "test": "bun test",

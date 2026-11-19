@@ -10,13 +10,12 @@ A terminal dashboard for the GitHub pull requests you care about. You list them 
 ## Install
 
 ```sh
-git clone https://github.com/wyattjoh/tracking.git
-cd tracking
-bun install
-bun link
+bun add -g @wyattjoh/tracking
 ```
 
-`bun link` puts `tracking` on your `PATH`.
+The package ships TypeScript source and runs on Bun, so `npm install -g @wyattjoh/tracking` also works when `bun` is on your `PATH`.
+
+To run from a checkout instead, clone the repository, then run `bun install` and `bun link`.
 
 ## Usage
 
@@ -95,3 +94,9 @@ The optional top-level `view` key holds the interactive view's grouping and filt
 bun test
 bun run typecheck
 ```
+
+Releases are automated with [release-please](https://github.com/googleapis/release-please): conventional commits on `main` update a release pull request, and merging it tags a GitHub release and publishes the package to npm.
+
+## License
+
+[MIT](LICENSE)

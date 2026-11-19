@@ -37,6 +37,17 @@ GitHub is reached through `gh api graphql`, so `gh` must be authenticated.
 - `bun run typecheck`
 - `bun link` installs `tracking` on PATH
 
+## Releases
+
+Published to npm as `@wyattjoh/tracking` (TypeScript source, Bun runtime; `files` in
+`package.json` limits the package to `src` and `skills`). release-please
+(`release-please-config.json`, `.release-please-manifest.json`) keeps a release pull
+request open from conventional commits on `main`; merging it tags `vX.Y.Z` and the
+`publish` job in `.github/workflows/release-please.yml` runs the checks and publishes
+through npm trusted publishing, skipping versions already on npm. Never edit
+`version` or `CHANGELOG.md` by hand. `.github/workflows/ci.yml` runs the checks on
+pull requests.
+
 ## TRACKING.yaml schema
 
 The root maps a repository (`owner/name`) to a flat list of pull requests. Each pull
@@ -83,6 +94,7 @@ never writes. Keep those properties when changing the write path.
 - `src/tui/`: the `@opentui/react` interface; `rows.ts` filters and groups pull
   requests into the tree for the current view, `ViewModal.tsx` draws the view modal, and `ProjectPicker.tsx` (run by `pickProject` in
   `run.tsx`) chooses a project before the view starts
+- `.github/workflows/`: CI and the release-please release and npm publish
 - `skills/tracking/`: agent skill that loads a `TRACKING.yaml` as working context;
   update it when CLI commands, JSON output or the schema change
 
