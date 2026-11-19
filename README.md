@@ -1,6 +1,6 @@
 # tracking
 
-A terminal dashboard for the GitHub pull requests you care about. You list them in a `TRACKING.yaml` file, and `tracking` shows them in an interactive view with their live status, review state, labels and stacks. It also syncs that state back into the file.
+A terminal dashboard for the GitHub pull requests you care about. You list them in a YAML file, either a named project in your config directory or a `TRACKING.yaml` beside your work, and `tracking` shows them in an interactive view with their live status, review state, labels and stacks. It also syncs that state back into the file.
 
 ## Requirements
 
@@ -21,13 +21,18 @@ bun link
 ## Usage
 
 ```sh
-tracking init                 # create TRACKING.yaml in the current directory
-tracking [file]               # open the interactive view
-tracking sync [--dry-run] [file]
+tracking init work            # create the "work" project
+tracking work                 # open the interactive view for it
+tracking sync [--dry-run] [project|file]
+tracking projects             # list projects
 tracking --help
 ```
 
-Without `file`, `tracking` uses the nearest `TRACKING.yaml` in the current directory or one above it.
+### Projects and files
+
+- **Projects:** a project is a name for `~/.config/tracking/<project>.yaml` (`$XDG_CONFIG_HOME/tracking` when that is set), so you can track several sets of pull requests side by side. `sync`, `init` and `projects` can't be project names.
+- **Files:** an argument that contains `/`, starts with `.` or `~`, or ends in `.yaml` or `.yml` is a file path instead, such as `tracking ./TRACKING.yaml`.
+- **No argument:** `tracking` uses the nearest `TRACKING.yaml` in the current directory or one above it, and `tracking init` creates one in the current directory. With no local file, the interactive view lets you pick a project; other commands list the projects and exit.
 
 - **Interactive view:** `tracking` shows the file straight away, then fetches live state from GitHub and writes it into the file. Every refresh syncs the file again. A failed fetch leaves the file untouched.
 - **JSON:** when stdout is not a terminal, `tracking` syncs the file, then prints the file merged with live state as JSON. Agents and scripts can read it from there.
@@ -67,7 +72,7 @@ acme/api:
 | `notes`       | you    | Free-form notes                                                                          |
 | `depends_on`  | you    | Other pull requests this one waits on                                                    |
 | `linear`      | you    | Linked Linear issue                                                                      |
-| `path`        | you    | Local checkout or worktree. `~` is your home directory; relative paths resolve against the file |
+| `path`        | you    | Local checkout or worktree. `~` is your home directory; relative paths resolve against the file's directory |
 | `owner`       | sync   | Author                                                                                   |
 | `title`       | sync   | Title                                                                                    |
 | `status`      | sync   | `open`, `draft`, `merged` or `closed`                                                    |

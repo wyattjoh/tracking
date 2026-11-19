@@ -1,8 +1,9 @@
 # tracking
 
-A Bun CLI and OpenTUI interface for a `TRACKING.yaml` file of GitHub pull requests.
+A Bun CLI and OpenTUI interface for tracking files (`TRACKING.yaml` or a named
+project) of GitHub pull requests.
 
-- `tracking [file]` in a terminal opens the interactive view. It renders from the file
+- `tracking [project|file]` in a terminal opens the interactive view. It renders from the file
   immediately, then fetches live state from GitHub and syncs it into the YAML file.
   Every `r` refresh also syncs; failed fetches leave the file untouched. `v` (or clicking the
   view in the header) opens the view modal, which sets the grouping (repo, author,
@@ -10,15 +11,23 @@ A Bun CLI and OpenTUI interface for a `TRACKING.yaml` file of GitHub pull reques
   filter but do not group; each cycles between wanted (`[+]`), unwanted (`[-]`) and
   unset. Closing the
   modal saves any change to the file's `view` key.
-- `tracking [file]` with stdout not a TTY syncs live state into the YAML file, then
+- `tracking [project|file]` with stdout not a TTY syncs live state into the YAML file, then
   prints the merged file and live state as JSON.
-- `tracking sync [--dry-run] [file]` writes live `status`, `review`, `head`, `base`,
+- `tracking sync [--dry-run] [project|file]` writes live `status`, `review`, `head`, `base`,
   `title`, `labels` and `description` back into the file.
-- `tracking init [file]` creates a `TRACKING.yaml` (in the working directory by
-  default) whose only content is a commented-out example, so it loads with no pull
-  requests. It refuses to overwrite an existing file.
+- `tracking init [project|file]` creates a tracking file (`TRACKING.yaml` in the
+  working directory by default, or the project's file, creating the config directory)
+  whose only content is a commented-out example, so it loads with no pull requests.
+  It refuses to overwrite an existing file.
+- `tracking projects` lists each project's slug and file.
 
-Without `file`, the nearest `TRACKING.yaml` at or above the working directory is used.
+A project is a slug naming `$XDG_CONFIG_HOME/tracking/<slug>.yaml` (`~/.config/tracking`
+when unset), so several can be tracked at once. An argument is a file instead when it
+contains `/`, starts with `.` or `~`, or ends in `.yaml`/`.yml`; the check is syntactic
+(`isPathArg` in `src/projects.ts`). Slugs `sync`, `init` and `projects` are reserved.
+Without an argument, the nearest `TRACKING.yaml` at or above the working directory is
+used; when there is none, the interactive view shows a project picker, and every other
+command fails listing the projects.
 GitHub is reached through `gh api graphql`, so `gh` must be authenticated.
 
 ## Commands
@@ -34,7 +43,8 @@ The root maps a repository (`owner/name`) to a flat list of pull requests. Each 
 request has `number`, `owner`, `title`, `status`, `head`, `base`, and optionally
 `review`, `labels`, `notes`, `depends_on`, `linear`, `path` and `description`.
 `path` is the local checkout or worktree holding the pull request's code; `~` is the
-home directory and relative paths resolve against the file's directory. It is shown
+home directory and relative paths resolve against the file's directory (the config
+directory for a project, so projects should use `~` paths). It is shown
 in the detail pane and JSON output, and `sync` never touches it. `review` is GitHub's
 review decision (`approved`, `changes_requested` or `review_required`) and is only kept
 on open, non-draft pull requests. `labels` is a flow list of GitHub label names, sorted
@@ -62,6 +72,8 @@ never writes. Keep those properties when changing the write path.
 ## Layout
 
 - `src/cli.ts`: argument parsing and dispatch
+- `src/projects.ts`: the config directory, project slugs and resolving the file a
+  command works on
 - `src/tracking.ts`: locating, loading and modelling the file, and stack inference
 - `src/github.ts`: batched GraphQL fetch of live pull request state
 - `src/sync.ts`: write-back of live fields
@@ -69,7 +81,8 @@ never writes. Keep those properties when changing the write path.
 - `src/json.ts`: non-TTY JSON output
 - `src/view.ts`: view settings types and the `view` key's read and write
 - `src/tui/`: the `@opentui/react` interface; `rows.ts` filters and groups pull
-  requests into the tree for the current view, and `ViewModal.tsx` draws the view modal
+  requests into the tree for the current view, `ViewModal.tsx` draws the view modal, and `ProjectPicker.tsx` (run by `pickProject` in
+  `run.tsx`) chooses a project before the view starts
 - `skills/tracking/`: agent skill that loads a `TRACKING.yaml` as working context;
   update it when CLI commands, JSON output or the schema change
 
