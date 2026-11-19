@@ -2,6 +2,8 @@
 
 A terminal dashboard for the GitHub pull requests you care about. You list them in a YAML file, either a named project in your config directory or a `TRACKING.yaml` beside your work, and `tracking` shows them in an interactive view with their live status, review state, labels and stacks. It also syncs that state back into the file.
 
+![tracking: picking a project, walking stacked pull requests, then regrouping and filtering in the view modal](demo/tracking-tui.gif)
+
 ## Requirements
 
 - [Bun](https://bun.sh)

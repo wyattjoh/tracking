@@ -35,3 +35,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # scratch
 .scratch
+
+# demo video (the GIF is committed)
+demo/*.mp4

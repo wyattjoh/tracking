@@ -1,0 +1,702 @@
+# Demo project for the README recording (demo/tracking-tui.tape).
+# Public pull requests; `tracking sync` fills in the live fields.
+
+vercel/next.js:
+  - number: 101912
+    owner: gaearon
+    notes: Bottom of the parameter matching stack.
+    status: draft
+    head: fix/rsc-hash-route-fallthrough
+    base: canary
+    title: Fix client navigation to a URL served by a less specific route
+    labels: [ tests, "type: next" ]
+    description: |-
+      ## Summary
+
+      Fixes client navigation to a URL that one route rejects and a less specific route serves.
+
+      For example, `app/docs/messages/[slug]` only accepts the slugs from `generateStaticParams` (with `dynamicParams = false`, or `unstable_paramMatching = { slug: 'not-found' }` under Cache Components), and `app/docs/[[...slug]]` sits next to it. `/docs/messages/unknown` is served by the catch-all. Loading that URL directly works. Clicking a `<Link>` to it logs `ERR_TOO_MANY_REDIRECTS` and the router reloads the page.
+
+      The first route removes the router headers (`RSC`, `Next-Router-State-Tree`, `Next-Url` and the prefetch headers) from the request before it rejects it. The next route then checks the `_rsc` search param against a different set of headers and redirects. The redirected request starts at the first route again, so the two routes keep redirecting to each other.
+
+      With this change the headers are put back before the next route handles the request. The `_rsc` check itself is unchanged.
+
+      With `next start`, a request for `/docs/messages/unknown` with `RSC: 1` and `Next-Url: /`:
+
+      - Before: 307 responses alternating between `?_rsc=<hash>` and `?_rsc` until the client gives up.
+      - After: one 307, then 200.
+
+      In `next dev` there was a second problem with parameter matching. The rejection was remembered on the request, so the catch-all returned 404 where production returns the page. That is fixed here as well.
+
+      ## Verification
+
+      - The new tests cover both `dynamicParams = false` and `unstable_paramMatching`. Before the change they fail with five redirects and with page state lost on navigation. After it they pass in production with Turbopack and Webpack, and in development.
+      - These existing suites pass in production with Turbopack: `param-matching-routing`, `segment-cache-closed-params`, `segment-cache-dynamic-params`, `rsc-query-routing`, `rsc-redirect`, `segment-cache/cdn-cache-busting`, `interception-dynamic-segment`.
+      - Deployed to Vercel with the adapter and with the default builder: the new tests pass. A deployment has no `_rsc` redirect, so the tests check the final status and not the number of redirects.
+
+      <!-- NEXT_JS_LLM -->
+  - number: 101913
+    owner: gaearon
+    status: draft
+    head: fix/param-matching-blocking-prefetch
+    base: fix/rsc-hash-route-fallthrough
+    title: Keep prefetch data for blocking parameters
+    labels: [ tests, "type: next" ]
+    description: |-
+      ## Summary
+
+      Keeps the prefetch data for a parameter that is explicitly `blocking`.
+
+      Take `app/[lang]/catalog/[top]/items/[bottom]/page.tsx` with `top: 'blocking'` and one page generated at build. Without `unstable_paramMatching`, the build also renders the route with `top` unknown and writes its segment files. A deployment serves those files when a link to a `top` that was not generated is prefetched.
+
+      Adding `top: 'blocking'` skipped that render whenever a more specific page existed, so the segment files were missing. Routes with `ensureStatic = 'navigation'` were not affected, because that mode already keeps the render.
+
+      Route tree prefetch for `/en/catalog/<new top>/items/<new bottom>` on Vercel, same fixture:
+
+      | | Before | After |
+      | --- | --- | --- |
+      | Adapter | 4,460 bytes, the full RSC payload from the function | 458 bytes, from `[bottom].segments/_tree.segment.rsc` |
+      | Default builder | 404 | 458 bytes, from `[bottom].segments/_tree.segment.rsc` |
+
+      With `next start` the response was already correct, because the server builds it on request. The difference only shows on a deployment, where a missing file means the request goes somewhere else.
+
+      This does not change how a document request for a new value is answered. `blocking` still generates the page before responding, and the generic render is still not served as a fallback.
+
+      ## Verification
+
+      - New tests: the route tree prefetch below a `blocking` parameter does not contain the page payload, and the build emits `_tree.segment.rsc` for that level. The second one fails without the change.
+      - Deployed the `param-matching-routing` fixture to Vercel from this branch. With the adapter the suite passes. With the default builder one test still fails, which is unrelated to this change: that builder stores one entry per value of a `dynamic` parameter. Before this change four tests failed there.
+      - Twelve existing parameter matching suites pass in production with Turbopack, including `generate-prerender-matching`, `param-matching-runtime`, `param-matching-ensure-static` and `param-matching-unseeded-prefix`.
+
+      <!-- NEXT_JS_LLM -->
+  - number: 101914
+    owner: gaearon
+    status: draft
+    head: fix/param-matching-empty-static-params
+    base: fix/param-matching-blocking-prefetch
+    title: Allow an empty generateStaticParams result with explicit parameter matching
+    labels: [ tests, "type: next" ]
+    description: |-
+      ## Summary
+
+      Lets `generateStaticParams` return an empty array when the route says what happens to values that were not generated.
+
+      Under Cache Components an empty result fails the build:
+
+      > When using Cache Components, all `generateStaticParams` functions must return at least one result.
+
+      A route with `unstable_paramMatching = { slug: 'blocking' }` already builds if it has no `generateStaticParams` at all. It failed only when the function existed and returned `[]`. That happens in practice when the list comes from an API and is empty in some environments.
+
+      Now an empty result is accepted when every parameter it leaves without a value is explicitly `blocking`, `fallback` or `dynamic`.
+
+      The error stays in two cases:
+
+      - The parameter is `not-found`. With no values the route would match nothing.
+      - The parameter has no matching mode. Its behavior would be inferred without a build-time example, which is what the error protects against.
+
+      Routes without `unstable_paramMatching` are not affected.
+
+      ## Verification
+
+      - New tests build a route for each of `blocking`, `fallback` and `dynamic` with an empty `generateStaticParams`, check that the `blocking` one serves a new value, and check that a `not-found` parameter and a parameter without a mode still fail with the existing message.
+      - The existing `empty-generate-static-params` suite and the static paths unit tests pass.
+
+      <!-- NEXT_JS_LLM -->
+  - number: 101915
+    owner: gaearon
+    status: draft
+    head: test/param-matching-revalidation
+    base: fix/param-matching-empty-static-params
+    title: Add revalidation tests for parameter matching
+    labels: [ tests ]
+    description: |-
+      ## Summary
+
+      Adds tests for cache invalidation on routes that use `unstable_paramMatching`.
+
+      The existing tests only call `revalidatePath`. This suite covers `revalidateTag`, `updateTag` from a Server Action, and expiry through `cacheLife`. It runs them against `not-found`, `blocking`, `fallback` and `dynamic` parameters, for a value generated at build and for one generated at runtime, and against a route without matching configuration for comparison.
+
+      It checks that:
+
+      - Invalidating one value's tag regenerates that value and leaves other values alone.
+      - Invalidating a tag shared by the route regenerates every value.
+      - A closed route still returns 404 for a value that was not generated, before and after invalidation.
+      - Values of a `dynamic` parameter share one entry, and it regenerates for all of them together.
+      - A cached value with a short `cacheLife` is replaced after it expires.
+
+      There are no framework changes in this PR.
+
+      Running the suite on Vercel showed three things that the tests now state explicitly:
+
+      - A route that serves a shell for a value that was not generated at build is not always stored afterwards. This applies to `fallback` and to routes without matching configuration. The adapter stored the page after the first request with the fixture's own config. The default builder rendered it on every request, and so did the adapter under the Cache Components deploy job's configuration. Those cases run with `next start` only.
+      - The default builder stores one entry per value of a `dynamic` parameter below a `blocking` one. The adapter stores one entry. That case is skipped on the default builder.
+      - After `updateTag`, a deployment can return the old value once more after it has already returned the new one. This also happens on the route without matching configuration. On a deployment the test retries; with `next start` it requires the first read to be fresh.
+
+      ## Verification
+
+      - `next start` with Turbopack: 46 passed.
+      - Deployed with the adapter: 22 passed, 24 skipped.
+      - Deployed with the adapter under the Cache Components deploy job's configuration: 22 passed, 24 skipped.
+      - Deployed with the default builder: 20 passed, 26 skipped.
+      - Not run: Webpack.
+
+      <!-- NEXT_JS_LLM -->
+  - number: 101809
+    owner: sokra
+    notes: Approved; waiting on the reader change above it.
+    status: draft
+    head: fleet/turbo-tasks-known-immutable-bitmap
+    base: canary
+    title: "turbo-tasks-backend: track known-immutable tasks to skip speculative owner locks"
+    labels: [ "created-by: Turbopack team", Turbopack ]
+    description: |-
+      ## Summary
+
+      Stacked below #101797. It splits out the known-immutable bitmap so it can be reviewed and measured on its own against canary.
+
+      ### What
+
+      A lock-free, per-backend bitmap (`backend/known_immutable.rs`) of task ids known to be immutable, used on canary's existing lock paths:
+
+      - **Reads** (`lock_task_and_optional_reader`, shared by `try_read_task_cell` and `try_read_task_output`):
+        - **Hit:** lock only the task, re-check `immutable()` under its guard, and return no reader guard.
+        - **Miss:** lock the task and the reader together right away with a new `ExecuteContext::try_task_pair`. Before, the task was locked alone first to check its flag, then dropped and re-locked as a pair. If the task turns out to be immutable under the pair lock, its bit is set and the reader guard is dropped. Mutable tasks are still read and registered under both locks, so invalidation is unchanged.
+      - **Keyed refinement** (`refine_provisional_cell_dependency`) of a known-immutable task: the task and the reader are locked one after the other instead of as a pair. Only the provisional edge is removed, and no hash edges are added. The miss path is unchanged.
+      - **Maintenance:** the bit is set
+        - when a task becomes immutable on completion (under the task lock);
+        - when task data with the immutable flag is restored;
+        - whenever a read or refinement finds a task immutable.
+
+      `try_task_pair(task, reader)`:
+      - opens `task` with `AllowMissing` and `reader` with `MustExist`, restoring both like `task_pair`;
+      - returns `None` for a task that is missing, missing on disk, only partially restorable, or soft-deleted, and leaves no fabricated entry or lock count behind, matching `try_task`. So a read of a collected task still fails with the same error;
+      - is shared with `task_pair` through one `open_task_pair` loop, so `task_pair` callers are unchanged.
+
+      **Invariants** the bitmap relies on (documented in the module):
+      - `immutable` only ever goes from `false` to `true`, and survives eviction and restore;
+      - task ids aren't reused (`IdFactoryWithReuse::reuse` has no callers; GC doesn't recycle ids);
+      - transient and persistent ids don't overlap, and each backend has its own bitmap.
+
+      A miss is always safe, because the normal path re-checks the flag under the lock. `contains` always returns `false` under `verify_immutable`.
+
+      ### Why: does knowing immutability before locking help?
+
+      Measured on canary [`28c81278`](https://github.com/vercel/next.js/commit/28c812788db80d6cf9300f88e4df19107bc66fb4), which includes the delayed collectible propagation (#101748) and the keyed-dependency early exit (#101736). Release native bindings and bench binaries were built separately for each arm, and all eight artifacts were checked to differ by sha256.
+
+      | Arm | Build |
+      |---|---|
+      | C | canary |
+      | L | this PR |
+      | U | this PR + #101797 |
+      | U− | U with `KnownImmutable::contains` forced to `false`, bitmap upkeep kept (measurement-only control, not committed) |
+
+      **Answer on canary alone (L vs C):**
+      - **Per-key `get` micro-benchmark:** a clear win (0.51–0.84× in the four phases that do real work: initial, change_one, change_shift, change_all). The likely reason is that mutable reads skip the speculative owner lock. The sub-millisecond `change_none` and ~150 ms `change_unread` phases are within noise (e.g. `change_none` at 16 threads is 1.53×, 0.4 → 0.6 ms).
+      - **`keyed_reader`:** neutral to slightly faster in the same four phases (0.92–1.03×). `change_unread` at 32 threads is 1.10× (0.98–1.26).
+      - **Real builds:** neutral. Compile is 0.98× cold and 1.01× warm, with overlapping ranges.
+      - **⚠️ `cell_fan_out` at width 100k regresses:** 4.20× at 16 threads and 1.37× at 32, slower in all four pairs. Widths 1k and 10k are neutral. This is new on this base (on `8d1f4ed9` it was 0.90–1.02×). A separate alternating rerun (3 pairs, 16 threads) confirmed it: L took 5.34–5.58 s per iteration vs C's 1.71–3.48 s. **I haven't established the cause.** In this benchmark, 100k mutable dependents of one cell re-read it after an invalidation. This PR takes a single pair lock section there, where canary takes a probe followed by a pair. Contention on that pair lock is a hypothesis, not a measured cause. The interaction with canary changes since `8d1f4ed9` isn't bisected either.
+
+      **Answer within the reader-first protocol (U vs U−):** see #101797. In brief: most cells show no clear difference, but a few are consistently slower with the shortcut, e.g. real cold @32 compile at 1.05× (1.02–1.09).
+
+      #### Real builds: `bench/large-app-router`, L vs C
+
+      n = 4 per arm per cell, in a balanced 4×4 Williams square (each arm once in each position). All 48 builds exited 0. Values are mean [min–max]; the ratio is the mean of per-rep paired ratios.
+
+      | Cell | Metric | C | L | L/C (paired range) |
+      |---|---|---|---|---:|
+      | cold @32 | wall (s) | 72.5 [69.9–76.9] | 69.5 [65.3–76.0] | 0.959 (0.91–0.99) |
+      | cold @32 | compile (s) | 43.6 [42.4–45.8] | 42.6 [40.7–47.1] | 0.976 (0.95–1.03) |
+      | cold @32 | main VmHWM (GiB) | 12.25 [12.23–12.26] | 12.26 [12.11–12.35] | 1.001 |
+      | cold @32 | tree peak RSS (GiB) | 20.09 [16.05–24.50] | 15.99 [15.91–16.05] | 0.829 (0.65–1.00) |
+      | cold @16 | wall (s) | 88.6 [84.7–93.3] | 86.6 [81.9–90.0] | 0.978 (0.94–1.03) |
+      | cold @16 | compile (s) | 58.9 [57.0–60.6] | 57.9 [55.2–60.7] | 0.983 (0.94–1.02) |
+      | cold @16 | main VmHWM (GiB) | 11.92 [11.80–12.04] | 11.90 [11.85–12.02] | 0.998 |
+      | cold @16 | tree peak RSS (GiB) | 16.27 [16.12–16.48] | 16.36 [16.25–16.47] | 1.005 |
+      | warm @32 | wall (s) | 32.6 [30.5–34.3] | 32.0 [30.1–33.6] | 0.985 (0.88–1.08) |
+      | warm @32 | compile (s) | 5.4 [5.2–5.7] | 5.5 [5.1–5.7] | 1.012 (0.89–1.06) |
+      | warm @32 | main VmHWM (GiB) | 5.27 [5.26–5.28] | 5.27 [5.26–5.29] | 1.001 |
+      | warm @32 | tree peak RSS (GiB) | 15.87 [15.59–16.03] | 15.77 [15.53–15.97] | 0.994 |
+
+      - **Memory gate:** a cell fails if the mean ratio is > 1.01 **and** the ranges are disjoint. It passes in every cell for both main VmHWM and tree peak RSS.
+      - **Tree-peak outliers:** two of the four **canary** cold @32 runs reached 23.74 and 24.50 GiB, against ~16 GiB for the others. So the ~24 GiB tree-peak spikes seen in earlier rounds aren't unique to this stack; their cause is unknown. The 0.83× L/C tree peak reflects those canary spikes; it isn't a memory improvement.
+
+      #### Micro-benchmarks, L vs C
+
+      n = 4, the same Williams square per cell. All 96 runs exited 0, and the benchmarks' own correctness assertions passed.
+
+      `keyed_deps` (`KEYED_DEPS_PROFILE=1`, n = 1000 readers, m = 10000 keys, shared), mean ms, L/C paired:
+
+      | Mode | Phase | 16 threads | 32 threads |
+      |---|---|---:|---:|
+      | per-key `get` | initial | 8314 → 6047 (0.731) | 10207 → 5189 (0.512) |
+      | per-key `get` | change_one | 6335 → 4838 (0.761) | 8043 → 5910 (0.739) |
+      | per-key `get` | change_shift | 14608 → 11939 (0.817) | 15700 → 13114 (0.839) |
+      | per-key `get` | change_all | 6904 → 4939 (0.717) | 8434 → 6117 (0.727) |
+      | `keyed_reader` | initial | 457 → 452 (0.988) | 452 → 463 (1.026) |
+      | `keyed_reader` | change_one | 480 → 441 (0.918) | 519 → 496 (0.958) |
+      | `keyed_reader` | change_shift | 3859 → 3683 (0.964) | 4078 → 3914 (0.968) |
+      | `keyed_reader` | change_all | 663 → 637 (0.962) | 703 → 682 (0.975) |
+
+      `cell_fan_out` (criterion point estimate per iteration, mean over reps; L/C paired):
+
+      | Width | 16 threads | 32 threads |
+      |---|---:|---:|
+      | 1k | 4.57 → 4.61 ms (1.006) | 5.19 → 5.34 ms (1.034) |
+      | 10k | 57.1 → 58.6 ms (1.027) | 68.7 → 62.7 ms (0.912) |
+      | **100k** | **1171 → 4835 ms (4.199, 3.35–4.65)** | **3572 → 4893 ms (1.368, 1.30–1.44)** |
+
+      - **Peak RSS:** keyed_deps L/C is 0.99–1.01, and `cell_fan_out` L/C is 1.00.
+
+      #### Output sanity
+
+      Fresh outputs from the four C and four L cold @32 builds, compared after the existing field-level normalization (build id, app path, per-build keys, Flight row-id relabeling): all eight canonical manifests are identical (211,210 files each). This is a check on this fixture only, not a general proof that outputs are equivalent.
+
+      #### History
+
+      On canary `8d1f4ed9` (before #101736 and #101748), the same method gave:
+      - L/C real-build compile of +4–7% (cold @32 slower in all four pairs);
+      - the same per-key `get` wins;
+      - neutral `keyed_reader` and `cell_fan_out`.
+
+      The compile slowdown doesn't reproduce on `28c81278`. The `cell_fan_out` 100k regression is new on it.
+
+      ## Verification
+
+      Rerun after rebasing onto canary `28c81278`. The rebase had no conflicts; each commit compiles on its own (`cargo check --all-targets`).
+
+      **Tests in this PR:**
+      - **`tests/known_immutable.rs` integration tests**, through the public API:
+        - an immutable task is known-immutable and its cell and output readers stay correct;
+        - cell-only and output-only readers of a mutable task are each invalidated;
+        - keyed `get` and `keyed_reader` reads of an immutable keyed cell add no hashed dependents;
+        - an immutable task collected by GC and called again re-executes under a **new** id, while cell and output reads of the old id fail even though its bit stays set.
+      - **Lock-level unit tests next to `try_task_pair`** in `operation/mod.rs`, for what the public API can't observe:
+        - a bitmap hit never opens the reader;
+        - a stale bit for a missing or soft-deleted task returns `None` and leaves no entry or pins behind;
+        - plus the `try_task_pair` and bitmap unit tests.
+
+      **Commands:**
+      - `cargo test -p turbo-tasks-backend -p turbo-tasks -p auto-hash-map` (debug) passes.
+      - `cargo test -p turbo-tasks-backend --release`: the only failure is `test_eventual_read_in_top_level_task_fails`, which fails the same way on canary `28c81278`.
+      - `cargo test -p turbo-tasks-backend --features verify_immutable --lib --test immutable_shortcut_restore --test known_immutable` passes; only the optimization-only checks are ignored.
+      - 20 release repetitions of `--lib`, `known_immutable`, `immutable_shortcut_restore`, `keyed_dependencies`, `keyed_many_changed_keys`, `collectibles_read_race`, `collectibles_pending_restart` and `invalidation`: 0 failures.
+      - `cargo clippy --all-targets -- -D warnings` (backend, `turbo-tasks`, `auto-hash-map`) and rustfmt are clean.
+
+      **Mutation checks** (from the previous round; the code is unchanged):
+      - Bypassing the bitmap-hit branch fails the "never opens the reader" test.
+      - Always dropping the reader guard on the miss path fails both the cell-only and the output-only invalidation tests.
+      - Removing the soft-deleted check in `try_task_pair` fails `try_task_pair_deleted_task_is_none`.
+
+      <!-- NEXT_JS_LLM -->
+
+
+      <!-- fleet 7d772cb1-d32e-432c-af7b-13d4bff54c18 -->
+  - number: 101797
+    owner: sokra
+    status: draft
+    head: turbo-tasks-reader-first-cell-deps
+    base: fleet/turbo-tasks-known-immutable-bitmap
+    title: "turbo-tasks-backend: register cell dependencies reader first"
+    labels: [ "created-by: Turbopack team", Turbopack ]
+    description: |-
+      ## Summary
+
+      **Stacked on #101809** (the known-immutable bitmap, split out as requested). This draft is published for discussion. **It isn't ready to merge:** against current canary, it regresses keyed_deps `keyed_reader` by 3.3–4.7× (initial, change_one and now also change_all) and per-key `get` change_one / change_all by 1.5–1.6×. It also raises their peak RSS by 13–19%.
+
+      **Stack:** `canary` ← #101809 (known-immutable bitmap, `try_task_pair`) ← this PR (reader-first cell dependency registration).
+
+      ### Results on the current stack
+
+      Measured on canary [`28c81278`](https://github.com/vercel/next.js/commit/28c812788db80d6cf9300f88e4df19107bc66fb4), which includes the delayed collectible propagation (#101748) and the keyed-dependency early exit (#101736). Release native bindings and bench binaries were built separately for each arm, and all eight artifacts were checked to differ by sha256:
+
+      | Arm | Build |
+      |---|---|
+      | C | canary |
+      | L | #101809 |
+      | U | this PR on top of #101809 |
+      | U− | U with `KnownImmutable::contains` forced to `false`, bitmap upkeep kept (measurement-only control, not committed) |
+
+      **Real builds** (`bench/large-app-router`): n = 4 per arm per cell, in a balanced 4×4 Williams square; all 48 builds exited 0. Values are mean [min–max], with paired per-rep ratios.
+
+      | Cell | Metric | C | U | **U/C** | U/L | U/U− |
+      |---|---|---|---|---:|---:|---:|
+      | cold @32 | wall (s) | 72.5 [69.9–76.9] | 72.6 [66.0–80.7] | 1.001 (0.94–1.13) | 1.048 (0.95–1.24) | 1.073 (1.00–1.17) |
+      | cold @32 | compile (s) | 43.6 [42.4–45.8] | 42.9 [39.1–45.6] | 0.984 (0.92–1.06) | 1.010 (0.91–1.12) | **1.049 (1.02–1.09)** |
+      | cold @32 | main VmHWM (GiB) | 12.25 | 12.29 | 1.004 | 1.002 | 0.989 |
+      | cold @32 | tree peak RSS (GiB) | 20.09 [16.05–24.50] | 18.21 [15.88–24.88] | 0.919 (0.68–1.02) | 1.139 (0.99–1.56) | 1.128 (0.98–1.54) |
+      | cold @16 | wall (s) | 88.6 [84.7–93.3] | 84.4 [81.1–90.0] | 0.952 (0.94–0.96) | 0.974 (0.93–1.01) | 1.011 |
+      | cold @16 | compile (s) | 58.9 [57.0–60.6] | 57.0 [55.3–60.4] | 0.967 (0.95–1.00) | 0.985 (0.92–1.02) | 1.018 |
+      | cold @16 | main VmHWM (GiB) | 11.92 | 11.98 | 1.005 | 1.007 | 0.998 |
+      | cold @16 | tree peak RSS (GiB) | 16.27 | 16.51 | 1.014 | 1.009 | 1.003 |
+      | warm @32 | wall (s) | 32.6 [30.5–34.3] | 32.6 [30.3–35.1] | 1.004 (0.91–1.12) | 1.021 (0.92–1.13) | 1.042 |
+      | warm @32 | compile (s) | 5.4 [5.2–5.7] | 5.5 [5.0–5.9] | 1.016 (0.92–1.15) | 1.005 (0.87–1.08) | 1.007 |
+      | warm @32 | tree peak RSS (GiB) | 15.87 | 15.78 | 0.994 | 1.001 | 0.997 |
+
+      (L values are in #101809.)
+
+      - **Timing vs canary:** U/C compile is 0.97–1.02 across cells. Cold @16 was faster than canary in all four pairs (compile 0.95–1.00, wall 0.94–0.96); the other cells' ranges straddle 1.
+      - **Tree-peak outliers:** one U cold @32 run reached **24.88 GiB**, against ~16 GiB for the others. Two of the four **canary** runs in the same cell did the same (23.74 and 24.50 GiB). So these spikes aren't unique to this stack, but their cause is unknown. This doesn't show that the stack doesn't contribute, or that the earlier 25.35 / 24.00 GiB outliers had the same cause, so **memory neutrality isn't established.**
+
+      **Micro-benchmarks:** n = 4, the same Williams square per cell; all 96 runs exited 0, and the benchmarks' correctness assertions passed. Paired ratios at 16 / 32 threads:
+
+      | Benchmark | Phase | **U/C** | U/L | U/U− |
+      |---|---|---:|---:|---:|
+      | keyed_deps `keyed_reader` | initial | **3.27 / 3.54** | 3.33 / 3.46 | 1.03 / 1.08 |
+      | keyed_deps `keyed_reader` | change_one | **4.71 / 4.07** | 5.13 / 4.26 | 1.13 / 0.97 |
+      | keyed_deps `keyed_reader` | change_shift | 0.88 / 0.77 | 0.91 / 0.80 | **1.13 (1.04–1.21)** / 1.00 |
+      | keyed_deps `keyed_reader` | change_all | **4.44 / 4.16** | 4.61 / 4.28 | 1.00 / 1.02 |
+      | keyed_deps per-key `get` | initial | 1.12 / 0.91 | 1.54 / 1.77 | 1.02 / 0.99 |
+      | keyed_deps per-key `get` | change_one | 1.59 / 1.45 | 2.10 / 1.96 | 1.06 / 1.01 |
+      | keyed_deps per-key `get` | change_shift | 0.89 / 0.93 | 1.09 / 1.11 | 1.06 / 1.01 |
+      | keyed_deps per-key `get` | change_all | 1.56 / 1.48 | 2.18 / 2.03 | 0.98 / 1.01 |
+      | cell_fan_out | width 100k | 1.45 (0.73–2.78) / 0.98 | 0.34 / 0.72 | 1.75 (0.91–3.69) / 1.08 |
+      | cell_fan_out | widths 1k / 10k | 0.89–1.10 | 0.89–1.07 | 1.00–1.12 |
+
+      - **Peak RSS, U/C:** keyed_deps 1.13–1.19 (except per-key `get` at 32 threads, 1.00), cell_fan_out 1.10 / 1.18. U/L is similar, and U/U− is 0.94–1.01.
+      - **`change_all` on this base:**
+        - #101736 made canary's `keyed_reader` `change_all` drop from ~32.8 s to ~0.66 s (~50×), by stopping the keyed check once a dependent is stale.
+        - This PR benefits too, but less: ~34.8 s → ~2.9 s (~12×).
+        - So the regression vs canary grew from ~1.06× to 4.2–4.4×. Per-key `get` `change_all` is 1.5–1.6× vs canary.
+      - **`cell_fan_out` at width 100k:** U/L looks like a win, but that's mostly because #101809 regresses this cell on this base (L/C 4.2× / 1.37×; see #101809). Against canary, U is 1.45× at 16 threads (very noisy, 0.73–2.78) and 0.98× at 32.
+
+      **Does knowing immutability before locking help inside reader-first (U vs U−)?**
+      - Most cells overlap 1 and show no clear difference.
+      - **A few were slower with the shortcut in all four pairs:**
+        - real cold @32 compile, 1.049 (1.02–1.09);
+        - `keyed_reader` change_shift at 16 threads, 1.13 (1.04–1.21);
+        - cold @32 wall, 1.073 (1.00–1.17).
+      - `cell_fan_out` peak RSS at 16 threads was consistently lower with it (0.94, 0.90–0.97).
+      - With n = 4 this doesn't establish a cause, but the shortcut isn't shown to help, and the evidence leans slightly against it.
+      - The `cell_fan_out` 100k timing is too noisy to tell (0.91–3.69).
+      - U− keeps the bitmap upkeep, so this isolates the early-knowledge shortcut, not the total cost of the bitmap.
+
+      ### History: earlier bases, not re-measured
+
+      | Base | Result |
+      |---|---|
+      | `ef97226c` (3 alternating pairs) | `bench/large-app-router` cold @32: wall +12.3% (77.83 → 87.43 s), compile +13.0% (49.89 → 56.37 s) |
+      | `ef97226c` | keyed_deps `keyed_reader`: change_one 3.4–5×, peak RSS +14–32% |
+      | `8d1f4ed9` (same method as above) | U/L real-build compile within ±4%; `keyed_reader` initial 3.2–3.4×, change_one 3.9–4.6×, change_all 1.06× |
+
+      The likely cause of the keyed regressions is the interaction with #101489's flat `EdgeSet`s. That's inferred from the code; I haven't profiled it on this base:
+      - canary only pushes an owner-side reverse edge after a lock-protected forward-edge check;
+      - this protocol must make sure the owner has the dependent even when the reader's edge was already current, so it checks membership on the owner;
+      - on a hot owner with a large flat set, that inflates the set to a hash table.
+
+      The remaining `change_all` gap would fit the same picture: #101736 removed per-key scans in invalidation, which helps both, but not the owner-side membership work this protocol adds on re-execution. That's a hypothesis, not measured.
+
+      ## What changes
+
+      Cell reads and keyed provisional refinement no longer lock the reader and the owner at the same time:
+
+      1. **Reader section:** mark the forward dependency current. This is skipped for a known-immutable owner (bitmap from #101809).
+      2. **Owner section:** add the reverse dependent if it's missing, and read/observe the cell in the same section.
+      3. **Rules:**
+         - Every owner step makes sure the dependent is there, even if the reader step said the edge was already current.
+         - A reader mark is rolled back only for an immutable or deleted owner.
+         - Failed, missing, in-progress and recompute paths keep their mutable edges (a conservative superset).
+         - Removing edges stays owner-first.
+
+      Keyed refinement:
+      1. The reader marks the hash keys (skipped for a known-immutable owner).
+      2. The owner adds the hash reverse edges and, only if content is present, then removes the provisional dependent.
+      3. The reader removes the provisional dependency.
+
+      When refinement is refused, the provisional edge is kept and the hash edges stay as a superset.
+
+      This replaces #101809's cell-read and refinement uses of the bitmap in the same functions; the bitmap now skips step 1.
+
+      **Unchanged:**
+      - Output reads keep #101809's shared helper: a bitmap hit locks the owner alone, a miss takes `try_task_pair`.
+      - Strong output reads, collectible reads and completion-time conversion still lock both tasks together.
+      - GC, eviction, cleanup and root disposal are unchanged.
+
+      **Interaction with canary changes:**
+      - **#101732:** this PR replaces its hash-key loop in `refine_provisional_cell_dependency`. The cloneable, distinct-key `IntoIterator` API is kept, and its `keyed_dependencies` tests pass unchanged.
+      - **#101733:** its premise changes, since owner registration is no longer push-only.
+      - **#101736:** its early exit in `invalidate_cell_dependents` still applies. Reader-first marks the reader's forward edge before the owner registers the dependent, which is what that check reads.
+      - **#101748:** collectible propagation and reads stay pair-locked here, so its staging is unaffected.
+
+      ## Verification
+
+      Rerun at this tip on top of #101809, after rebasing the stack onto canary `28c81278`. The rebase had no conflicts.
+      - `cargo test -p turbo-tasks-backend -p turbo-tasks -p auto-hash-map` (debug) passes.
+      - `cargo test -p turbo-tasks-backend --release` fails only `test_eventual_read_in_top_level_task_fails`, which fails the same way on canary `28c81278`.
+      - `cargo test -p turbo-tasks-backend --features verify_immutable --lib --test immutable_shortcut_restore --test known_immutable` passes; the optimization-only checks are ignored.
+      - 20 release repetitions of 10 targets, 0 failures: `--lib`, `known_immutable`, `immutable_shortcut_restore`, `keyed_dependencies`, `keyed_many_changed_keys`, `collectibles_read_race`, `collectibles_pending_restart`, `invalidation`, the protocol checker (`dependency_order_model`) and `cell_read_stress`.
+      - Clippy (`--all-targets -D warnings`) and rustfmt are clean.
+
+      **Tests in this PR:**
+      - **Exhaustive protocol checker:** covers one and two same-edge reads, re-execution and post-completion writes. It catches both negative controls: owner-first ordering, and skipping the owner insert on "already current".
+      - **Deterministic interleaving tests** on the real backend: writer between/after the steps, outdated edges, concurrent same-edge reads, TrackOnlyError retry, missing/in-progress/recompute paths, `final_read_hint`, immutable rollback, and refinement with/without keys, refused, and with an immutable owner.
+      - **Stress:** 16 and 32 actual Tokio worker threads with GC and eviction.
+
+      **Output equivalence:** on this base, #101809 re-checked its own layer (C vs L cold @32 manifests identical). For this PR, it was checked before the split, on `ef97226c` (`bench/large-app-router` cold / warm / C1000 trigger and `bench/nested-deps` cold): there were no differing normalized files between canary runs or between canary and this PR, and the C1000 sensitivity check still detected the expected differences. U outputs weren't re-compared on this base.
+
+      <!-- NEXT_JS_LLM -->
+
+
+      <!-- fleet 7d772cb1-d32e-432c-af7b-13d4bff54c18 -->
+oven-sh/bun:
+  - number: 49197
+    owner: alii
+    status: open
+    review: review_required
+    head: ali/valkey-small-fixes
+    base: main
+    title: "redis: --redis-preconnect makes one quiet attempt, and why the client connects is part of its state"
+    description: |-
+      **Do not merge yet.** The states are being modelled again, in a PR without behaviour changes that goes under this one.
+
+      ### What does this PR do?
+
+      `--redis-preconnect` called `connect()` and dropped the promise, so a failure killed the program with a rejection that it could not catch. It now behaves like `--fetch-preconnect`: one quiet attempt that does not hold the process, and the first use dials again.
+
+      - `State` is `Idle`, `Active { phase, purpose }` or `Closed`, and `Purpose` is `Preconnect` or `Asked { retries }`. The field `retries` is gone from `Client`.
+      - The fix itself: `preconnect()`, `claim()` and the first arm of `lost()`. The rest of the diff of `client.rs` follows the new shape.
+      - A command, `connect()`, `close()` or setting `onconnect` or `onclose` to a function claims the client. From then on it behaves as without the flag.
+      - No panic site or `unsafe` added. `lost()` still has an arm for `Idle` and `Closed`, where it cannot be called.
+
+      | server, program | `--fetch-preconnect` | `--sql-preconnect` | Redis before | Redis now |
+      | --- | --- | --- | --- | --- |
+      | down, client unused | exits at once | exits at once | exits 1 after 31 s | exits at once |
+      | silent, client unused | exits at once | waits for its timeout | exits 1 after 10 s | exits at once |
+      | comes up later, client unused | no second dial | no second dial | dials again | no second dial |
+      | comes up later, then the first use | dials | dials | uses the retry, or waits up to 2 s for it | dials |
+
+      **What can break** (only with the flag, and only after the attempt failed or the unused connection dropped)
+
+      - **A program that only polls `connected`, or sets a handler after the failure, is not connected until it sends a command or calls `connect()`.**
+      - Nothing is printed, and there is no `unhandledRejection`. A wrong password shows at the first command.
+      - `close()` does nothing then, so a later command dials.
+
+      **Performance**, instructions, with the PRs stacked on it, on the previous commit: GET -1.7%, SET -0.8%, message -2.0%.
+
+      ### How did you verify your code works?
+
+      - Linux x64, debug + ASAN, on this branch alone: nine files of `test/js/valkey`, 37 Rust tests and clippy pass. "should handle connection timeout" needs a network that drops packets.
+      - Without the flag: 4.8 million random programs match the state machine before, and 550 runs match main. With it: 650 runs without an unsettled promise, a second `onclose` or an ASAN report.
+      - Six mutants of the new transitions fail a Rust test. No existing assertion changed.
+      - CI only: macOS, Windows, `--trim`.
+
+
+      ---
+      _Generated by [Claude Code](https://claude.ai/code)_
+  - number: 49210
+    owner: alii
+    notes: Covers the reconnect bugs from the Valkey report.
+    status: open
+    head: ali/redis-connection
+    base: ali/valkey-small-fixes
+    title: "redis: fix the handshake, reconnects, credentials and connection options"
+    description: |-
+      Stacked on #49197.
+
+      ### What does this PR do?
+
+      Fixes #23790. Replaces #41829, #42054 (Redis part), #46382 (flag and JSDoc only). Takes ideas and tests from #41967, #41645, #41795, #41552.
+
+      | Situation | Before | After |
+      | --- | --- | --- |
+      | `connect()` to `/99`, refused | resolves, the next `set()` writes to db 0 | rejects, nothing is written |
+      | `select(5)`, then an automatic reconnect | URL's database | 5 |
+      | Automatic reconnect times out, is cut in the TLS handshake, or gets `LOADING`, `BUSY`, `MASTERDOWN`, `TRYAGAIN`, `max number of clients` | client ends | one attempt of `maxRetries` |
+      | The same before the first connection, or once script calls `connect()` | client ends | unchanged |
+      | `redis://jos%E9:pw@host` | logs in as `default` | sends the bytes |
+      | Empty `REDIS_URL` or `VALKEY_URL` | throws | unset |
+      | `tls.checkServerIdentity` | ignored, throws as the only option | called before HELLO, also for `duplicate()` |
+      | `BUN_FEATURE_FLAG_DISABLE_REDIS_AUTO_PIPELINING` without options | ignored | applied |
+      | Unknown scheme error | names 7 schemes | names 10 |
+
+      No new field on `Client`: `Purpose` gains `Reconnect`, and the database that script selected lives in `State::Active`. `URL__username` and `URL__password` now return encoded text; Redis is the only caller. The SQL `server_identity` helpers only became `pub`. The constructor makes its object itself to store the callback, so the table of built-ins no longer calls it fresh, as before #49184.
+
+      **What can break**
+
+      - With a database, `connected` turns true one reply later, and `connectionTimeout` covers SELECT.
+      - An automatic reconnect keeps the selected database, also after `QUIT`. After `close()`, a failure, `RESET`, or a SELECT of another database that was inside MULTI or got no reply, the next connection uses the URL's.
+      - URL `/1`, `select(5)`, a drop, a `select(1)` that is rejected because there is no offline queue: the reconnect is on 5. It was on 1.
+      - A selected database that the server later refuses ends the client. `connect()` then uses the URL's. If the refusal is `NOPERM`, the client goes on in the URL's database instead, as before, and runs the queued commands there: `onconnect` has to run for script to authenticate.
+      - Queued commands, `onclose` and the exit of the process wait through busy or silent reconnects: up to about 231 s with the defaults, where a silent server ended the client after 10 s. `connect()` does not wait.
+      - After `select(n)`, a reconnect during a long script gets `BUSY` for its SELECT and cannot send `SCRIPT KILL`.
+      - Non-UTF-8 credentials that logged in as `default` can get `WRONGPASS`.
+      - A program that caught the error for an empty `REDIS_URL` now dials `VALKEY_URL` or `localhost:6379`.
+      - An ignored `checkServerIdentity` now replaces the name check. One that returns `true` or a promise fails the connection. A unix socket passes `localhost`. It gets the leaf certificate without `issuerCertificate`, and no `this`, as in `fetch` and SQL: a pin on the issuer refuses.
+      - Types: a callback typed `() => void` or `() => null` is refused.
+      - With it, TLS 1.2 sends the client certificate before the name is refused.
+
+      **Left out**
+
+      - Tracking SELECT inside MULTI.
+      - #41869, reading the live `process.env`: a program that changes it, or a Worker with its own `env`, would silently write to another server.
+      - #48431, `null` for unset handlers: `client.onclose === undefined` has to stay true. `this` in `onconnect` stays `undefined` too.
+      - The one-at-a-time mode of #46382.
+
+      **Performance**
+
+      | Instructions per operation | Before | After |
+      | --- | --- | --- |
+      | Pipelined GET | 4,608 | 4,640 |
+      | Serial SET | 8,023 | 8,059 |
+      | Message delivery | 3,943 | 3,895 |
+      | Pipelined EXISTS (names of 5 or 6 letters make one more call) | 3,923 | 3,941 |
+      | `close()` and `connect()` | 27,056 | 27,055 |
+      | Constructor with credentials | 5,542 | 5,694 |
+      | Binary (CI, with #49200 and #49197): linux-x64, darwin-aarch64, windows-x64 | | +12.0, +0.0, +9.5 KB |
+
+      GET and SET move with allocator purges (+39 and +56 here); an earlier run gave -0.3% and -0.5%. The three middle rows were measured before the last commit.
+
+      ### How did you verify your code works?
+
+      - Linux, debug with ASAN: `test/js/valkey` and the covering files pass. 28 tests fail on the parent.
+      - "should handle connection timeout" fails on both sides when 192.0.2.1 is refused at once.
+      - One test of `isolation.test.ts` ("patches a global class") times out in debug on both sides and passes in release.
+      - Redis 7.0.15 with `maxclients 1`, TCP and TLS: the parent ends, this reconnects.
+      - Against the version with flags, 2.4 million random programs differ only in the row above on `NOPERM`.
+      - 42 Rust tests of `bun_valkey` pass.
+      - 150 random scenarios against the parent: 10 have a database and connect one reply later, 9 differ in a port or path only.
+      - 132 exit scenarios: one differs, a pending SELECT holds the process.
+      - Clippy passes. Windows and macOS are type-checked only. CI covers clang-format and `bun-types.test.ts`.
+      - Changed assertions: `connect()` rejects in "a rejected SELECT after an accepted HELLO". In Rust: `timeouts`, `replies`, `no_offline_queue`, `a_batch_waits_for_select` and `retries_start_over_when_the_handshake_is_complete` follow the first row.
+
+
+      ---
+      _Generated by [Claude Code](https://claude.ai/code)_
+  - number: 49214
+    owner: alii
+    status: open
+    head: ali/redis-pubsub
+    base: ali/redis-connection
+    title: "redis: subscriptions survive a reconnect, and a failed subscribe() leaves nothing behind"
+    description: |-
+      Stacked on #49210.
+
+      ### What does this PR do?
+
+      Subscriptions survive a reconnect, and a failed `subscribe()` leaves nothing behind. Part of #29042. Replaces #48842. Covers the closed #33290.
+
+      | Call or situation | Before | After |
+      |---|---|---|
+      | Reconnect, or `close()` then `connect()` | listeners go silent | channels are subscribed again, ahead of any other command; `connect()`, `onconnect` and `connected` do not wait |
+      | Server refuses a channel while restoring | n/a | a process warning names the channel and the error; the channel stays silent until the next connection |
+      | `subscribe([a, b])` or `unsubscribe()`, then another subscription call | it takes a surplus acknowledgement; messages are dropped | each call gets its own |
+      | `subscribe()` refused, dropped or closed | listener stays: process hangs, or double delivery later | listener removed |
+      | `subscribe([a, null])`, `unsubscribe([a, null])` | throws half way | throws before any change |
+      | `unsubscribe()` while `subscribe()` is pending | throws | removes its listener |
+      | `psubscribe()`, then a drop | `get()` throws, an error reply fails the connection | an ordinary client again |
+      | Number, Buffer or lone surrogate as channel in an array | never delivered | delivered |
+      | Buffer that is not UTF-8 in `subscribe([...])` | resolves, never delivered | throws |
+      | Subscribing after `HELLO 2` or `RESET` | resolves, delivers nothing, replies shift | connection fails: "Subscriptions need RESP3" |
+      | `unsubscribe(ch, listener, extra)` | removes every listener | removes that one |
+      | `unsubscribe(ch, undefined)` | throws | same as `unsubscribe(ch)` |
+
+      **What can break**
+
+      - A registered listener is restored, also after a raw `UNSUBSCRIBE`, `RESET`, `QUIT`, `close()` or a `subscribe()` inside `MULTI`, even a discarded one. `get()` then throws.
+      - A second client made in `onconnect` with the same listener, the first left open, now delivers twice.
+      - After a reconnect, commands that are not pipelined (`AUTH`, `MULTI`, `SUBSCRIBE`, ...) are written once the restore is answered: one round trip later.
+      - A server or mock that does not answer the restoring `SUBSCRIBE` leaves later commands unanswered, or has their replies taken for its own. One that drops the connection on it uses up the retries and ends the client. One that sends an error nobody asked for during the restore lets a queued `subscribe()` resolve although it is refused; the connection then fails.
+      - A publisher that outruns the listeners starves timers, as before, but sooner after a restore. With 20,000 channels, a 0.2 ms listener and a raw `SUBSCRIBE` in `onconnect`, a 1 s timer fired after 2.3-2.5 s in 1.4.4 (3 of 3 runs, over 12 s in others) and not within 5 s here (3 of 3). Without a reconnect both are equal.
+      - The warning: one line for each refused channel and reconnect, also for a program that sends `AUTH` and subscribes in `onconnect`. Like every process warning, it ends a program whose stderr is broken (#37347).
+      - `unsubscribe()` throws only on a client that never subscribed. Otherwise it resolves, or rejects when closed: a `try` without `await` misses that. With the server down and `subscribe()` still pending, it waits out the retries.
+      - A `subscribe()` that is acknowledged after its listener was removed, with no `UNSUBSCRIBE` sent, resolves 0 and stays in subscriber mode until `unsubscribe()`.
+      - A raw `SUBSCRIBE` does not revive the listener of a failed `subscribe()`.
+      - Servers or mocks that acknowledge `SUBSCRIBE` with an array fail the connection.
+      - A peer that acknowledges fewer names than asked (Redis does not) shifts the replies by one once a later request names a missing one.
+      - `send("UNPSUBSCRIBE")`, not a Redis command, is now pipelined.
+
+      **Left out**
+
+      - RESP2 delivery (#29050), and `HELLO 2` on a client that already subscribed.
+      - Restoring pattern, shard and raw subscriptions.
+      - Retrying a refused channel. Two designs were built and dropped. A redial ended clients that connect today while the server is busy. A SUBSCRIBE on the same connection landed inside `MULTI` and aborted the transaction.
+      - Waiting for the restore in `connect()`: a message published right after it can be missed. `await client.ping()` waits.
+      - Subscribing inside `MULTI`: with several channels a surplus acknowledgement answers the next request, as before. New: if that request is `unsubscribe()` without arguments, subscriber mode stays on until a second `unsubscribe()`. If it names the channels and the server refuses a pipelined subscription behind it, the replies in flight shift by one, where the connection failed.
+      - An `UNSUBSCRIBE` acknowledgement that finds no listener ends subscriber mode although another `UNSUBSCRIBE` is in flight, as before.
+      - `subscribeBuffer()`.
+      - `onconnect = () => client.subscribe(...)` still adds a listener each time.
+      - The throw for a second function in #48842.
+
+      **Performance**
+
+      The first four rows and the size are against #49210, the others against its base, on an earlier commit. Instructions per operation, one run; the allocator's share moves by up to 600.
+
+      | Case | Before | After |
+      |---|---|---|
+      | pipelined GET | 4,600 | 4,608 |
+      | serial SET | 7,954 | 8,002 |
+      | message delivery (4 longer runs) | 4,617 | 4,638 (+0.5%) |
+      | subscribe + unsubscribe | 18,262 | 20,351 |
+      | close + connect | 27,289 | 27,458 |
+      | `subscribe()` of 200,000 channels, time in the call | 78-103 ms | 104-169 ms |
+      | 40,000 pending `subscribe()` calls on one channel, all refused | 1.5 s | 10.8 s (quadratic) |
+      | `connect()` and `ping()` with 100,000 channels to restore | 59 ms (none restored) | 164 ms |
+      | binary (CI): linux-x64, darwin-aarch64, windows-x64 | | +24.0, +32.3, +31.5 KB |
+
+      No new `unsafe` or panic site.
+
+      ### How did you verify your code works?
+
+      - All of `test/js/valkey` under ASAN, `bun_valkey` tests, clippy, source lints, type checks for Windows, macOS and FreeBSD.
+      - Repros on Redis 7.0.15, a model fuzzer over the client (3.2 million programs), and a comparison with #49210 (60 random scenarios, 132 exit cases, the bytes of every method): only listed changes differ.
+      - 32 of the 36 new JS tests on a mock server fail before. Four pin what already works. One more runs on a real server.
+      - One test of `test/cli/test/isolation.test.ts` times out on both debug builds. CI only: running on Windows and macOS, the types test.
+      - Changed: surplus acknowledgements log "ignored" (two Rust tests); `subscriber_mode_outlasts_the_connection` became rows of `modes`; one `test.todo` is enabled (it passed already).
+      - Changed, as in #49178: `valkey-gc.test.ts` "keeps an unreferenced client alive until onclose" wanted 0 of 20 clients left and saw 1 on Linux arm64. It now wants that none has an incoming edge or a root in the heap snapshot, and that at most one is left. Traced in build 142670: no edge, no root, one word in the live `VM::drainMicrotasks` frame holds the address. With that word zeroed, the client is collected.
+
+
+      ---
+      _Generated by [Claude Code](https://claude.ai/code)_
+anomalyco/opentui:
+  - number: 2114
+    owner: simonklee
+    status: open
+    head: harden/gh-2062-border-per-side
+    base: main
+    title: "native: style and color box border sides separately"
+    description: |-
+      A box drew one border style and one color on all four sides. A double top line over a single frame, or one colored
+      edge, needed nested boxes, and nested boxes cannot share a corner cell. nwidynski raised this while compiling CSS
+      to OpenTUI properties, where `border-top-style` and `border-top-color` had no one-box equivalent.
+
+      Native boxes now take per-side overrides through `ot_scene_set_box_sides`, and Rust's `View` gets
+      `border_style_for` and `border_color_for`. A side without an override keeps the box's style and color. Where unlike
+      styles meet, the corner uses Unicode's mixed single/double or light/heavy glyph, otherwise the top or bottom
+      side's, in that side's color. Custom glyphs and the focus color still win. Existing calls, records and Rust struct
+      literals are unchanged; Zig code that reads a scene node's box details through `Context.raw()` now reads
+      `control.box.details`. Core's Box props follow separately.
+
+      Boxes without overrides cost no more than on main: eight measured frames of 154 boxes (all, one or no borders,
+      translucent, titled) use as many instructions or fewer, and node, details, app and view sizes and their heap bytes
+      match. A box with overrides allocates 56 bytes.
+
+      Native tables cover every style pair at each corner, sides off, colors, focus and a translucent side; Rust tests
+      drive `View`.
+
+      Refs #2062
+  - number: 2115
+    owner: simonklee
+    status: open
+    head: harden/gh-2062-border-per-side-core
+    base: harden/gh-2062-border-per-side
+    title: "core: style and color box border sides separately"
+    description: |-
+      A box drew one border style and one color on all four sides. A double top line over a single frame, or one colored
+      edge, needed nested boxes, and those cannot share a corner. nwidynski asked for this to map CSS's `border-top-style`
+      and `border-top-color` onto one box.
+
+      Box and the ScrollBox root now take `borderTopStyle`, `borderRightStyle`, `borderBottomStyle`, `borderLeftStyle`,
+      `borderTopColor`, `borderRightColor`, `borderBottomColor` and `borderLeftColor`, as options, properties, and React and
+      Solid props or style keys. A side without one uses `borderStyle` and `borderColor`, so clearing it shows the current
+      base. They draw no side: `border` still chooses sides. Unlike sides meet in Unicode's mixed corners, titles take their
+      side's color, and custom glyphs and the focus color still win. Existing props, getters and types are unchanged. The Box
+      docs describe the rules.
+
+      Boxes without overrides cost the same: no native call, no per-box record, equal instructions per frame for 154 boxes
+      and equal heap per box.
+
+      Core rows cover each longhand against a changed base, focus, titles, custom glyphs and the ScrollBox root; React and
+      Solid rows set and clear them; a shared conformance file makes Rust's `View` draw the same frames.
+
+      Stacked on #2114.
+
+      Fixes #2062
