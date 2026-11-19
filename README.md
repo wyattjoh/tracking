@@ -86,7 +86,7 @@ The optional top-level `view` key holds the interactive view's grouping and filt
 
 ## Agent skill
 
-`skills/tracking/` contains an agent skill that loads a `TRACKING.yaml` as working context through the JSON output.
+`skills/tracking/` contains an agent skill that loads a `TRACKING.yaml` as working context through the JSON output. It takes an optional project or file (`/tracking <project>` in Claude Code); without one it uses the nearest `TRACKING.yaml`, or asks which project to use.
 
 ## Development
 
