@@ -1,5 +1,7 @@
 import { afterEach, expect, test } from "bun:test";
 import { testRender } from "@opentui/react/test-utils";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { act } from "react";
 import type { Project } from "../src/projects.ts";
 import { ProjectPicker } from "../src/tui/ProjectPicker.tsx";
@@ -14,6 +16,7 @@ afterEach(() => {
 const projects: Project[] = [
   { slug: "oss", path: "/config/tracking/oss.yaml" },
   { slug: "work", path: "/config/tracking/work.yaml" },
+  { slug: "home", path: join(homedir(), ".config", "tracking", "home.yaml") },
 ];
 
 const render = async () => {
@@ -43,6 +46,7 @@ test("lists each project with its file", async () => {
   expect(text).toContain("Projects");
   expect(text).toContain("oss");
   expect(text).toContain("/config/tracking/work.yaml");
+  expect(text).toContain("~/.config/tracking/home.yaml");
 });
 
 test("enter opens the project under the cursor", async () => {
