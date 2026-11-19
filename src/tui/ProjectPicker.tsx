@@ -4,7 +4,7 @@
 import type { ScrollBoxRenderable } from "@opentui/core";
 import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 import { useEffect, useRef, useState } from "react";
-import type { Project } from "../projects.ts";
+import { displayPath, type Project } from "../projects.ts";
 import { theme } from "./theme.ts";
 
 /**
@@ -81,7 +81,7 @@ export const ProjectPicker = ({ projects, onPick, onCancel }: ProjectPickerProps
               {project.slug}
             </text>
             <text wrapMode="none" truncate flexShrink={1} fg={theme.dim}>
-              {project.path}
+              {displayPath(project.path)}
             </text>
           </box>
         ))}

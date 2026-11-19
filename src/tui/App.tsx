@@ -6,6 +6,7 @@ import type { MouseEvent, ScrollBoxRenderable } from "@opentui/core";
 import { useKeyboard, useRenderer, useSelectionHandler, useTerminalDimensions } from "@opentui/react";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LiveFetcher, LiveMap } from "../github.ts";
+import { displayPath } from "../projects.ts";
 import { type Change, driftFields } from "../sync.ts";
 import { type PrNode, prUrl, type Tracking } from "../tracking.ts";
 import {
@@ -473,7 +474,7 @@ export const App = ({ initial, fetchLive, sync, reload, fetchViewer, saveView }:
           <FetchLabel state={fetchState} />
         </text>
         <text wrapMode="none" truncate flexShrink={1} fg={theme.dim}>
-          {tracking.path}
+          {displayPath(tracking.path)}
         </text>
       </box>
       <box

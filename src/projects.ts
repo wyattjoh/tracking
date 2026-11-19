@@ -4,7 +4,7 @@
 
 import { readdir } from "node:fs/promises";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 import { findTrackingFile, resolveLocalPath } from "./tracking.ts";
 
 /**
@@ -13,6 +13,18 @@ import { findTrackingFile, resolveLocalPath } from "./tracking.ts";
 export type Project = {
   slug: string;
   path: string;
+};
+
+/**
+ * Shorten a path for display, writing the home directory as `~`.
+ *
+ * @param path - An absolute path
+ * @param home - The home directory, `homedir()` by default
+ * @returns The path with a leading home directory replaced by `~`
+ */
+export const displayPath = (path: string, home: string = homedir()): string => {
+  if (path === home) return "~";
+  return home && path.startsWith(home + sep) ? `~${path.slice(home.length)}` : path;
 };
 
 /**

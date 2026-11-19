@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { mkdir, mkdtemp, realpath, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
-import { configDir, isPathArg, listProjects, resolveTarget, slugError } from "../src/projects.ts";
+import { configDir, displayPath, isPathArg, listProjects, resolveTarget, slugError } from "../src/projects.ts";
 
 const tempDirs = async () => {
   const root = await realpath(await mkdtemp(join(tmpdir(), "tracking-projects-")));
@@ -12,6 +12,13 @@ const tempDirs = async () => {
   await mkdir(cwd, { recursive: true });
   return { root, dir, cwd };
 };
+
+test("displayPath writes the home directory as ~", () => {
+  expect(displayPath("/home/me/.config/tracking/oss.yaml", "/home/me")).toBe("~/.config/tracking/oss.yaml");
+  expect(displayPath("/home/me", "/home/me")).toBe("~");
+  expect(displayPath("/home/meadow/TRACKING.yaml", "/home/me")).toBe("/home/meadow/TRACKING.yaml");
+  expect(displayPath("/srv/TRACKING.yaml", "/home/me")).toBe("/srv/TRACKING.yaml");
+});
 
 test("configDir honours XDG_CONFIG_HOME and falls back to ~/.config", () => {
   expect(configDir({ XDG_CONFIG_HOME: "/xdg" })).toBe("/xdg/tracking");
